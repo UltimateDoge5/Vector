@@ -1,13 +1,13 @@
+import { relations } from "drizzle-orm";
 import {
   bigint,
   boolean,
   int,
   mysqlEnum,
-  mysqlTableCreator,
+  mysqlTable,
   timestamp,
   varchar,
 } from "drizzle-orm/mysql-core";
-export const mysqlTable = mysqlTableCreator((name) => `${name}`);
 
 export const Assignment = mysqlTable("assignment", {
   id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
@@ -25,7 +25,8 @@ export const Exemptions = mysqlTable("exemption", {
 
 export const Schedule = mysqlTable("schedule", {
   id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
-  classId: bigint("id", { mode: "number" }).notNull(),
+  classId: bigint("classId", { mode: "number" }).notNull(),
+  teacherId: bigint("teacherId", { mode: "number" }).notNull(),
   lessonId: bigint("lessonId", { mode: "number" }).notNull(),
   dayOfWeek: int("day_od_week").notNull(),
   index: int("index").notNull(),
@@ -33,7 +34,7 @@ export const Schedule = mysqlTable("schedule", {
 
 export const Grade = mysqlTable("grade", {
   id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
-  studentId: bigint("id", { mode: "number" }).notNull(),
+  studentId: bigint("studentId", { mode: "number" }).notNull(),
   lessonId: bigint("lessonId", { mode: "number" }).notNull(),
   grade: int("grade").notNull(),
   weight: int("weight").notNull(),
@@ -42,7 +43,8 @@ export const Grade = mysqlTable("grade", {
 });
 
 export const Presence = mysqlTable("presence", {
-  tableId: bigint("id", { mode: "number" }).primaryKey().notNull(),
+  id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
+  tableId: bigint("tableId", { mode: "number" }).notNull(),
   studentId: bigint("studentId", { mode: "number" }).notNull(),
   date: timestamp("date", { mode: "date" }).notNull(),
   status: mysqlEnum("status", [
@@ -79,3 +81,73 @@ export const Student = mysqlTable("student", {
   email: varchar("email", { length: 255 }).notNull(),
   phoneNumber: varchar("phone_number", { length: 255 }).notNull(),
 });
+
+export const teacherRelations = relations(Teacher, ({ one }) => ({
+  class: one(Class, {
+    fields: [Teacher.classId],
+    references: [Class.id],
+  }),
+  schedule: one(Schedule),
+  assignments: one(Assignment),
+}));
+
+export const classRelations = relations(Class, ({ many, one }) => ({
+  teacher: one(Teacher, {
+    fields: [Class.teacherId],
+    references: [Teacher.id],
+  }),
+  students: many(Student),
+  schedule: many(Schedule),
+  assignments: many(Assignment),
+}));
+
+export const studentRelations = relations(Student, ({ many, one }) => ({
+  class: one(Class, {
+    fields: [Student.classId],
+    references: [Class.id],
+  }),
+  grades: many(Grade),
+  presences: many(Presence),
+}));
+
+export const scheduleRelations = relations(Schedule, ({ one }) => ({
+  class: one(Class, {
+    fields: [Schedule.classId],
+    references: [Class.id],
+  }),
+  lesson: one(Lesson, {
+    fields: [Schedule.lessonId],
+    references: [Lesson.id],
+  }),
+  teacher: one(Teacher, {
+    fields: [Schedule.teacherId],
+    references: [Teacher.id],
+  }),
+}));
+
+export const lessonRelations = relations(Lesson, ({ many }) => ({
+  schedule: many(Schedule),
+  grades: many(Grade),
+}));
+
+export const gradeRelations = relations(Grade, ({ one }) => ({
+  student: one(Student, {
+    fields: [Grade.studentId],
+    references: [Student.id],
+  }),
+  lesson: one(Lesson, {
+    fields: [Grade.lessonId],
+    references: [Lesson.id],
+  }),
+}));
+
+export const presenceRelations = relations(Presence, ({ one }) => ({
+  student: one(Student, {
+    fields: [Presence.studentId],
+    references: [Student.id],
+  }),
+  table: one(Schedule, {
+    fields: [Presence.tableId],
+    references: [Schedule.id],
+  }),
+}));
