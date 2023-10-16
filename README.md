@@ -1,3 +1,3 @@
-## Baza
+## Schemat bazy
 
-![db schema diagaram](./docs/Baza%20schema%20v1.png)
+![db schema diagaram v1.1](./docs/schema.png)
