@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^4.25.5",
+    "@headlessui/react": "^1.7.17",
     "@planetscale/database": "^1.11.0",
     "@t3-oss/env-nextjs": "^0.7.1",
     "drizzle-orm": "^0.28.6",
