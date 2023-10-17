@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="pl">
-        <body className={`font-sans ${inter.variable}`}>{children}</body>
+        <body className={`font-sans ${inter.variable} text-text bg-background`}>{children}</body>
       </html>
     </ClerkProvider>
   );
