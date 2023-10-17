@@ -1,0 +1,27 @@
+{
+  "version": "5",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1697562430976,
+      "tag": "0000_lush_lake",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1697562802377,
+      "tag": "0001_soft_firelord",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1697563903018,
+      "tag": "0002_chief_blindfold",
+      "breakpoints": true
+    }
+  ]
+}

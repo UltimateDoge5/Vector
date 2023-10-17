@@ -12,6 +12,7 @@ import {
 export const Assignment = mysqlTable("assignment", {
   id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
   classId: bigint("classId", { mode: "number" }).notNull(),
+  teacherId: bigint("teacherId", { mode: "number" }).notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   description: varchar("description", { length: 255 }),
   dueDate: timestamp("due_date", { mode: "date" }).notNull(),
@@ -63,22 +64,23 @@ export const Lesson = mysqlTable("lesson", {
 
 export const Class = mysqlTable("class", {
   id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
-  teacherId: bigint("id", { mode: "number" }).notNull(),
+  teacherId: bigint("teacherId", { mode: "number" }).notNull(),
   name: varchar("name", { length: 255 }),
 });
 
 export const Teacher = mysqlTable("teacher", {
   id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
-  name: varchar("name", { length: 255 }),
-  classId: bigint("id", { mode: "number" }).notNull(),
+  userId: varchar("userId", { length: 32 }).notNull(),
+  classId: bigint("classId", { mode: "number" }),
+  name: varchar("name", { length: 255 }).notNull(),
   admin: boolean("admin").default(false),
 });
 
 export const Student = mysqlTable("student", {
   id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
+  userId: varchar("userId", { length: 32 }).notNull(),
   name: varchar("name", { length: 255 }),
-  classId: bigint("id", { mode: "number" }).notNull(),
-  email: varchar("email", { length: 255 }).notNull(),
+  classId: bigint("classId", { mode: "number" }).notNull(),
   phoneNumber: varchar("phone_number", { length: 255 }).notNull(),
 });
 
@@ -149,5 +151,16 @@ export const presenceRelations = relations(Presence, ({ one }) => ({
   table: one(Schedule, {
     fields: [Presence.tableId],
     references: [Schedule.id],
+  }),
+}));
+
+export const assignmentsRelations = relations(Assignment, ({ one }) => ({
+  class: one(Class, {
+    fields: [Assignment.classId],
+    references: [Class.id],
+  }),
+  teacher: one(Teacher, {
+    fields: [Assignment.teacherId],
+    references: [Teacher.id],
   }),
 }));
