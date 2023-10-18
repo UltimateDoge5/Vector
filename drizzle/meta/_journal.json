@@ -29,6 +29,27 @@
       "when": 1697574252919,
       "tag": "0003_striped_jimmy_woo",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1697578294474,
+      "tag": "0004_clear_butterfly",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1697578383741,
+      "tag": "0005_hard_obadiah_stane",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1697578575872,
+      "tag": "0006_lean_patch",
+      "breakpoints": true
     }
   ]
 }

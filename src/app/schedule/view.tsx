@@ -24,6 +24,9 @@ export function ScheduleView({ schedule }: { schedule: Schedule[] }) {
 	return (
 		<div className="flex w-full flex-col items-center justify-center rounded-lg">
 			<table className="w-full table-fixed">
+				<colgroup>
+					<col className="w-[10%]" />
+				</colgroup>
 				<tbody className="[&_tr:last-child]:border-0">
 					<tr>
 						<th className="h-12 w-1/6 px-4 text-left align-middle font-medium">
@@ -41,9 +44,7 @@ export function ScheduleView({ schedule }: { schedule: Schedule[] }) {
 					{hours.slice(0, maxIndex + 2).map((hour, index) => (
 						<tr
 							key={index}
-							className={
-								index % 2 == 1 ? "py-2" : "bg-secondary/20 py-2"
-							}
+							className={index % 2 == 1 ? "" : "bg-secondary/20"}
 						>
 							<td className="p-4 align-middle">
 								{hour.from} - {hour.to}
@@ -58,7 +59,7 @@ export function ScheduleView({ schedule }: { schedule: Schedule[] }) {
 								if (lesson) {
 									return (
 										<td
-											className="rounded-lg p-2 align-middle"
+											className="rounded-lg p-1.5 align-middle"
 											key={day}
 										>
 											<div
@@ -102,7 +103,6 @@ function stringToHslColor(str: string, s: number, l: number) {
 }
 
 interface Schedule {
-	id: number;
 	dayOfWeek: number;
 	index: number;
 	room: string;
@@ -110,14 +110,7 @@ interface Schedule {
 		id: number;
 		name: string | null;
 	};
-	class: {
-		id: number;
-		students: {
-			id: number;
-		}[];
-	};
 	teacher: {
 		name: string;
 	};
-	// exemptions: {}[]
 }
