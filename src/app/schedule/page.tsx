@@ -84,7 +84,13 @@ export default async function SchedulePage({ searchParams }: { searchParams: { w
 		}
 	});
 
-	return <ScheduleView schedule={finalSchedule} title={isTeacher ? "Plan lekcji nauczyciela" : "Twój plan lekcji"} />;
+	return (
+		<ScheduleView
+			schedule={finalSchedule}
+			title={isTeacher ? "Plan lekcji nauczyciela" : "Twój plan lekcji"}
+			weekDate={searchParams.week}
+		/>
+	);
 }
 
 const getDataForStudent = async (userId: string, week: { from: Date; to: Date }) => {

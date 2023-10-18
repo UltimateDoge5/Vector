@@ -1,4 +1,5 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
 
 const hours = [
 	{ from: "7:30", to: "8:15" },
@@ -20,16 +21,11 @@ const hours = [
 
 const days = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"];
 
-export function ScheduleView({ schedule, title }: { schedule: ISchedule[]; title: string }) {
+export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedule[]; title: string; weekDate?: string }) {
 	const maxIndex = Math.max(...schedule.map((lesson) => lesson.index));
 
-	// If there are two or more same lessons in a row, merge them
-	interface Block extends ISchedule {
-		from: number;
-		to: number;
-	}
-
 	const blocks: Block[] = [];
+	// If there are two or more same lessons in a row, merge them
 	schedule.forEach((lesson) => {
 		// Check for block with the same lesson
 		const block = blocks.find(
@@ -52,9 +48,19 @@ export function ScheduleView({ schedule, title }: { schedule: ISchedule[]; title
 		}
 	});
 
+	const { prev, next, dates } = calculateWeekDates(weekDate);
+
 	return (
 		<div className="flex w-full flex-col items-center justify-center rounded-lg">
-			<div>{title}</div>
+			<div className="mb-2 flex w-full justify-evenly">
+				<Link className="rounded bg-primary px-4 py-2" href={`/schedule?week=${prev}`}>
+					Poprzedni tydzień
+				</Link>
+				<h2 className="text-2xl">{title}</h2>
+				<Link className="rounded bg-primary px-4 py-2" href={`/schedule?week=${next}`}>
+					Następny tydzień
+				</Link>
+			</div>
 			<table className="w-full table-fixed">
 				<colgroup>
 					<col className="w-[10%]" />
@@ -62,9 +68,11 @@ export function ScheduleView({ schedule, title }: { schedule: ISchedule[]; title
 				<tbody className="[&_tr:last-child]:border-0">
 					<tr>
 						<th className="h-12 w-1/6 px-4 text-left align-middle font-medium">Lekcja</th>
-						{days.map((day) => (
-							<th key={day} className="h-12 px-4 text-left align-middle font-medium">
+						{days.map((day, i) => (
+							<th key={day} className="h-12 px-4 text-center align-middle font-medium">
 								{day}
+								<br />
+								<p className="font-light">{dates[i]}</p>
 							</th>
 						))}
 					</tr>
@@ -133,7 +141,22 @@ function stringToHslColor(str: string, s: number, l: number) {
 
 function calculateBlockHeight(from: number, to: number) {
 	const size = to - from + 1;
-	return 72 * size - 4 + (size - 1) * 11.5;
+	return 72 * size - 4 + (size - 1) * 11.5; // 72px is the height of one row, 4px is the padding, 11.5px is the margin
+}
+
+function calculateWeekDates(weekDate?: string) {
+	const date = weekDate ? new Date(weekDate) : new Date();
+	const day = date.getDay();
+	const diff = date.getDate() - day + (day == 0 ? -6 : 1);
+
+	const prev = new Date(date.setDate(diff - 7));
+	const next = new Date(date.setDate(diff + 7));
+
+	return {
+		prev: `${prev.getFullYear()}-${prev.getMonth() + 1}-${prev.getDate()}`,
+		next: `${next.getFullYear()}-${next.getMonth() + 1}-${next.getDate()}`,
+		dates: [1, 2, 3, 4, 5].map((day) => new Date(date.setDate(diff + day)).toLocaleString("pl-PL", { day: "numeric", month: "long" })),
+	};
 }
 
 export interface ISchedule {
@@ -150,4 +173,9 @@ export interface ISchedule {
 		cancelation: boolean;
 		reason: string | null;
 	};
+}
+
+interface Block extends ISchedule {
+	from: number;
+	to: number;
 }
