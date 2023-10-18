@@ -17,14 +17,14 @@ export async function POST(request: Request) {
         privateMetadata: {
             role: "teacher"
         }
-    });
+    }).catch(e => console.log(e));;
 
     await db.insert(Teacher).values(
         {
             userId: newRegisteredUser.id,
             name: `${firstName} ${lastName}`
         }
-    );
+    ).catch(e => console.log(e));
 
     const newCreatedTeacher = await db.select(
         {
@@ -35,9 +35,24 @@ export async function POST(request: Request) {
         })
         .from(Teacher)
         .where(eq(Teacher.userId, newRegisteredUser.id))
-        .limit(1);
+        .limit(1)
+        .catch(e => console.log(e));
 
     return NextResponse.json({ ...newCreatedTeacher[0], password: defaultUserPassword } );
+}
+
+export async function PUT(request: Request) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const { userId, firstName, lastName } : { userId: string, firstName: string, lastName: string} = await request.json();
+
+    await clerkClient.users.updateUser(userId, { firstName, lastName}).catch(e => console.log(e));
+
+    await db.update(Teacher)
+        .set({name: `${firstName} ${lastName}`})
+        .where(eq(Teacher.userId, userId))
+        .catch(e => console.log(e));
+
+    return new NextResponse();
 }
 
 export async function DELETE(request: Request) {

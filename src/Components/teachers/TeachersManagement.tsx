@@ -47,13 +47,31 @@ export default function TeachersManagement({ teachers } : {teachers: TeacherDto[
         }
     }
 
+    const editTeacher = async (userId: string, name: string) => {
+        const payload = {
+            userId,
+            firstName: name.split(" ")[0],
+            lastName: name.split(" ")[1],
+        };
+
+        const response = await fetch("/teachers/api", {
+            method: "PUT",
+            body: JSON.stringify(payload)
+        });
+
+        if(response.ok) {
+            console.log(response);
+            setTeachersList(teachersList.map(teacher => teacher.userId === userId ? {...teacher, name: name} : teacher))
+        }
+    }
+
     return (
         <div className="mx-auto w-full">
 
-            <form className="flex flex-col mb-3" onSubmit={onSubmit}>
+            <form className="flex flex-col mb-2" onSubmit={onSubmit}>
                 <input 
                     type="text" 
-                    className="w-full p-4 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2" 
+                    className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2" 
                     placeholder="Imię i Nazwisko"
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value })}
@@ -61,18 +79,19 @@ export default function TeachersManagement({ teachers } : {teachers: TeacherDto[
 
                 <input 
                     type="email" 
-                    className="w-full p-4 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2" 
+                    className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2" 
                     placeholder="E-mail" 
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value })}
                 />
 
-                <button className="bg-accent py-4 rounded-lg text-white font-bold mt-2" type="submit">Dodaj</button>
+                <button className="bg-accent py-3 rounded-lg text-white font-bold mt-2" type="submit">Dodaj</button>
             </form>
 
-            <ul className="border-t-2 py-3">
-                {teachersList.map((teacher, index) => <TeacherItem teacher={teacher} index={index} key={teacher.userId} deleteTeacher={deleteTeacher} />)}
+            <ul className="border-t-2 py-2">
+                {teachersList.map((teacher, index) => <TeacherItem teacher={teacher} index={index} key={teacher.userId} deleteTeacher={deleteTeacher} editTeacher={editTeacher} />)}
             </ul>
+
         </div>
     )
 }
