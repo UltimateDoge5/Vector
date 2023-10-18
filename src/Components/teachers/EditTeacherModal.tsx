@@ -14,10 +14,10 @@ type Props = {
 export default function EditTeacherModal({ teacher, isOpen, setIsOpen, editTeacher }: Props) {
     const [name, setName] = useState(teacher.name);
 
-    const onSubmit = (e : FormEvent) => {
+    const onSubmit = (e: FormEvent) => {
         e.preventDefault();
 
-        if(!name) {
+        if (!name) {
             alert("Wypełnij poprawnie formularz");
             return;
         }

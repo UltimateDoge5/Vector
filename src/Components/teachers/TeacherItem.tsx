@@ -1,8 +1,8 @@
 "use client"
 
-import { Menu, Transition } from "@headlessui/react";
-import { ArchiveBoxXMarkIcon, EllipsisVerticalIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
-import { FormEvent, Fragment, useState } from "react";
+import { Menu, Switch, Transition } from "@headlessui/react";
+import { ArchiveBoxXMarkIcon, EllipsisVerticalIcon, PencilSquareIcon, UserMinusIcon, UserPlusIcon } from "@heroicons/react/24/outline";
+import { Fragment, useState } from "react";
 import { TeacherDto } from "~/types/dtos";
 import EditTeacherModal from "./EditTeacherModal";
 
@@ -11,9 +11,10 @@ type Props = {
     index: number,
     deleteTeacher: (userId: string) => void,
     editTeacher: (userId: string, name: string) => void,
+    toggleAdmin: (userId: string, admin: boolean) => void,
 };
 
-export default function TeacherItem({ teacher, index, deleteTeacher, editTeacher }: Props) {
+export default function TeacherItem({ teacher, index, deleteTeacher, editTeacher, toggleAdmin }: Props) {
     const [isOpenModal, setIsOpenModal] = useState(false);
 
     return (
@@ -21,7 +22,7 @@ export default function TeacherItem({ teacher, index, deleteTeacher, editTeacher
             <li className="w-full bg-secondary/50 text-text py-3 px-5 flex items-center gap-2 rounded-lg my-2 hover:bg-secondary/80 cursor-pointer">
                 <div className="flex flex-1 items-center">
                     <h1 className="font-bold text-md">{index + 1}. {teacher.name}</h1>
-                    {teacher.admin && <span className="rounded-lg text-white bg-accent/60 px-2 mx-3 flex align-center justify-center">Admin</span>}
+                    {teacher.admin && <span className="rounded-lg text-white bg-accent/60 px-2 mx-3 flex align-center justify-center font-bold">Admin</span>}
                 </div>
 
                 <Menu as="div" className="relative inline-block text-left">
@@ -51,7 +52,7 @@ export default function TeacherItem({ teacher, index, deleteTeacher, editTeacher
                                                 className="mr-2 h-5 w-5"
                                                 aria-hidden="true"
                                             />
-                                            Edit
+                                            Edytuj
                                         </button>
                                     )}
                                 </Menu.Item>
@@ -68,7 +69,37 @@ export default function TeacherItem({ teacher, index, deleteTeacher, editTeacher
                                                 className="mr-2 h-5 w-5"
                                                 aria-hidden="true"
                                             />
-                                            Delete
+                                            Usuń
+                                        </button>
+                                    )}
+                                </Menu.Item>
+                            </div>
+
+                            <div className="px-1 py-1 " onClick={() => toggleAdmin(teacher.userId, !teacher.admin)}>
+                                <Menu.Item>
+                                    {({ active }) => (
+                                        <button
+                                            className={`${active ? 'bg-accent/50 text-white' : 'text-text'
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm font-bold`}
+                                        >
+                                            {!teacher.admin ? (
+                                                <>
+                                                    <UserPlusIcon
+                                                        className="mr-2 h-5 w-5"
+                                                        aria-hidden="true"
+                                                    />
+
+                                                    Ustaw admina
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <UserMinusIcon
+                                                        className="mr-2 h-5 w-5"
+                                                        aria-hidden="true" />
+
+                                                    Odbierz admina
+                                                </>
+                                            )}
                                         </button>
                                     )}
                                 </Menu.Item>

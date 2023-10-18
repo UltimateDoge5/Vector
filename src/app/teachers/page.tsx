@@ -15,7 +15,7 @@ export default async function Page() {
 
   const user = await currentUser();
 
-  console.log(user?.emailAddresses[0]?.emailAddress);
+  console.log(`Email: ${user?.emailAddresses[0]?.emailAddress}, role: ${user?.privateMetadata?.role}`);
 
   return (
     <TeachersManagement teachers={teachers} />

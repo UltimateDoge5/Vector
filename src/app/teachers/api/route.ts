@@ -1,12 +1,14 @@
 import { clerkClient } from '@clerk/nextjs';
+import { type User } from '@clerk/nextjs/dist/types/server';
 import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import { UserType } from '~/enums/UserType';
 import { db } from '~/server/db';
 import { Teacher } from '~/server/db/schema';
 
 export async function POST(request: Request) {
-    // todo: do small poprawki z any here :)
-    const { firstName, lastName, email } : any = await request.json();
+     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const { firstName, lastName, email } : {firstName: string, lastName: string, email: string} = await request.json();
     const defaultUserPassword = `${firstName}_${lastName}_${Math.floor(Math.random() * 10000)}`;
 
     const newRegisteredUser = await clerkClient.users.createUser({
@@ -15,7 +17,7 @@ export async function POST(request: Request) {
         emailAddress: [email],
         password: defaultUserPassword,
         privateMetadata: {
-            role: "teacher"
+            role: UserType.TEACHER
         }
     }).catch(e => console.log(e));;
 
@@ -45,10 +47,33 @@ export async function PUT(request: Request) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const { userId, firstName, lastName } : { userId: string, firstName: string, lastName: string} = await request.json();
 
-    await clerkClient.users.updateUser(userId, { firstName, lastName}).catch(e => console.log(e));
+    await clerkClient.users.updateUser(userId, 
+        { 
+            firstName, 
+            lastName,
+        }).catch(e => console.log(e));
 
     await db.update(Teacher)
         .set({name: `${firstName} ${lastName}`})
+        .where(eq(Teacher.userId, userId))
+        .catch(e => console.log(e));
+
+    return new NextResponse();
+}
+
+export async function PATCH(request: Request) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const { userId, admin} : { userId: string, admin: boolean } = await request.json();
+
+    await clerkClient.users.updateUser(userId, 
+        { 
+            privateMetadata: {
+                role: admin ? UserType.ADMIN : UserType.TEACHER
+            }
+        }).catch(e => console.log(e));
+
+    await db.update(Teacher)
+        .set({admin})
         .where(eq(Teacher.userId, userId))
         .catch(e => console.log(e));
 
