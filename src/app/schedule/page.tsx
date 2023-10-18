@@ -4,11 +4,7 @@ import { db } from "~/server/db";
 
 export const runtime = "edge";
 
-export default async function SchedulePage({
-	searchParams,
-}: {
-	searchParams: { week: string };
-}) {
+export default async function SchedulePage({ searchParams }: { searchParams: { week: string } }) {
 	const user = await currentUser();
 
 	const week: {
@@ -32,8 +28,7 @@ export default async function SchedulePage({
 				class: {
 					with: {
 						students: {
-							where: (student, { eq }) =>
-								eq(student.userId, user!.id),
+							where: (student, { eq }) => eq(student.userId, user!.id),
 							columns: {
 								id: true,
 							},
@@ -66,11 +61,14 @@ export default async function SchedulePage({
 			room: schedule.room,
 			lesson: schedule.lesson,
 			teacher: schedule.teacher,
+			exemption: {
+				isExemption: false,
+				reason: "",
+			},
 		}));
 
 	const exemptions = await db.query.Exemptions.findMany({
-		where: (exemption, { and, lte, gte }) =>
-			and(gte(exemption.date, week.from!), lte(exemption.date, week.to!)),
+		where: (exemption, { and, lte, gte }) => and(gte(exemption.date, week.from!), lte(exemption.date, week.to!)),
 	});
 
 	// tableId === null && json !== null => add to schedule
@@ -79,9 +77,7 @@ export default async function SchedulePage({
 	const idsToRemove: number[] = [];
 
 	exemptions.forEach((exemption) => {
-		const lesson = schedule.find(
-			(lesson) => lesson.id === exemption.tableId,
-		);
+		const lesson = schedule.find((lesson) => lesson.id === exemption.tableId);
 
 		// add to schedule
 		if (!lesson) {
@@ -93,6 +89,10 @@ export default async function SchedulePage({
 				lesson: exemption.schedule!.lesson,
 				teacher: {
 					name: exemption.schedule!.teacherName,
+				},
+				exemption: {
+					reason: exemption.reason ?? "",
+					isExemption: true,
 				},
 			});
 			return;
@@ -108,6 +108,10 @@ export default async function SchedulePage({
 				lesson: exemption.schedule.lesson,
 				teacher: {
 					name: exemption.schedule.teacherName,
+				},
+				exemption: {
+					isExemption: true,
+					reason: exemption.reason ?? "",
 				},
 			};
 

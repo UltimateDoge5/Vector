@@ -1,3 +1,5 @@
+import { InformationCircleIcon } from "@heroicons/react/24/outline";
+
 const hours = [
 	{ from: "7:30", to: "8:15" },
 	{ from: "8:20", to: "9:05" },
@@ -32,10 +34,7 @@ export function ScheduleView({ schedule }: { schedule: Schedule[] }) {
 	schedule.forEach((lesson) => {
 		// Check for block with the same lesson
 		const block = blocks.find(
-			(block) =>
-				block.lesson.id === lesson.lesson.id &&
-				block.teacher.name === lesson.teacher.name &&
-				block.room === lesson.room,
+			(block) => block.lesson.id === lesson.lesson.id && block.teacher.name === lesson.teacher.name && block.room === lesson.room,
 		);
 
 		if (block) {
@@ -50,8 +49,6 @@ export function ScheduleView({ schedule }: { schedule: Schedule[] }) {
 		}
 	});
 
-	console.log(blocks);
-
 	return (
 		<div className="flex w-full flex-col items-center justify-center rounded-lg">
 			<table className="w-full table-fixed">
@@ -60,37 +57,26 @@ export function ScheduleView({ schedule }: { schedule: Schedule[] }) {
 				</colgroup>
 				<tbody className="[&_tr:last-child]:border-0">
 					<tr>
-						<th className="h-12 w-1/6 px-4 text-left align-middle font-medium">
-							Lekcja
-						</th>
+						<th className="h-12 w-1/6 px-4 text-left align-middle font-medium">Lekcja</th>
 						{days.map((day) => (
-							<th
-								key={day}
-								className="h-12 px-4 text-left align-middle font-medium"
-							>
+							<th key={day} className="h-12 px-4 text-left align-middle font-medium">
 								{day}
 							</th>
 						))}
 					</tr>
 					{hours.slice(0, maxIndex + 2).map((hour, index) => (
-						<tr
-							key={index}
-							className={index % 2 == 1 ? "" : "bg-secondary/20"}
-						>
+						<tr key={index} className={index % 2 == 1 ? "" : "bg-secondary/20"}>
 							<td className="p-4 align-middle">
 								{hour.from} - {hour.to}
 							</td>
 							{[0, 1, 2, 3, 4].map((day) => {
 								const block = blocks.find(
-									(pBlock) =>
-										pBlock.from <= index &&
-										pBlock.to >= index &&
-										pBlock.dayOfWeek === day,
+									(pBlock) => pBlock.from <= index && pBlock.to >= index && pBlock.dayOfWeek === day,
 								);
 
 								if (!block) return <td key={day} />;
 
-								if (block && block.from === index) {
+								if (block.from === index) {
 									return (
 										<td
 											rowSpan={block.to - block.from + 1}
@@ -98,27 +84,28 @@ export function ScheduleView({ schedule }: { schedule: Schedule[] }) {
 											key={day}
 										>
 											<div
-												className="h-max rounded-lg p-2"
+												className="relative h-max rounded-lg p-2"
 												style={{
-													background:
-														stringToHslColor(
-															block.lesson.name!,
-															80,
-															80,
-														),
-													height: `${72 * (block.to - block.from + 1) - 4}`,
+													background: stringToHslColor(block.lesson.name!, 80, 80),
+													height: `${72 * (block.to - block.from + 1) - 4}px`,
 												}}
 											>
 												<h3>{block.lesson.name}</h3>
 												<p className="text-sm font-light">
-													{block.teacher.name} | sala{" "}
-													{block.room}
+													{block.teacher.name} | sala {block.room}
 												</p>
+												{block.exemption.isExemption && (
+													<div className="absolute right-2 top-2 inline-block text-left">
+														<InformationCircleIcon className="peer h-4 w-4 cursor-help" />
+														<div className="pointer-events-none absolute top-full z-10 w-max max-w-md rounded-md bg-white p-2 text-sm text-black opacity-0 shadow transition-all peer-hover:pointer-events-auto peer-hover:opacity-100">
+															{block.exemption.reason || "Nie podano powodu zastępstwa"}
+														</div>
+													</div>
+												)}
 											</div>
 										</td>
 									);
 								}
-
 								return;
 							})}
 						</tr>
@@ -149,5 +136,9 @@ interface Schedule {
 	};
 	teacher: {
 		name: string;
+	};
+	exemption: {
+		isExemption: boolean;
+		reason: string;
 	};
 }

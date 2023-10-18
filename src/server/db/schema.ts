@@ -1,14 +1,5 @@
 import { relations } from "drizzle-orm";
-import {
-	bigint,
-	boolean,
-	int,
-	json,
-	mysqlEnum,
-	mysqlTable,
-	timestamp,
-	varchar,
-} from "drizzle-orm/mysql-core";
+import { bigint, boolean, int, json, mysqlEnum, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 export const Assignment = mysqlTable("assignment", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
@@ -25,6 +16,7 @@ export const Exemptions = mysqlTable("exemption", {
 	tableId: bigint("tableId", { mode: "number" }),
 	date: timestamp("date", { mode: "date" }).notNull(),
 	schedule: json("schedule").$type<ExemptionJson>(),
+	reason: varchar("reason", { length: 255 }),
 });
 
 interface ExemptionJson {
@@ -63,13 +55,7 @@ export const Presence = mysqlTable("presence", {
 	tableId: bigint("tableId", { mode: "number" }).notNull(),
 	studentId: bigint("studentId", { mode: "number" }).notNull(),
 	date: timestamp("date", { mode: "date" }).notNull(),
-	status: mysqlEnum("status", [
-		"present",
-		"absent",
-		"late",
-		"released",
-		"releasedBySchool",
-	]).notNull(),
+	status: mysqlEnum("status", ["present", "absent", "late", "released", "releasedBySchool"]).notNull(),
 });
 
 export const Lesson = mysqlTable("lesson", {
