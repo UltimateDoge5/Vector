@@ -63,7 +63,7 @@ export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedul
 			</div>
 			<table className="w-full table-fixed">
 				<colgroup>
-					<col className="w-[10%]" />
+					<col className="w-[12%]" />
 				</colgroup>
 				<tbody className="[&_tr:last-child]:border-0">
 					<tr>
