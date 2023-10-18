@@ -5,6 +5,8 @@
 await import("./src/env.mjs");
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+    swcMinify: true
+};
 
 export default config;

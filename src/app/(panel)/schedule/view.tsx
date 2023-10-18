@@ -63,11 +63,11 @@ export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedul
 			</div>
 			<table className="w-full table-fixed">
 				<colgroup>
-					<col className="w-[12%]" />
+					<col className="w-36" />
 				</colgroup>
 				<tbody className="[&_tr:last-child]:border-0">
 					<tr>
-						<th className="h-12 w-1/6 px-4 text-left align-middle font-medium">Lekcja</th>
+						<th className="h-12 w-1/6 px-4 align-middle font-medium">Lekcja</th>
 						{days.map((day, i) => (
 							<th key={day} className="h-12 px-4 text-center align-middle font-medium">
 								{day}

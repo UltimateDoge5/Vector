@@ -1,5 +1,5 @@
 import { currentUser } from "@clerk/nextjs";
-import { ScheduleView, type ISchedule } from "~/app/schedule/view";
+import { ScheduleView, type ISchedule } from "~/app/(panel)/schedule/view";
 import { db } from "~/server/db";
 
 export const runtime = "edge";

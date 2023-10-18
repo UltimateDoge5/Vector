@@ -4,7 +4,7 @@ import { type JSX } from "react";
 import { currentUser } from "@clerk/nextjs";
 import DisclosureButton from "./disclosure";
 
-export default async function Sidebar() {
+export async function Sidebar() {
 	const user = await currentUser();
 
 	const role = user?.privateMetadata.role ?? "student";
