@@ -14,8 +14,7 @@ export default {
 				'primary': '#91cfed',
 				'secondary': '#c2caf5',
 				'accent': '#1331dd',
-			   },
-
+			},
 		}
 	},
 	plugins: []
