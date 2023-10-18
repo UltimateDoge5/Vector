@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { HomeIcon, AcademicCapIcon, CheckBadgeIcon, TableCellsIcon, PencilSquareIcon, UsersIcon } from "@heroicons/react/24/outline";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { currentUser } from "@clerk/nextjs";
-import DisclosureButton from "./Disclosure";
+import DisclosureButton from "./disclosure";
 
 export default async function Sidebar() {
 	const user = await currentUser();
