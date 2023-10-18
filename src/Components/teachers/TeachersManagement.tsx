@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react"
 import { TeacherDto } from "~/types/dtos"
+import TeacherItem from "./TeacherItem";
 
 export default function TeachersManagement({ teachers } : {teachers: TeacherDto[]}) {
     const [teachersList, setTeachersList] = useState(teachers);
@@ -26,19 +27,30 @@ export default function TeachersManagement({ teachers } : {teachers: TeacherDto[
             body: JSON.stringify(payload)
         });
 
-        const teacher = await response.json();
+        const teacherWithHisPassword = await response.json();
 
-        console.log(teacher);
-        console.log(`Domyślne hasło: ${teacher.password}`);
+        console.log(`Domyślne hasło: ${teacherWithHisPassword.password}`);
 
-        setTeachersList([...teachersList, teacher]);
+        setTeachersList([...teachersList, teacherWithHisPassword]);
         setFormData({ name: "", email: ""});
     } 
 
-    return (
-        <div className="p-10 mx-auto w-full lg:w-1/2">
+    const deleteTeacher = async (userId: string) => {
+        const response = await fetch("/teachers/api", {
+            method: "DELETE",
+            body: JSON.stringify({userId})
+        }).catch(e => console.log(e));
 
-            <form className="flex flex-col my-3" onSubmit={onSubmit}>
+        if(response.ok) {
+            console.log(response);
+            setTeachersList(teachersList.filter(teacher => teacher.userId != userId));
+        }
+    }
+
+    return (
+        <div className="mx-auto w-full">
+
+            <form className="flex flex-col mb-3" onSubmit={onSubmit}>
                 <input 
                     type="text" 
                     className="w-full p-4 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2" 
@@ -59,11 +71,7 @@ export default function TeachersManagement({ teachers } : {teachers: TeacherDto[
             </form>
 
             <ul className="border-t-2 py-3">
-                {teachersList.map((teacher, index) =>
-                    <li key={teacher.id} className="w-full bg-primary text-text p-4 flex items-center gap-2 rounded-lg my-2">
-                        <h1 className="flex-1 font-bold text-md">{index + 1}. {teacher.name}</h1>
-                    </li>
-                )}
+                {teachersList.map((teacher, index) => <TeacherItem teacher={teacher} index={index} key={teacher.userId} deleteTeacher={deleteTeacher} />)}
             </ul>
         </div>
     )

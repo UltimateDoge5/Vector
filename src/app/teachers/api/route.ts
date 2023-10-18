@@ -39,3 +39,14 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ...newCreatedTeacher[0], password: defaultUserPassword } );
 }
+
+export async function DELETE(request: Request) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const { userId } : { userId: string } = await request.json();
+
+    await clerkClient.users.deleteUser(userId).catch(e => console.log(e));
+
+    await db.delete(Teacher).where(eq(Teacher.userId, userId)).catch(e => console.log(e));
+
+    return new NextResponse();
+}

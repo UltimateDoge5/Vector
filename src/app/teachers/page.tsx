@@ -1,5 +1,5 @@
 import { currentUser } from "@clerk/nextjs";
-import TeachersManagement from "~/components/teachersManagement";
+import TeachersManagement from "~/components/teachers/TeachersManagement";
 import { db } from "~/server/db";
 import { TeacherDto } from "~/types/dtos";
 
