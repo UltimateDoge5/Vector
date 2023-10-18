@@ -20,12 +20,11 @@ const hours = [
 
 const days = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"];
 
-export function ScheduleView({ schedule }: { schedule: Schedule[] }) {
+export function ScheduleView({ schedule, title }: { schedule: ISchedule[]; title: string }) {
 	const maxIndex = Math.max(...schedule.map((lesson) => lesson.index));
 
 	// If there are two or more same lessons in a row, merge them
-
-	interface Block extends Schedule {
+	interface Block extends ISchedule {
 		from: number;
 		to: number;
 	}
@@ -34,10 +33,14 @@ export function ScheduleView({ schedule }: { schedule: Schedule[] }) {
 	schedule.forEach((lesson) => {
 		// Check for block with the same lesson
 		const block = blocks.find(
-			(block) => block.lesson.id === lesson.lesson.id && block.teacher.name === lesson.teacher.name && block.room === lesson.room,
+			(block) =>
+				block.lesson.id === lesson.lesson.id &&
+				block.with === lesson.with &&
+				block.room === lesson.room &&
+				block.exemption.cancelation === false,
 		);
 
-		if (block) {
+		if (block && lesson.exemption.cancelation === false) {
 			block.from = Math.min(block.from, lesson.index);
 			block.to = Math.max(block.to, lesson.index);
 		} else {
@@ -51,6 +54,7 @@ export function ScheduleView({ schedule }: { schedule: Schedule[] }) {
 
 	return (
 		<div className="flex w-full flex-col items-center justify-center rounded-lg">
+			<div>{title}</div>
 			<table className="w-full table-fixed">
 				<colgroup>
 					<col className="w-[10%]" />
@@ -78,26 +82,27 @@ export function ScheduleView({ schedule }: { schedule: Schedule[] }) {
 
 								if (block.from === index) {
 									return (
-										<td
-											rowSpan={block.to - block.from + 1}
-											className=" rounded-lg p-1.5 align-middle transition-colors hover:saturate-150"
-											key={day}
-										>
+										<td rowSpan={block.to - block.from + 1} className="p-1.5 align-middle" key={day}>
 											<div
-												className="relative h-max rounded-lg p-2"
+												className={`relative h-max rounded-lg p-2  ${
+													block.exemption.cancelation
+														? "line-through grayscale"
+														: "transition-colors hover:saturate-150"
+												}`}
 												style={{
 													background: stringToHslColor(block.lesson.name!, 80, 80),
-													height: `${72 * (block.to - block.from + 1) - 4}px`,
+													height: `${calculateBlockHeight(block.from, block.to)}px`,
 												}}
 											>
 												<h3>{block.lesson.name}</h3>
 												<p className="text-sm font-light">
-													{block.teacher.name} | sala {block.room}
+													{block.with} | sala {block.room}
 												</p>
 												{block.exemption.isExemption && (
 													<div className="absolute right-2 top-2 inline-block text-left">
 														<InformationCircleIcon className="peer h-4 w-4 cursor-help" />
 														<div className="pointer-events-none absolute top-full z-10 w-max max-w-md rounded-md bg-white p-2 text-sm text-black opacity-0 shadow transition-all peer-hover:pointer-events-auto peer-hover:opacity-100">
+															{/* eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing*/}
 															{block.exemption.reason || "Nie podano powodu zastępstwa"}
 														</div>
 													</div>
@@ -126,7 +131,12 @@ function stringToHslColor(str: string, s: number, l: number) {
 	return "hsl(" + h + ", " + s + "%, " + l + "%)";
 }
 
-interface Schedule {
+function calculateBlockHeight(from: number, to: number) {
+	const size = to - from + 1;
+	return 72 * size - 4 + (size - 1) * 11.5;
+}
+
+export interface ISchedule {
 	dayOfWeek: number;
 	index: number;
 	room: string;
@@ -134,11 +144,10 @@ interface Schedule {
 		id: number;
 		name: string | null;
 	};
-	teacher: {
-		name: string;
-	};
+	with: string;
 	exemption: {
 		isExemption: boolean;
-		reason: string;
+		cancelation: boolean;
+		reason: string | null;
 	};
 }

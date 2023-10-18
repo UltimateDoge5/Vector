@@ -1,16 +1,17 @@
 import { currentUser } from "@clerk/nextjs";
-import { ScheduleView } from "~/app/schedule/view";
+import { ScheduleView, type ISchedule } from "~/app/schedule/view";
 import { db } from "~/server/db";
 
 export const runtime = "edge";
 
 export default async function SchedulePage({ searchParams }: { searchParams: { week: string } }) {
 	const user = await currentUser();
+	const isTeacher = user?.privateMetadata.role ?? "student" !== "student";
 
-	const week: {
-		from?: Date;
-		to?: Date;
-	} = {};
+	const week = {
+		from: new Date(),
+		to: new Date(),
+	};
 
 	// Get the first and last day of the week
 	const date = searchParams.week ? new Date(searchParams.week) : new Date();
@@ -22,112 +23,155 @@ export default async function SchedulePage({ searchParams }: { searchParams: { w
 	week.to = new Date(date.setDate(diff + 6));
 	week.to.setHours(0, 0, 0);
 
-	const schedule = (
-		await db.query.Schedule.findMany({
-			with: {
-				class: {
-					with: {
-						students: {
-							where: (student, { eq }) => eq(student.userId, user!.id),
-							columns: {
-								id: true,
-							},
-						},
-					},
-					columns: {
-						name: true,
-					},
-				},
-				lesson: true,
-				teacher: {
-					columns: {
-						name: true,
-					},
-				},
-			},
-			columns: {
-				id: true,
-				dayOfWeek: true,
-				index: true,
-				room: true,
-			},
-		})
-	)
-		// Get rid of usless relation data, we have students id
-		.map((schedule) => ({
-			id: schedule.id,
-			dayOfWeek: schedule.dayOfWeek,
-			index: schedule.index,
-			room: schedule.room,
-			lesson: schedule.lesson,
-			teacher: schedule.teacher,
-			exemption: {
-				isExemption: false,
-				reason: "",
-			},
-		}));
+	const { schedule, exemptions } = isTeacher ? await getDataForTeacher(user!.id, week) : await getDataForStudent(user!.id, week);
+	// const { schedule, exemptions } = await getDataForTeacher("user_2WtVEuDuEZ3mNPCRvGUs6jMogLx", week);
 
-	const exemptions = await db.query.Exemptions.findMany({
-		where: (exemption, { and, lte, gte }) => and(gte(exemption.date, week.from!), lte(exemption.date, week.to!)),
-	});
-
-	// tableId === null && json !== null => add to schedule
-	// tableId !== null && json !== null => override schedule
-	// tableId !== null && json === null => remove from schedule
-	const idsToRemove: number[] = [];
+	const finalSchedule: ISchedule[] = schedule.map(
+		(schedule) =>
+			({
+				dayOfWeek: schedule.dayOfWeek,
+				index: schedule.index,
+				room: schedule.room,
+				lesson: schedule.lesson,
+				with: isTeacher ? "Klasa " + schedule.class!.name : schedule.teacher!.name,
+				exemption: {
+					isExemption: false,
+					cancelation: false,
+					reason: "",
+				},
+			}) satisfies ISchedule,
+	);
 
 	exemptions.forEach((exemption) => {
-		const lesson = schedule.find((lesson) => lesson.id === exemption.tableId);
+		switch (exemption.type) {
+			case "addition":
+				finalSchedule.push({
+					dayOfWeek: exemption.dayOfWeek!,
+					index: exemption.index!,
+					room: exemption.room!,
+					lesson: exemption.lesson!,
+					with: isTeacher ? "Klasa " + exemption.class!.name : exemption.teacher!.name,
+					exemption: {
+						isExemption: true,
+						cancelation: false,
+						reason: exemption.reason,
+					},
+				});
+				break;
+			case "change":
+				const index = schedule.findIndex((lesson) => lesson.id == exemption.scheduleId);
 
-		// add to schedule
-		if (!lesson) {
-			schedule.push({
-				id: -1,
-				dayOfWeek: exemption.schedule!.dayOfWeek,
-				index: exemption.schedule!.index,
-				room: exemption.schedule!.room,
-				lesson: exemption.schedule!.lesson,
-				teacher: {
-					name: exemption.schedule!.teacherName,
-				},
-				exemption: {
-					reason: exemption.reason ?? "",
-					isExemption: true,
-				},
-			});
-			return;
+				finalSchedule[index] = {
+					dayOfWeek: exemption.dayOfWeek!,
+					index: exemption.index!,
+					room: exemption.room!,
+					lesson: exemption.lesson!,
+					with: isTeacher ? "Klasa " + exemption.class!.name : exemption.teacher!.name,
+					exemption: {
+						isExemption: true,
+						cancelation: false,
+						reason: exemption.reason,
+					},
+				};
+				break;
+			case "cancelation": {
+				const index = schedule.findIndex((lesson) => lesson.id == exemption.scheduleId);
+				finalSchedule[index]!.exemption.cancelation = true;
+				finalSchedule[index]!.exemption.isExemption = true;
+				finalSchedule[index]!.exemption.reason = exemption.reason;
+				break;
+			}
 		}
-
-		// override schedule with the exemption
-		if (exemption.schedule !== null) {
-			const newLesson = {
-				id: lesson.id,
-				dayOfWeek: exemption.date.getDay(),
-				index: exemption.schedule.index,
-				room: exemption.schedule.room,
-				lesson: exemption.schedule.lesson,
-				teacher: {
-					name: exemption.schedule.teacherName,
-				},
-				exemption: {
-					isExemption: true,
-					reason: exemption.reason ?? "",
-				},
-			};
-
-			const index = schedule.indexOf(lesson);
-			schedule[index] = newLesson;
-			return;
-		}
-
-		// last possible case - remove from schedule
-		idsToRemove.push(lesson.id);
 	});
 
-	for (const id of idsToRemove) {
-		const index = schedule.findIndex((lesson) => lesson.id === id);
-		schedule.splice(index, 1);
-	}
-
-	return <ScheduleView schedule={schedule} />;
+	return <ScheduleView schedule={finalSchedule} title={isTeacher ? "Plan lekcji nauczyciela" : "Twój plan lekcji"} />;
 }
+
+const getDataForStudent = async (userId: string, week: { from: Date; to: Date }) => {
+	const schedule = await db.query.Schedule.findMany({
+		with: {
+			class: {
+				with: {
+					students: {
+						where: (student, { eq }) => eq(student.userId, userId),
+						columns: {
+							id: true,
+						},
+					},
+				},
+				columns: {
+					name: true,
+				},
+			},
+			lesson: true,
+			teacher: {
+				columns: {
+					name: true,
+				},
+			},
+		},
+		columns: {
+			id: true,
+			dayOfWeek: true,
+			index: true,
+			room: true,
+		},
+	});
+
+	const exemptions = await db.query.Exemptions.findMany({
+		where: (exemption, { and, lte, gte }) => and(gte(exemption.date, week.from), lte(exemption.date, week.to)),
+		with: {
+			class: true,
+			lesson: true,
+			teacher: {
+				columns: {
+					name: true,
+				},
+			},
+		},
+	});
+
+	return { schedule, exemptions };
+};
+
+const getDataForTeacher = async (userId: string, week: { from: Date; to: Date }) => {
+	const teacher = (await db.query.Teacher.findFirst({
+		where: (teach, { eq }) => eq(teach.userId, userId),
+		columns: {
+			id: true,
+		},
+	})) as { id: number };
+
+	const schedule = await db.query.Schedule.findMany({
+		with: {
+			class: {
+				columns: {
+					name: true,
+				},
+			},
+			lesson: true,
+			teacher: {
+				columns: {
+					name: true,
+				},
+			},
+		},
+		where: (schedule, { eq }) => eq(schedule.teacherId, teacher.id),
+	});
+
+	const exemptions = await db.query.Exemptions.findMany({
+		where: (exemption, { and, gte, lte, eq }) =>
+			and(gte(exemption.date, week.from), lte(exemption.date, week.to), eq(exemption.teacherId, teacher.id)),
+		with: {
+			teacher: {
+				columns: {
+					name: true,
+				},
+			},
+			class: true,
+			lesson: true,
+		},
+	});
+
+	return { schedule, exemptions };
+};

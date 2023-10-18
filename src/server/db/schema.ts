@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { bigint, boolean, int, json, mysqlEnum, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { bigint, boolean, int, mysqlEnum, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 export const Assignment = mysqlTable("assignment", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
@@ -13,22 +13,17 @@ export const Assignment = mysqlTable("assignment", {
 
 export const Exemptions = mysqlTable("exemption", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
-	tableId: bigint("tableId", { mode: "number" }),
+	scheduleId: bigint("scheduleId", { mode: "number" }),
 	date: timestamp("date", { mode: "date" }).notNull(),
-	schedule: json("schedule").$type<ExemptionJson>(),
 	reason: varchar("reason", { length: 255 }),
+	teacherId: bigint("teacherId", { mode: "number" }).notNull(),
+	lessonId: bigint("lessonId", { mode: "number" }),
+	classId: bigint("classId", { mode: "number" }),
+	room: varchar("room", { length: 8 }),
+	dayOfWeek: int("day_od_week"),
+	index: int("index"),
+	type: mysqlEnum("type", ["cancelation", "addition", "change"]).notNull(),
 });
-
-interface ExemptionJson {
-	teacherName: string;
-	lesson: {
-		id: number;
-		name: string;
-	};
-	room: string;
-	dayOfWeek: number;
-	index: number;
-}
 
 export const Schedule = mysqlTable("schedule", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
@@ -44,10 +39,10 @@ export const Grade = mysqlTable("grade", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
 	studentId: bigint("studentId", { mode: "number" }).notNull(),
 	lessonId: bigint("lessonId", { mode: "number" }).notNull(),
-	grade: int("grade").notNull(),
-	weight: int("weight").notNull(),
 	timestamp: timestamp("timestamp", { mode: "date" }).notNull(),
 	description: varchar("description", { length: 255 }),
+	grade: int("grade").notNull(),
+	weight: int("weight").notNull(),
 });
 
 export const Presence = mysqlTable("presence", {
@@ -84,13 +79,20 @@ export const Student = mysqlTable("student", {
 	name: varchar("name", { length: 255 }).notNull(),
 });
 
-export const teacherRelations = relations(Teacher, ({ one }) => ({
+export const teacherRelations = relations(Teacher, ({ one, many }) => ({
 	class: one(Class, {
 		fields: [Teacher.classId],
 		references: [Class.id],
 	}),
-	schedule: one(Schedule),
-	assignments: one(Assignment),
+	schedule: one(Schedule, {
+		fields: [Teacher.id],
+		references: [Schedule.teacherId],
+	}),
+	assignments: one(Assignment, {
+		fields: [Teacher.id],
+		references: [Assignment.teacherId],
+	}),
+	exemptions: many(Exemptions),
 }));
 
 export const classRelations = relations(Class, ({ many, one }) => ({
@@ -171,8 +173,20 @@ export const assignmentsRelations = relations(Assignment, ({ one }) => ({
 }));
 
 export const exemptionsRelations = relations(Exemptions, ({ one }) => ({
-	table: one(Schedule, {
-		fields: [Exemptions.tableId],
+	schedule: one(Schedule, {
+		fields: [Exemptions.scheduleId],
 		references: [Schedule.id],
+	}),
+	lesson: one(Lesson, {
+		fields: [Exemptions.lessonId],
+		references: [Lesson.id],
+	}),
+	teacher: one(Teacher, {
+		fields: [Exemptions.teacherId],
+		references: [Teacher.id],
+	}),
+	class: one(Class, {
+		fields: [Exemptions.classId],
+		references: [Class.id],
 	}),
 }));
