@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { ClerkProvider, SignedIn, UserButton } from "@clerk/nextjs";
 import Sidebar from "~/Components/Sidebar";
 import Link from "next/link";
+import { Suspense } from "react";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -40,9 +41,12 @@ export default function RootLayout({
             </div>
           </header>
           <div className="w-full pl-[18%] pr-[18%] pt-16 flex">
-            <Sidebar/>
+            <Sidebar />
+
             <main className="w-full mx-auto pl-4">
-              {children}
+              <Suspense fallback={"Ładowanie..."}>
+                {children}
+              </Suspense>
             </main>
           </div>
         </body>
