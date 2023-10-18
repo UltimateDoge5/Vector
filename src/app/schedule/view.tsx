@@ -21,6 +21,37 @@ const days = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"];
 export function ScheduleView({ schedule }: { schedule: Schedule[] }) {
 	const maxIndex = Math.max(...schedule.map((lesson) => lesson.index));
 
+	// If there are two or more same lessons in a row, merge them
+
+	interface Block extends Schedule {
+		from: number;
+		to: number;
+	}
+
+	const blocks: Block[] = [];
+	schedule.forEach((lesson) => {
+		// Check for block with the same lesson
+		const block = blocks.find(
+			(block) =>
+				block.lesson.id === lesson.lesson.id &&
+				block.teacher.name === lesson.teacher.name &&
+				block.room === lesson.room,
+		);
+
+		if (block) {
+			block.from = Math.min(block.from, lesson.index);
+			block.to = Math.max(block.to, lesson.index);
+		} else {
+			blocks.push({
+				...lesson,
+				from: lesson.index,
+				to: lesson.index,
+			});
+		}
+	});
+
+	console.log(blocks);
+
 	return (
 		<div className="flex w-full flex-col items-center justify-center rounded-lg">
 			<table className="w-full table-fixed">
@@ -50,39 +81,45 @@ export function ScheduleView({ schedule }: { schedule: Schedule[] }) {
 								{hour.from} - {hour.to}
 							</td>
 							{[0, 1, 2, 3, 4].map((day) => {
-								const lesson = schedule.find(
-									(lesson) =>
-										lesson.dayOfWeek === day &&
-										lesson.index === index,
+								const block = blocks.find(
+									(pBlock) =>
+										pBlock.from <= index &&
+										pBlock.to >= index &&
+										pBlock.dayOfWeek === day,
 								);
 
-								if (lesson) {
+								if (!block) return <td key={day} />;
+
+								if (block && block.from === index) {
 									return (
 										<td
-											className="rounded-lg p-1.5 align-middle"
+											rowSpan={block.to - block.from + 1}
+											className=" rounded-lg p-1.5 align-middle transition-colors hover:saturate-150"
 											key={day}
 										>
 											<div
-												className="rounded-lg p-2"
+												className="h-max rounded-lg p-2"
 												style={{
 													background:
 														stringToHslColor(
-															lesson.lesson.name!,
+															block.lesson.name!,
 															80,
 															80,
 														),
+													height: `${72 * (block.to - block.from + 1) - 4}`,
 												}}
 											>
-												<h3>{lesson.lesson.name}</h3>
+												<h3>{block.lesson.name}</h3>
 												<p className="text-sm font-light">
-													{lesson.teacher.name} | sala{" "}
-													{lesson.room}
+													{block.teacher.name} | sala{" "}
+													{block.room}
 												</p>
 											</div>
 										</td>
 									);
 								}
-								return <td key={day} />;
+
+								return;
 							})}
 						</tr>
 					))}

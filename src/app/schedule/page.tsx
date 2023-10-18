@@ -16,14 +16,13 @@ export default async function SchedulePage({
 		to?: Date;
 	} = {};
 
-	//check if the week date is a first day of the week
+	// Get the first and last day of the week
 	const date = searchParams.week ? new Date(searchParams.week) : new Date();
 	const day = date.getDay();
 	const diff = date.getDate() - day + (day == 0 ? -6 : 1);
-	console.log(diff, day);
 
 	week.from = new Date(date.setDate(diff));
-	week.from.setHours(0, 0, 0);
+	week.from.setHours(0, 0, 0); // Set the time to 00:00:00, exemptions are stored whith the same time
 	week.to = new Date(date.setDate(diff + 6));
 	week.to.setHours(0, 0, 0);
 
@@ -58,14 +57,16 @@ export default async function SchedulePage({
 				room: true,
 			},
 		})
-	).map((schedule) => ({
-		id: schedule.id,
-		dayOfWeek: schedule.dayOfWeek,
-		index: schedule.index,
-		room: schedule.room,
-		lesson: schedule.lesson,
-		teacher: schedule.teacher,
-	}));
+	)
+		// Get rid of usless relation data, we have students id
+		.map((schedule) => ({
+			id: schedule.id,
+			dayOfWeek: schedule.dayOfWeek,
+			index: schedule.index,
+			room: schedule.room,
+			lesson: schedule.lesson,
+			teacher: schedule.teacher,
+		}));
 
 	const exemptions = await db.query.Exemptions.findMany({
 		where: (exemption, { and, lte, gte }) =>
@@ -97,7 +98,7 @@ export default async function SchedulePage({
 			return;
 		}
 
-		// override schedule
+		// override schedule with the exemption
 		if (exemption.schedule !== null) {
 			const newLesson = {
 				id: lesson.id,
@@ -115,7 +116,7 @@ export default async function SchedulePage({
 			return;
 		}
 
-		// remove from schedule
+		// last possible case - remove from schedule
 		idsToRemove.push(lesson.id);
 	});
 
