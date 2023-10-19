@@ -19,7 +19,7 @@ export async function POST(request: Request) {
         privateMetadata: {
             role: UserType.TEACHER
         }
-    }).catch(e => console.log(e));;
+    }).catch(e => console.log(e));
 
     await db.insert(Teacher).values(
         {

@@ -2,13 +2,13 @@
 
 import { FormEvent, useState } from "react";
 import { TeacherDto } from "~/types/dtos";
-import TeacherItem from "./TeacherItem";
+import TeacherListItem from "./TeacherListItem";
 
 export default function TeachersManagement({ teachers }: { teachers: TeacherDto[] }) {
     const [teachersList, setTeachersList] = useState(teachers);
     const [formData, setFormData] = useState({ name: "", email: "" })
 
-    const onSubmit = async (e: FormEvent) => {
+    const addTeacher = async (e: FormEvent) => {
         e.preventDefault();
 
         if (!formData.email || !formData.name) {
@@ -27,19 +27,21 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
             body: JSON.stringify(payload)
         });
 
-        const teacherWithHisPassword = await response.json();
+        if (response.ok) {
+            const teacherWithPassword = await response.json();
 
-        console.log(`Domyślne hasło: ${teacherWithHisPassword.password}`);
+            console.log(`Domyślne hasło: ${teacherWithPassword.password}`);
 
-        setTeachersList([...teachersList, teacherWithHisPassword]);
-        setFormData({ name: "", email: "" });
+            setTeachersList([...teachersList, teacherWithPassword]);
+            setFormData({ name: "", email: "" });
+        }
     }
 
     const deleteTeacher = async (userId: string) => {
         const response = await fetch("/teachers/api", {
             method: "DELETE",
             body: JSON.stringify({ userId })
-        }).catch(e => console.log(e));
+        });
 
         if (response.ok) {
             console.log(response);
@@ -80,7 +82,12 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
     return (
         <div className="mx-auto w-full">
 
-            <form className="flex flex-col mb-2" onSubmit={onSubmit}>
+            <div className="flex justify-between items-center mb-5">
+                <h1 className="border-l-accent border-l-4 font-bold px-3 text-2xl">Nauczyciele</h1>
+                <button>dodaj</button>
+            </div>
+
+            <form className="flex flex-col mb-2" onSubmit={addTeacher}>
                 <input
                     type="text"
                     className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
@@ -97,11 +104,11 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
 
-                <button className="bg-accent py-3 rounded-lg text-white font-bold mt-2" type="submit">Dodaj</button>
+                <button className="bg-accent hover:bg-accent/90 py-3 rounded-lg text-white font-bold mt-2 disabled:bg-accent/50 disabled:cursor-not-allowed transition" type="submit" disabled={!formData.name || !formData.email}>Dodaj</button>
             </form>
 
             <ul className="border-t-2 py-2">
-                {teachersList.map((teacher, index) => <TeacherItem teacher={teacher} index={index} key={teacher.userId} deleteTeacher={deleteTeacher} editTeacher={editTeacher} toggleAdmin={toggleAdmin} />)}
+                {teachersList.map((teacher) => <TeacherListItem teacher={teacher} key={teacher.userId} deleteTeacher={deleteTeacher} editTeacher={editTeacher} toggleAdmin={toggleAdmin} />)}
             </ul>
 
         </div>

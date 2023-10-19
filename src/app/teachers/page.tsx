@@ -1,4 +1,3 @@
-import { currentUser } from "@clerk/nextjs";
 import TeachersManagement from "~/components/teachers/TeachersManagement";
 import { db } from "~/server/db";
 import { TeacherDto } from "~/types/dtos";
@@ -12,10 +11,6 @@ export default async function Page() {
       admin: true
     }
   })
-
-  const user = await currentUser();
-
-  console.log(`Email: ${user?.emailAddresses[0]?.emailAddress}, role: ${user?.privateMetadata?.role}`);
 
   return (
     <TeachersManagement teachers={teachers} />

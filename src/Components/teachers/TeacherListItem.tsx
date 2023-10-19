@@ -1,6 +1,6 @@
 "use client"
 
-import { Menu, Switch, Transition } from "@headlessui/react";
+import { Menu, Transition } from "@headlessui/react";
 import { ArchiveBoxXMarkIcon, EllipsisVerticalIcon, PencilSquareIcon, UserMinusIcon, UserPlusIcon } from "@heroicons/react/24/outline";
 import { Fragment, useState } from "react";
 import { TeacherDto } from "~/types/dtos";
@@ -8,27 +8,26 @@ import EditTeacherModal from "./EditTeacherModal";
 
 type Props = {
     teacher: TeacherDto,
-    index: number,
     deleteTeacher: (userId: string) => void,
     editTeacher: (userId: string, name: string) => void,
     toggleAdmin: (userId: string, admin: boolean) => void,
 };
 
-export default function TeacherItem({ teacher, index, deleteTeacher, editTeacher, toggleAdmin }: Props) {
+export default function TeacherListItem({ teacher, deleteTeacher, editTeacher, toggleAdmin }: Props) {
     const [isOpenModal, setIsOpenModal] = useState(false);
 
     return (
         <>
             <li className="w-full bg-secondary/50 text-text py-3 px-5 flex items-center gap-2 rounded-lg my-2 hover:bg-secondary/80 cursor-pointer">
                 <div className="flex flex-1 items-center">
-                    <h1 className="font-bold text-md">{index + 1}. {teacher.name}</h1>
+                    <h1 className="font-bold text-md">{teacher.name}</h1>
                     {teacher.admin && <span className="rounded-lg text-white bg-accent/60 px-2 mx-3 flex align-center justify-center font-bold">Admin</span>}
                 </div>
 
                 <Menu as="div" className="relative inline-block text-left">
                     <div>
-                        <Menu.Button className="inline-flex w-full justify-center rounded-3xl bg-accent/30 px-2 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-                            <EllipsisVerticalIcon className="h-5 w-5" />
+                        <Menu.Button className="inline-flex w-full justify-center rounded-3x px-2 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+                            <EllipsisVerticalIcon className="h-5 w-5 text-accent/70" />
                         </Menu.Button>
                     </div>
                     <Transition
