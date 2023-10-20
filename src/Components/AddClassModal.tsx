@@ -83,26 +83,28 @@ export default function AddClassModal({ teachers, isOpen, setIsOpen }: Props) {
 							<Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
 								<div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
 									<div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-										<Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
+										<Dialog.Title as="h1" className="border-b pb-2 font-semibold leading-6 sm:text-lg">
 											Dodaj nową klasę
 										</Dialog.Title>
 										<div className="mt-2">
 											<form className="my-3 flex flex-col" onSubmit={onSubmit}>
+												<span className="mt-4 font-medium">Nazwa klasy</span>
 												<input
 													type="text"
 													className="my-2 w-full flex-1 rounded-lg bg-secondary/30 p-4 text-text outline-none"
-													placeholder="Nazwa klasy"
+													placeholder="5P"
 													value={formData.className}
 													onChange={(e) => setFormData({ className: e.target.value })}
 												/>
+												<span className="mt-4 font-medium">Wychowawca</span>
 												<Listbox
 													value={{ id: formData.teacherId, name: formData.teacherName }}
 													onChange={(value) => {
 														setFormData({ teacherName: value.name, teacherId: value.id });
 													}}
 												>
-													<div className="relative m-auto mt-4 w-full">
-														<Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 sm:text-sm">
+													<div className="relative mt-2 m-auto w-full">
+														<Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-accent/10 p-4 text-left focus:outline-none sm:text-base">
 															<span className="block truncate">{formData.teacherName}</span>
 															<span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
 																<ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -114,14 +116,14 @@ export default function AddClassModal({ teachers, isOpen, setIsOpen }: Props) {
 															leaveFrom="opacity-100"
 															leaveTo="opacity-0"
 														>
-															<Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+															<Listbox.Options className="absolute  mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-base">
 																{teachers
 																	.filter((teacherId) => !selectedTeachers.includes(teacherId.id))
 																	.map((teacher) => (
 																		<Listbox.Option
 																			key={teacher.id}
 																			className={
-																				"relative cursor-pointer select-none py-2 pl-10 pr-4 hover:bg-primary"
+																				"relative cursor-pointer select-none py-2 pl-10 pr-4 hover:bg-primary/60"
 																			}
 																			value={teacher}
 																		>
