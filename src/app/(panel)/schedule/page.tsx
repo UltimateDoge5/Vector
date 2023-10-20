@@ -7,7 +7,7 @@ export const runtime = "edge";
 
 export default async function SchedulePage({ searchParams }: { searchParams: { week: string } }) {
 	const user = await currentUser();
-	const isTeacher = user?.privateMetadata.role ?? "student" !== "student";
+	const isTeacher = (user?.privateMetadata.role ?? "student") !== "student";
 
 	const week = getWeekDates(searchParams.week);
 
