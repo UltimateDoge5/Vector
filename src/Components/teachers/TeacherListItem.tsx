@@ -18,7 +18,7 @@ export default function TeacherListItem({ teacher, deleteTeacher, editTeacher, t
 
     return (
         <>
-            <li className="w-full bg-secondary/50 text-text py-3 px-5 flex items-center gap-2 rounded-lg my-2 hover:bg-secondary/80 cursor-pointer">
+            <li className="w-full bg-primary/20 text-text py-3 px-5 flex items-center gap-2 rounded-lg my-2 hover:bg-primary/30 cursor-pointer">
                 <div className="flex flex-1 items-center">
                     <h1 className="font-bold text-md">{teacher.name}</h1>
                     {teacher.admin && <span className="rounded-lg text-white bg-accent/60 px-2 mx-3 flex align-center justify-center font-bold">Admin</span>}

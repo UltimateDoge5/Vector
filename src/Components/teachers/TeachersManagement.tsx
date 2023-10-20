@@ -1,21 +1,16 @@
 "use client"
 
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import { TeacherDto } from "~/types/dtos";
+import AddTeacherModal from "./AddTeacherModal";
 import TeacherListItem from "./TeacherListItem";
 
 export default function TeachersManagement({ teachers }: { teachers: TeacherDto[] }) {
     const [teachersList, setTeachersList] = useState(teachers);
-    const [formData, setFormData] = useState({ name: "", email: "" })
 
-    const addTeacher = async (e: FormEvent) => {
-        e.preventDefault();
+    const [isOpenModal, setIsOpenModal] = useState(false);
 
-        if (!formData.email || !formData.name) {
-            alert("Wypełnij poprawnie formularz")
-            return;
-        }
-
+    const addTeacher = async (formData: { name: string, email: string }) => {
         const payload = {
             firstName: formData.name.split(" ")[0],
             lastName: formData.name.split(" ")[1],
@@ -33,19 +28,6 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
             console.log(`Domyślne hasło: ${teacherWithPassword.password}`);
 
             setTeachersList([...teachersList, teacherWithPassword]);
-            setFormData({ name: "", email: "" });
-        }
-    }
-
-    const deleteTeacher = async (userId: string) => {
-        const response = await fetch("/teachers/api", {
-            method: "DELETE",
-            body: JSON.stringify({ userId })
-        });
-
-        if (response.ok) {
-            console.log(response);
-            setTeachersList(teachersList.filter(teacher => teacher.userId != userId));
         }
     }
 
@@ -67,6 +49,18 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
         }
     }
 
+    const deleteTeacher = async (userId: string) => {
+        const response = await fetch("/teachers/api", {
+            method: "DELETE",
+            body: JSON.stringify({ userId })
+        });
+
+        if (response.ok) {
+            console.log(response);
+            setTeachersList(teachersList.filter(teacher => teacher.userId != userId));
+        }
+    }
+
     const toggleAdmin = async (userId: string, admin: boolean) => {
         const response = await fetch("/teachers/api", {
             method: "PATCH",
@@ -79,38 +73,26 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
         }
     }
 
-    return (
-        <div className="mx-auto w-full">
 
-            <div className="flex justify-between items-center mb-5">
-                <h1 className="border-l-accent border-l-4 font-bold px-3 text-2xl">Nauczyciele</h1>
-                <button>dodaj</button>
+    return (
+        <>
+            <div className="mx-auto w-full">
+
+                <div className="flex justify-between items-center mb-5">
+                    <h1 className="border-l-accent border-l-4 font-bold px-3 text-2xl">Nauczyciele</h1>
+                    <button className="bg-primary hover:bg-primary/90 py-3 px-5 rounded-lg text-white font-bold " onClick={() => setIsOpenModal(true)}>Dodaj nauczyciela</button>
+                </div>
+
+                <ul className="border-t-2 py-2">
+                    {teachersList.map((teacher) => <TeacherListItem teacher={teacher} key={teacher.userId} deleteTeacher={deleteTeacher} editTeacher={editTeacher} toggleAdmin={toggleAdmin} />)}
+                </ul>
+
             </div>
 
-            <form className="flex flex-col mb-2" onSubmit={addTeacher}>
-                <input
-                    type="text"
-                    className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
-                    placeholder="Imię i Nazwisko"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                />
-
-                <input
-                    type="email"
-                    className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
-                    placeholder="E-mail"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                />
-
-                <button className="bg-accent hover:bg-accent/90 py-3 rounded-lg text-white font-bold mt-2 disabled:bg-accent/50 disabled:cursor-not-allowed transition" type="submit" disabled={!formData.name || !formData.email}>Dodaj</button>
-            </form>
-
-            <ul className="border-t-2 py-2">
-                {teachersList.map((teacher) => <TeacherListItem teacher={teacher} key={teacher.userId} deleteTeacher={deleteTeacher} editTeacher={editTeacher} toggleAdmin={toggleAdmin} />)}
-            </ul>
-
-        </div>
+            <AddTeacherModal
+                isOpen={isOpenModal}
+                setIsOpen={setIsOpenModal}
+                addTeacher={addTeacher} />
+        </>
     )
 }

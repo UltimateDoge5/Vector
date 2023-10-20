@@ -1,5 +1,4 @@
 import { clerkClient } from '@clerk/nextjs';
-import { type User } from '@clerk/nextjs/dist/types/server';
 import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { UserType } from '~/enums/UserType';

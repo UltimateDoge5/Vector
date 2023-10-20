@@ -2,27 +2,27 @@
 
 import { Dialog, Transition } from '@headlessui/react';
 import { FormEvent, Fragment, useState } from 'react';
-import { TeacherDto } from '~/types/dtos';
 
 type Props = {
-    teacher: TeacherDto
     isOpen: boolean,
     setIsOpen: (state: boolean) => void,
-    editTeacher: (userId: string, name: string) => void
+    addTeacher: (formData: { name: string, email: string }) => void
 }
 
-export default function EditTeacherModal({ teacher, isOpen, setIsOpen, editTeacher }: Props) {
-    const [name, setName] = useState(teacher.name);
+export default function AddTeacherModal({ isOpen, setIsOpen, addTeacher }: Props) {
+    const [formData, setFormData] = useState({ name: "", email: "" })
 
     const onSubmit = (e: FormEvent) => {
         e.preventDefault();
 
-        if (!name) {
-            alert("Wypełnij poprawnie formularz");
+        if (!formData.email || !formData.name) {
+            alert("Wypełnij poprawnie formularz")
             return;
         }
 
-        editTeacher(teacher.userId, name);
+        addTeacher(formData);
+
+        setFormData({ name: "", email: "" });
         setIsOpen(false);
     }
 
@@ -58,19 +58,27 @@ export default function EditTeacherModal({ teacher, isOpen, setIsOpen, editTeach
                                     as="h3"
                                     className="text-lg font-bold leading-6 text-gray-900"
                                 >
-                                    Edytuj {teacher.name}
+                                    Dodaj nowego nauczyciela
                                 </Dialog.Title>
 
                                 <form className="flex flex-col my-3" onSubmit={onSubmit}>
                                     <input
                                         type="text"
-                                        className="w-full p-4 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
+                                        className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
                                         placeholder="Imię i Nazwisko"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     />
 
-                                    <button className="bg-primary hover:bg-primary/90 py-3 rounded-lg text-white font-bold mt-2 disabled:bg-primary/50 disabled:cursor-not-allowed transition" type="submit" disabled={!name}>Edytuj</button>
+                                    <input
+                                        type="email"
+                                        className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
+                                        placeholder="E-mail"
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    />
+
+                                    <button className="bg-primary hover:bg-primary/90 py-3 rounded-lg text-white font-bold mt-2 disabled:bg-primary/50 disabled:cursor-not-allowed transition" type="submit" disabled={!formData.name || !formData.email}>Dodaj</button>
                                 </form>
 
                             </Dialog.Panel>
