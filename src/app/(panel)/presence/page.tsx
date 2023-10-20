@@ -2,8 +2,8 @@ export const runtime = "edge";
 import { currentUser } from "@clerk/nextjs";
 import { cookies } from "next/headers";
 import { db } from "~/server/db";
-import { getWeekDates } from "../schedule/page";
 import PresenceView, { type IPresence } from "./view";
+import { getWeekDates } from "~/util/weekDates";
 
 export default async function Schedule({ searchParams }: { searchParams: { week: string } }) {
 	const selectedClass = parseInt(cookies().get("selectedClassId")?.value ?? "1") ?? 1;
