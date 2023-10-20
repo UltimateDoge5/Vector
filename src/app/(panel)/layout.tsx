@@ -1,6 +1,6 @@
 import "~/styles/globals.css";
 
-import { SignedIn, UserButton } from "@clerk/nextjs";
+import { SignedIn, UserButton, currentUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { Sidebar } from "~/components/sidebar";
 import ClassSelector from "~/components/classSelector";
@@ -14,16 +14,24 @@ export const metadata = {
 	icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+	const user = await currentUser();
+	const isTeacher = (user?.privateMetadata.role ?? "student") !== "student";
+
 	return (
 		<div className={`grid h-full w-full grid-cols-[240px,auto] grid-rows-[96px,auto] gap-y-4 bg-background text-text`}>
 			<header className="inset-x-0 top-0 col-span-2 flex h-24 w-full items-center justify-center border-b">
 				<div className="flex h-16 w-2/3 items-center justify-between">
 					<div className="flex items-center gap-2">
-						<Link href="/">LOGO</Link>/
-						<Suspense fallback={<div className="animate-pulse bg-slate-500">Loading</div>}>
-							<ClassSelectorWrapper />
-						</Suspense>
+						<Link href="/">LOGO</Link>
+						{isTeacher && (
+							<>
+								{"/"}
+								<Suspense fallback={<div className="animate-pulse bg-slate-500">Loading</div>}>
+									<ClassSelectorWrapper />
+								</Suspense>
+							</>
+						)}
 					</div>
 					<div>
 						<SignedIn>

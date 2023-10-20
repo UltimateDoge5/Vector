@@ -93,10 +93,8 @@ export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedul
 									return (
 										<td rowSpan={block.to - block.from + 1} className="p-1.5 align-middle" key={day}>
 											<div
-												className={`relative h-max rounded-lg p-2  ${
-													block.exemption.cancelation
-														? "line-through grayscale"
-														: "transition-colors hover:saturate-150"
+												className={`relative h-max rounded-lg p-2 transition-all  ${
+													block.exemption.cancelation ? "line-through grayscale" : "hover:saturate-150"
 												}`}
 												style={{
 													background: stringToHslColor(block.lesson.name!, 80, 80),

@@ -118,8 +118,8 @@ export default function PresenceView({ presence, weekDate }: { presence: IPresen
 									return (
 										<td rowSpan={block.to - block.from + 1} className="p-1.5 align-middle" key={day}>
 											<div
-												className={`relative h-max rounded-lg p-2 ${legend[block.status].color} ${
-													block.exemption.cancelation ? "line-through" : "transition-colors hover:saturate-150"
+												className={`relative h-max rounded-lg p-2 transition-all ${legend[block.status].color} ${
+													block.exemption.cancelation ? "line-through" : "hover:saturate-150"
 												}`}
 												style={{
 													height: `${calculateBlockHeight(block.from, block.to)}px`,
