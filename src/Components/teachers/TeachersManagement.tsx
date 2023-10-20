@@ -79,7 +79,7 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
             <div className="mx-auto w-full">
 
                 <div className="flex justify-between items-center mb-5">
-                    <h1 className="border-l-accent border-l-4 font-bold px-3 text-2xl">Nauczyciele</h1>
+                    <h1 className="border-l-accent border-l-4 font-bold px-3 text-3xl">Nauczyciele</h1>
                     <button className="bg-primary hover:bg-primary/90 py-3 px-5 rounded-lg text-white font-bold " onClick={() => setIsOpenModal(true)}>Dodaj nauczyciela</button>
                 </div>
 
