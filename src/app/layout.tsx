@@ -2,7 +2,7 @@ import "~/styles/globals.css";
 
 import { Inter } from "next/font/google";
 import { ClerkProvider, SignedIn, UserButton } from "@clerk/nextjs";
-import Sidebar from "~/components/sidebar";
+import Sidebar from "~/components/Sidebar";
 import Link from "next/link";
 
 const inter = Inter({
