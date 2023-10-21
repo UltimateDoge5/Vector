@@ -1,9 +1,10 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { type Presence } from "~/server/db/schema";
-import { type ISchedule, calculateBlockHeight, calculateWeekDates, days, hours } from "../schedule/view";
+import { type ISchedule, days, schoolHours } from "../schedule/view";
+import { calculateWeekDates, calculateBlockHeight } from "~/util/scheduleUtil";
 
-type PresenceStatus = (typeof Presence.$inferSelect)["status"] | "none";
+export type PresenceStatus = (typeof Presence.$inferSelect)["status"] | "none";
 
 export interface IPresence extends ISchedule {
 	id: number;
@@ -23,11 +24,11 @@ interface Block extends IPresence {
 
 const legend = {
 	none: { color: "bg-gray-400", text: "Brak" },
-	present: { color: "bg-green-500", text: "Obecny" },
-	absent: { color: "bg-red-500", text: "Nieobecny" },
-	late: { color: "bg-yellow-500", text: "Spóźniony" },
-	released: { color: "bg-blue-500", text: "Zwolniony" },
-	releasedBySchool: { color: "bg-purple-500", text: "Zwolniony przez szkołę" },
+	present: { color: "bg-green-400", text: "Obecny" },
+	absent: { color: "bg-red-400", text: "Nieobecny" },
+	late: { color: "bg-yellow-400", text: "Spóźniony" },
+	released: { color: "bg-blue-400", text: "Zwolniony" },
+	releasedBySchool: { color: "bg-purple-400", text: "Zwolniony przez szkołę" },
 } satisfies Record<
 	PresenceStatus,
 	{
@@ -36,7 +37,7 @@ const legend = {
 	}
 >;
 
-export default function PresenceView({ presence, weekDate }: { presence: IPresence[]; weekDate?: string }) {
+export function PresenceView({ presence, weekDate }: { presence: IPresence[]; weekDate?: string }) {
 	const maxIndex = Math.max(...presence.map((lesson) => lesson.index));
 
 	const blocks: Block[] = [];
@@ -102,7 +103,7 @@ export default function PresenceView({ presence, weekDate }: { presence: IPresen
 							</th>
 						))}
 					</tr>
-					{hours.slice(0, maxIndex + 2).map((hour, index) => (
+					{schoolHours.slice(0, maxIndex + 2).map((hour, index) => (
 						<tr key={index} className={index % 2 == 1 ? "" : "bg-secondary/20"}>
 							<td className="p-4 align-middle">
 								{hour.from} - {hour.to}
