@@ -1,30 +1,17 @@
 import { currentUser } from "@clerk/nextjs";
-import { ScheduleView, type ISchedule } from "~/app/schedule/view";
+import { ScheduleView, type ISchedule } from "~/app/(panel)/schedule/view";
 import { db } from "~/server/db";
+import { getWeekDates } from "~/util/weekDates";
 
 export const runtime = "edge";
 
 export default async function SchedulePage({ searchParams }: { searchParams: { week: string } }) {
 	const user = await currentUser();
-	const isTeacher = user?.privateMetadata.role ?? "student" !== "student";
+	const isTeacher = (user?.privateMetadata.role ?? "student") !== "student";
 
-	const week = {
-		from: new Date(),
-		to: new Date(),
-	};
-
-	// Get the first and last day of the week
-	const date = searchParams.week ? new Date(searchParams.week) : new Date();
-	const day = date.getDay();
-	const diff = date.getDate() - day + (day == 0 ? -6 : 1);
-
-	week.from = new Date(date.setDate(diff));
-	week.from.setHours(0, 0, 0); // Set the time to 00:00:00, exemptions are stored whith the same time
-	week.to = new Date(date.setDate(diff + 6));
-	week.to.setHours(0, 0, 0);
+	const week = getWeekDates(searchParams.week);
 
 	const { schedule, exemptions } = isTeacher ? await getDataForTeacher(user!.id, week) : await getDataForStudent(user!.id, week);
-	// const { schedule, exemptions } = await getDataForTeacher("user_2WtVEuDuEZ3mNPCRvGUs6jMogLx", week);
 
 	const finalSchedule: ISchedule[] = schedule.map(
 		(schedule) =>
