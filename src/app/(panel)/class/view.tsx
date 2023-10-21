@@ -3,9 +3,10 @@ import { useState } from "react";
 import AddClassModal from "~/components/AddClassModal";
 import { type teachersInterface } from "./page";
 
-import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Combobox } from "@headlessui/react";
 import { ChevronUpDownIcon } from "@heroicons/react/24/outline";
+import { DataTable } from "~/components/dataTable";
 
 export default function ClassView({
 	teachers: teachersInit,
@@ -52,8 +53,8 @@ export default function ClassView({
 			cell: ({ row }) => {
 				return (
 					<Combobox value={row.original.teacher} onChange={(v) => changeTeacher(v, row.original.id)}>
-						<div className="relative">
-							<div className="relative w-full  cursor-pointer overflow-hidden rounded-lg bg-white pl-2 text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
+						<div className="relative max-w-xs  ">
+							<div className="relative cursor-pointer overflow-hidden rounded-lg bg-white pl-2 text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
 								<Combobox.Input displayValue={(v: classesInterface["teacher"]) => v.name}  className={'pl-1 outline-none'}/>
 								<Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
 									<ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -81,15 +82,11 @@ export default function ClassView({
 		},
 	];
 
-	const table = useReactTable({
-		data: classes,
-		columns,
-		getCoreRowModel: getCoreRowModel(),
-	});
 
 	return (
 		<>
-			<div className="w-full rounded-lg p-10">
+			<DataTable columns={columns} data={classes} noDataText="No data" title="Zarządzanie klasami" primaryActionBtn={<button className="rounded-lg bg-primary px-4 py-2 font-medium mx-10" onClick={() => setIsOpenModal(true)}>Dodaj nową klasę</button>}/>
+			{/* <div className="w-full rounded-lg p-10">
 				<div className="flex w-full items-center justify-between border-b-2 border-black/20 pb-5">
 					<div className="px-10">
 						<span className="text-xl font-medium">Zarządzanie klasami</span>
@@ -124,7 +121,7 @@ export default function ClassView({
 						</tbody>
 					</table>
 				</div>
-			</div>
+			</div> */}
 
 			<AddClassModal teachers={teachers} isOpen={isOpenModal} setIsOpen={setIsOpenModal} />
 		</>
