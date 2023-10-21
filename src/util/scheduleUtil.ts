@@ -1,6 +1,5 @@
 import dayjs from "dayjs";
-import { type IPresence } from "~/app/(panel)/presence/view";
-import { type ISchedule } from "~/app/(panel)/schedule/view";
+import { type PresenceStatus } from "~/app/(panel)/presence/view";
 import { type Exemptions, type Presence } from "~/server/db/schema";
 
 export function mapWithPresence(schedule: IPresence[], exemptions: IExemption[], presence: (typeof Presence.$inferSelect)[]): IPresence[] {
@@ -76,6 +75,7 @@ export function mapWithExceptions(schedule: ISchedule[], exemptions: IExemption[
 					lesson: exemption.lesson!,
 					with: isTeacher ? "Klasa " + exemption.class!.name : exemption.teacher!.name,
 					exemption: {
+						id: exemption.id,
 						isExemption: true,
 						cancelation: false,
 						reason: exemption.reason,
@@ -93,6 +93,7 @@ export function mapWithExceptions(schedule: ISchedule[], exemptions: IExemption[
 					lesson: exemption.lesson!,
 					with: isTeacher ? "Klasa " + exemption.class!.name : exemption.teacher!.name,
 					exemption: {
+						id: exemption.id,
 						isExemption: true,
 						cancelation: false,
 						reason: exemption.reason,
@@ -101,9 +102,13 @@ export function mapWithExceptions(schedule: ISchedule[], exemptions: IExemption[
 				break;
 			case "cancelation": {
 				const index = schedule.findIndex((lesson) => lesson.id == exemption.scheduleId);
-				schedule[index]!.exemption.cancelation = true;
-				schedule[index]!.exemption.isExemption = true;
-				schedule[index]!.exemption.reason = exemption.reason;
+				schedule[index]!.exemption = {
+					id: exemption.id,
+					isExemption: true,
+					cancelation: true,
+					reason: exemption.reason,
+				};
+
 				break;
 			}
 		}
@@ -154,3 +159,25 @@ type IExemption = typeof Exemptions.$inferSelect & {
 		name: string;
 	} | null;
 };
+
+export interface ISchedule {
+	id: number;
+	dayOfWeek: number;
+	index: number;
+	room: string;
+	lesson: {
+		id: number;
+		name: string | null;
+	};
+	with: string;
+	exemption: {
+		id: number;
+		isExemption: boolean;
+		cancelation: boolean;
+		reason: string | null;
+	};
+}
+
+export interface IPresence extends ISchedule {
+	status: PresenceStatus;
+}

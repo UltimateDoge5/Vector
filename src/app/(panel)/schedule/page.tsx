@@ -14,7 +14,7 @@ export default async function SchedulePage({ searchParams }: { searchParams: { w
 
 	const { schedule, exemptions } = isTeacher ? await getDataForTeacher(user!.id, week) : await getDataForStudent(user!.id, week);
 
-	const finalSchedule: ISchedule[] = schedule.map(
+	let mappedSchedule: ISchedule[] = schedule.map(
 		(schedule) =>
 			({
 				id: schedule.id,
@@ -31,11 +31,12 @@ export default async function SchedulePage({ searchParams }: { searchParams: { w
 			}) satisfies ISchedule,
 	);
 
-	const mappedSchedule = mapWithExceptions(finalSchedule, exemptions, isTeacher);
+	// Remap with exemptions
+	mappedSchedule = mapWithExceptions(mappedSchedule, exemptions, isTeacher);
 
 	return (
 		<ScheduleView
-			schedule={finalSchedule}
+			schedule={mappedSchedule}
 			title={isTeacher ? "Plan lekcji nauczyciela" : "Twój plan lekcji"}
 			weekDate={searchParams.week}
 		/>

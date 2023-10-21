@@ -1,6 +1,6 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { calculateBlockHeight, calculateWeekDates, stringToHslColor } from "~/util/scheduleUtil";
+import { ISchedule, calculateBlockHeight, calculateWeekDates, stringToHslColor } from "~/util/scheduleUtil";
 
 export const schoolHours = [
 	{ from: "7:30", to: "8:15" },
@@ -126,23 +126,6 @@ export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedul
 			</table>
 		</div>
 	);
-}
-
-export interface ISchedule {
-	id: number;
-	dayOfWeek: number;
-	index: number;
-	room: string;
-	lesson: {
-		id: number;
-		name: string | null;
-	};
-	with: string;
-	exemption: {
-		isExemption: boolean;
-		cancelation: boolean;
-		reason: string | null;
-	};
 }
 
 interface Block extends ISchedule {

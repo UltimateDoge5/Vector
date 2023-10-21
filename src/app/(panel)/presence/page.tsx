@@ -2,22 +2,86 @@ export const runtime = "edge";
 import { currentUser } from "@clerk/nextjs";
 import { cookies } from "next/headers";
 import { db } from "~/server/db";
-import { PresenceView, type IPresence } from "./view";
+import { PresenceView } from "./view";
 import { getWeekDates } from "~/util/weekDates";
-import { TeacherPresenceView } from "./teacherView";
-import { mapWithPresence } from "~/util/scheduleUtil";
+import { type ClassPresence, TeacherPresenceView } from "./teacherView";
+import { type IPresence, type ISchedule, mapWithExceptions, mapWithPresence } from "~/util/scheduleUtil";
+import { schoolHours } from "../schedule/view";
 
 export default async function Schedule({ searchParams }: { searchParams: { week: string } }) {
 	const selectedClass = parseInt(cookies().get("selectedClassId")?.value ?? "1") ?? 1;
 	const user = await currentUser();
 
-	const isTeacher = user?.privateMetadata.role !== "student" ?? false;
+	// const isTeacher = user?.privateMetadata.role !== "student" ?? false;
+	const isTeacher = true;
 
 	const week = getWeekDates(searchParams.week);
 
+	if (isTeacher) {
+		const { schedule, presence, exemptions, studentsList } = await getAttendenceForClass(selectedClass, week);
+
+		let mappedSchedule: ISchedule[] = schedule.map(
+			(schedule) =>
+				({
+					id: schedule.id,
+					dayOfWeek: schedule.dayOfWeek,
+					index: schedule.index,
+					room: schedule.room,
+					lesson: schedule.lesson,
+					with: schedule.teacher!.name,
+					exemption: {
+						id: -1,
+						isExemption: false,
+						cancelation: false,
+						reason: "",
+					},
+					status: "none",
+				}) satisfies IPresence,
+		);
+
+		mappedSchedule = mapWithExceptions(mappedSchedule, exemptions, false);
+
+		const classPresence: ClassPresence[] = [];
+		const students: ClassPresence["students"] = {};
+
+		// Assign defualut status to all students
+		studentsList.forEach((student) => (students[student.id] = { status: "none", name: student.name }));
+
+		mappedSchedule.forEach((lesson) => {
+			classPresence.push({
+				scheduleId: lesson.id,
+				exemptionId: lesson.exemption.id,
+				lessonName: lesson.lesson.name!,
+				teacherName: lesson.with,
+				hours: schoolHours[lesson.index - 1]!,
+				students: structuredClone(students), // Clone students without reference
+			} satisfies ClassPresence);
+		});
+
+		// Assign presence to students
+		presence.forEach((presence) => {
+			const lesson = classPresence.find(
+				(lesson) => lesson.scheduleId === presence.tableId || lesson.exemptionId === presence.exemptionId,
+			)!;
+
+			if (lesson) lesson.students[presence.studentId]!.status = presence.status;
+		});
+
+		const className = schedule[0]!.class!.name;
+
+		return (
+			<TeacherPresenceView
+				schedule={mappedSchedule}
+				presenceInit={classPresence}
+				weekDate={searchParams.week}
+				className={className}
+			/>
+		);
+	}
+
 	const { presence, exemptions, schedule } = await getPresenceForStudent(user!.id, week);
 
-	const finalSchedule: IPresence[] = schedule.map(
+	let mappedSchedule: IPresence[] = schedule.map(
 		(schedule) =>
 			({
 				id: schedule.id,
@@ -36,7 +100,8 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 			}) satisfies IPresence,
 	);
 
-	const mappedSchedule = mapWithPresence(finalSchedule, exemptions, presence);
+	// Remap with presence and exemptions
+	mappedSchedule = mapWithPresence(mappedSchedule, exemptions, presence);
 
 	return <PresenceView presence={mappedSchedule} weekDate={searchParams.week} />;
 }
@@ -92,7 +157,15 @@ const getAttendenceForClass = async (classId: number, week: { from: Date; to: Da
 			),
 	});
 
-	return { schedule, presence, exemptions };
+	const students = await db.query.Student.findMany({
+		where: (student, { eq }) => eq(student.classId, classId),
+		columns: {
+			id: true,
+			name: true,
+		},
+	});
+
+	return { schedule, presence, exemptions, studentsList: students };
 };
 
 const getPresenceForStudent = async (studentId: string, week: { from: Date; to: Date }) => {

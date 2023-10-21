@@ -1,32 +1,22 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { type Presence } from "~/server/db/schema";
-import { type ISchedule, days, schoolHours } from "../schedule/view";
-import { calculateWeekDates, calculateBlockHeight } from "~/util/scheduleUtil";
+import { days, schoolHours } from "../schedule/view";
+import { calculateWeekDates, calculateBlockHeight, type IPresence } from "~/util/scheduleUtil";
 
 export type PresenceStatus = (typeof Presence.$inferSelect)["status"] | "none";
-
-export interface IPresence extends ISchedule {
-	id: number;
-	status: PresenceStatus;
-	exemption: {
-		id: number;
-		isExemption: boolean;
-		cancelation: boolean;
-		reason: string | null;
-	};
-}
 
 interface Block extends IPresence {
 	from: number;
 	to: number;
 }
 
-const legend = {
+export const legend = {
 	none: { color: "bg-gray-400", text: "Brak" },
 	present: { color: "bg-green-400", text: "Obecny" },
 	absent: { color: "bg-red-400", text: "Nieobecny" },
 	late: { color: "bg-yellow-400", text: "Spóźniony" },
+	excused: { color: "bg-amber-400", text: "Usprawiedliwiony" },
 	released: { color: "bg-blue-400", text: "Zwolniony" },
 	releasedBySchool: { color: "bg-purple-400", text: "Zwolniony przez szkołę" },
 } satisfies Record<

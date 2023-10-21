@@ -1,26 +1,49 @@
 "use client";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { days, schoolHours, type ISchedule } from "../schedule/view";
-import { type PresenceStatus } from "./view";
-import { useReducer, useState } from "react";
+import { useEffect, useState } from "react";
+import { type ISchedule, calculateWeekDates, stringToHslColor } from "~/util/scheduleUtil";
+import { days, schoolHours } from "../schedule/view";
 import { PresenceDrawer } from "./drawer";
-import { calculateWeekDates, stringToHslColor } from "~/util/scheduleUtil";
+import { type PresenceStatus } from "./view";
+import { Portal } from "@headlessui/react";
 
 export function TeacherPresenceView({
 	schedule,
 	weekDate,
 	presenceInit,
+	className,
 }: {
 	schedule: ISchedule[];
-	presenceInit: ClassPresence;
+	presenceInit: ClassPresence[];
 	weekDate?: string;
+	className?: string;
 }) {
-	const [presence, setPresence] = useReducer((prev: ClassPresence, next: ClassPresence) => ({ ...prev, ...next }), presenceInit);
-	const [drawerOpen, setDrawerOpen] = useState(false);
+	const [presence, setPresence] = useState<ClassPresence[]>(presenceInit);
+	const [selectedLessonIds, setSelectedLessonIds] = useState({
+		scheduleId: -1,
+		exemptionId: -1,
+	});
+
+	const selectedPresence = presence.find(
+		(presence) =>
+			(presence.scheduleId !== -1 && presence.scheduleId === selectedLessonIds.scheduleId) ||
+			(presence.exemptionId !== -1 && presence.exemptionId === selectedLessonIds.exemptionId),
+	)!;
 
 	const maxIndex = Math.max(...schedule.map((lesson) => lesson.index));
 	const { prev, next, dates } = calculateWeekDates(weekDate);
+
+	useEffect(() => {
+		window.addEventListener("keydown", (e) => {
+			if (e.key === "Escape") setSelectedLessonIds({ scheduleId: -1, exemptionId: -1 });
+		});
+
+		return () =>
+			window.removeEventListener("keydown", (e) => {
+				if (e.key === "Escape") setSelectedLessonIds({ scheduleId: -1, exemptionId: -1 });
+			});
+	}, []);
 
 	return (
 		<>
@@ -29,7 +52,7 @@ export function TeacherPresenceView({
 					<Link className="rounded bg-primary px-4 py-2" href={`/presence?week=${prev}`}>
 						Poprzedni tydzień
 					</Link>
-					<h2 className="text-2xl">Obecności</h2>
+					<h2 className="text-2xl">Obecności dla klasy {className}</h2>
 					<Link className="rounded bg-primary px-4 py-2" href={`/presence?week=${next}`}>
 						Następny tydzień
 					</Link>
@@ -61,11 +84,17 @@ export function TeacherPresenceView({
 									if (lesson) {
 										return (
 											<td className="p-1.5 align-middle" key={day}>
-												<div
-													className={`relative h-max rounded-lg p-2 transition-all`}
+												<button
+													className={`relative h-max w-full rounded-lg p-2 text-left transition-all`}
 													style={{
 														background: stringToHslColor(lesson.lesson.name!, 80, 80),
 													}}
+													onClick={() =>
+														setSelectedLessonIds({
+															scheduleId: lesson.id,
+															exemptionId: lesson.exemption.id,
+														})
+													}
 												>
 													<h3>{lesson.lesson.name}</h3>
 													<p className="text-sm font-light">
@@ -80,7 +109,7 @@ export function TeacherPresenceView({
 															</div>
 														</div>
 													)}
-												</div>
+												</button>
 											</td>
 										);
 									}
@@ -92,17 +121,25 @@ export function TeacherPresenceView({
 					</tbody>
 				</table>
 			</div>
-			<PresenceDrawer presence={presence} setPresence={setPresence} isOpen={drawerOpen} setOpen={setDrawerOpen} />
+			{selectedPresence && (
+				<Portal>
+					<PresenceDrawer
+						presence={selectedPresence}
+						setPresence={(v) => {
+							setPresence(presence.map((p) => (p.scheduleId === v.scheduleId ? v : p)));
+						}}
+					/>
+				</Portal>
+			)}
 		</>
 	);
 }
 
-export type ClassPresence = Record<
-	number,
-	{
-		lessonName: string;
-		teacherName: string;
-		hours: (typeof schoolHours)[number];
-		students: Record<string, PresenceStatus>;
-	}
->;
+export interface ClassPresence {
+	scheduleId: number | null;
+	exemptionId: number | null;
+	lessonName: string;
+	teacherName: string;
+	hours: (typeof schoolHours)[number];
+	students: Record<number, { status: PresenceStatus; name: string }>;
+}
