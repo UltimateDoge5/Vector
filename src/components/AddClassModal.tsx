@@ -2,7 +2,7 @@
 import { Dialog, Listbox, Transition } from "@headlessui/react";
 import { ChevronUpDownIcon } from "@heroicons/react/24/outline";
 import { type FormEvent, Fragment, useReducer, useState, useRef } from "react";
-import { type teachersInterface } from "~/app/class/page";
+import { type teachersInterface } from "~/app/(panel)/class/page";
 
 type Props = {
 	isOpen: boolean;
