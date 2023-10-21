@@ -48,7 +48,7 @@ export default function ClassView({
 			accessorKey: "name",
 		},
 		{
-			header: "Nauczyciele",
+			header: "Wychowawca",
 			accessorKey: "",
 			cell: ({ row }) => {
 				return (
@@ -86,43 +86,6 @@ export default function ClassView({
 	return (
 		<>
 			<DataTable columns={columns} data={classes} noDataText="No data" title="Zarządzanie klasami" primaryActionBtn={<button className="rounded-lg bg-primary px-4 py-2 font-medium mx-10" onClick={() => setIsOpenModal(true)}>Dodaj nową klasę</button>}/>
-			{/* <div className="w-full rounded-lg p-10">
-				<div className="flex w-full items-center justify-between border-b-2 border-black/20 pb-5">
-					<div className="px-10">
-						<span className="text-xl font-medium">Zarządzanie klasami</span>
-					</div>
-					<div className="px-10">
-						<button className="rounded-lg bg-primary px-3 py-2 font-medium" onClick={() => setIsOpenModal(true)}>
-							Dodaj nową klasę
-						</button>
-					</div>
-				</div>
-				<div className="p-2">
-					<table>
-						<thead>
-							{table.getHeaderGroups().map((headerGroup) => (
-								<tr key={headerGroup.id}>
-									{headerGroup.headers.map((header) => (
-										<th key={header.id}>
-											{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-										</th>
-									))}
-								</tr>
-							))}
-						</thead>
-						<tbody>
-							{table.getRowModel().rows.map((row) => (
-								<tr key={row.id}>
-									{row.getVisibleCells().map((cell) => (
-										<td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-									))}
-								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
-			</div> */}
-
 			<AddClassModal teachers={teachers} isOpen={isOpenModal} setIsOpen={setIsOpenModal} />
 		</>
 	);
