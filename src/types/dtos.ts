@@ -1,19 +1,7 @@
-export interface TeacherDto {
-    id: number,
-    userId: string,
-    name: string,
-    admin: boolean | null,
-}
+import { type Class, type Student, type Teacher } from "~/server/db/schema"
 
-export interface StudentDto {
-    id: number,
-    userId: string,
-    name: string,
-    class: ClassDto
-}
-  
-export interface ClassDto {
-    id: number,
-    teacherId: number,
-    name: string,
-}
+export type TeacherDto = typeof Teacher.$inferSelect;
+
+export type StudentDto = typeof Student.$inferSelect;
+
+export type ClassDto = typeof Class.$inferSelect;
