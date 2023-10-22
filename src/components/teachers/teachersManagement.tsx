@@ -190,18 +190,6 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
 
     return (
         <div className="px-10">
-            {/* <div className="mx-auto w-full">
-
-                <div className="flex justify-between items-center mb-5">
-                    <h1 className="border-l-accent border-l-4 font-bold px-3 text-3xl">Nauczyciele</h1>
-                    <button className="bg-primary hover:bg-primary/90 py-3 px-5 rounded-lg text-text font-bold " onClick={() => setIsOpenModal(true)}>Dodaj nauczyciela</button>
-                </div>
-
-                <ul className="border-t-2 py-2">
-                    {teachersList.map((teacher) => <TeacherListItem teacher={teacher} key={teacher.userId} deleteTeacher={deleteTeacher} editTeacher={editTeacher} toggleAdmin={toggleAdmin} />)}
-                </ul>
-
-            </div> */}
 
             <DataTable
                 columns={columns}
@@ -222,6 +210,7 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
                 setIsOpen={(state: boolean) => setEditModalState({ ...editModalState, isOpen: state })}
                 editTeacher={editTeacher}
             />
+
         </div>
     )
 }
