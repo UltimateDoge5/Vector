@@ -1,8 +1,8 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import dayjs from "dayjs";
 import Link from "next/link";
+import { ISchedule, calculateBlockHeight, calculateWeekDates, stringToHslColor } from "~/util/scheduleUtil";
 
-export const hours = [
+export const schoolHours = [
 	{ from: "7:30", to: "8:15" },
 	{ from: "8:20", to: "9:05" },
 	{ from: "9:10", to: "9:55" },
@@ -77,7 +77,7 @@ export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedul
 							</th>
 						))}
 					</tr>
-					{hours.slice(0, maxIndex + 2).map((hour, index) => (
+					{schoolHours.slice(0, maxIndex + 2).map((hour, index) => (
 						<tr key={index} className={index % 2 == 1 ? "" : "bg-secondary/20"}>
 							<td className="p-4 align-middle">
 								{hour.from} - {hour.to}
@@ -126,52 +126,6 @@ export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedul
 			</table>
 		</div>
 	);
-}
-
-function stringToHslColor(str: string, s: number, l: number) {
-	let hash = 0;
-	for (let i = 0; i < str.length; i++) {
-		hash = str.charCodeAt(i) + ((hash << 5) - hash);
-	}
-
-	const h = hash % 360;
-	return "hsl(" + h + ", " + s + "%, " + l + "%)";
-}
-
-export function calculateBlockHeight(from: number, to: number) {
-	const size = to - from + 1;
-	return 72 * size - 4 + (size - 1) * 11.5; // 72px is the height of one row, 4px is the padding, 11.5px is the margin
-}
-
-export function calculateWeekDates(weekDate?: string) {
-	const dateFormat = Intl.DateTimeFormat("pl-PL", { month: "long", day: "numeric" });
-	const date = weekDate ? dayjs(weekDate) : dayjs();
-
-	const monday = date.day(1);
-	const prev = monday.subtract(7, "day").format("YYYY-MM-DD");
-	const next = monday.add(7, "day").format("YYYY-MM-DD");
-
-	return {
-		prev: prev,
-		next: next,
-		dates: [1, 2, 3, 4, 5].map((day) => dateFormat.format(monday.add(day - 1, "day").toDate())),
-	};
-}
-
-export interface ISchedule {
-	dayOfWeek: number;
-	index: number;
-	room: string;
-	lesson: {
-		id: number;
-		name: string | null;
-	};
-	with: string;
-	exemption: {
-		isExemption: boolean;
-		cancelation: boolean;
-		reason: string | null;
-	};
 }
 
 interface Block extends ISchedule {

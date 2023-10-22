@@ -1,6 +1,7 @@
 import { currentUser } from "@clerk/nextjs";
-import { ScheduleView, type ISchedule } from "~/app/(panel)/schedule/view";
+import { ScheduleView } from "~/app/(panel)/schedule/view";
 import { db } from "~/server/db";
+import { type ISchedule, mapWithExceptions } from "~/util/scheduleUtil";
 import { getWeekDates } from "~/util/weekDates";
 
 export const runtime = "edge";
@@ -13,15 +14,17 @@ export default async function SchedulePage({ searchParams }: { searchParams: { w
 
 	const { schedule, exemptions } = isTeacher ? await getDataForTeacher(user!.id, week) : await getDataForStudent(user!.id, week);
 
-	const finalSchedule: ISchedule[] = schedule.map(
+	let mappedSchedule: ISchedule[] = schedule.map(
 		(schedule) =>
 			({
+				id: schedule.id,
 				dayOfWeek: schedule.dayOfWeek,
 				index: schedule.index,
 				room: schedule.room,
 				lesson: schedule.lesson,
 				with: isTeacher ? "Klasa " + schedule.class!.name : schedule.teacher!.name,
 				exemption: {
+					id: -1,
 					isExemption: false,
 					cancelation: false,
 					reason: "",
@@ -29,51 +32,12 @@ export default async function SchedulePage({ searchParams }: { searchParams: { w
 			}) satisfies ISchedule,
 	);
 
-	exemptions.forEach((exemption) => {
-		switch (exemption.type) {
-			case "addition":
-				finalSchedule.push({
-					dayOfWeek: exemption.dayOfWeek!,
-					index: exemption.index!,
-					room: exemption.room!,
-					lesson: exemption.lesson!,
-					with: isTeacher ? "Klasa " + exemption.class!.name : exemption.teacher!.name,
-					exemption: {
-						isExemption: true,
-						cancelation: false,
-						reason: exemption.reason,
-					},
-				});
-				break;
-			case "change":
-				const index = schedule.findIndex((lesson) => lesson.id == exemption.scheduleId);
-
-				finalSchedule[index] = {
-					dayOfWeek: exemption.dayOfWeek!,
-					index: exemption.index!,
-					room: exemption.room!,
-					lesson: exemption.lesson!,
-					with: isTeacher ? "Klasa " + exemption.class!.name : exemption.teacher!.name,
-					exemption: {
-						isExemption: true,
-						cancelation: false,
-						reason: exemption.reason,
-					},
-				};
-				break;
-			case "cancelation": {
-				const index = schedule.findIndex((lesson) => lesson.id == exemption.scheduleId);
-				finalSchedule[index]!.exemption.cancelation = true;
-				finalSchedule[index]!.exemption.isExemption = true;
-				finalSchedule[index]!.exemption.reason = exemption.reason;
-				break;
-			}
-		}
-	});
+	// Remap with exemptions
+	mappedSchedule = mapWithExceptions(mappedSchedule, exemptions, isTeacher);
 
 	return (
 		<ScheduleView
-			schedule={finalSchedule}
+			schedule={mappedSchedule}
 			title={isTeacher ? "Plan lekcji nauczyciela" : "Twój plan lekcji"}
 			weekDate={searchParams.week}
 		/>

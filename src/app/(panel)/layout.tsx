@@ -8,11 +8,7 @@ import { cookies } from "next/headers";
 import { db } from "~/server/db";
 import { Suspense } from "react";
 import { headers } from "next/headers";
-
-export const metadata = {
-	title: "miniature-pancake",
-	icons: [{ rel: "icon", url: "/favicon.ico" }],
-};
+import { Logo } from "~/components/logo";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const user = await currentUser();
@@ -23,7 +19,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 			<header className="inset-x-0 top-0 col-span-2 flex h-24 w-full items-center justify-center border-b">
 				<div className="flex h-16 w-2/3 items-center justify-between">
 					<div className="flex items-center gap-2">
-						<Link href="/">LOGO</Link>
+						<Link href="/">
+							<Logo className="h-10 w-10" />
+						</Link>
 						{isTeacher && (
 							<>
 								{"/"}
