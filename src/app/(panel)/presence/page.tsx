@@ -14,8 +14,7 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 	const selectedClass = parseInt(cookies().get("selectedClassId")?.value ?? "1") ?? 1;
 	const user = await currentUser();
 
-	// const isTeacher = user?.privateMetadata.role !== "student" ?? false;
-	const isTeacher = true;
+	const isTeacher = (user?.privateMetadata.role ?? "student") !== "student";
 
 	const week = getWeekDates(searchParams.week);
 
