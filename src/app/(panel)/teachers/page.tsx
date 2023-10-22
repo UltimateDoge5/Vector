@@ -8,7 +8,8 @@ export default async function Page() {
       id: true,
       userId: true,
       name: true,
-      admin: true
+      admin: true,
+      classId: true
     }
   })
 
