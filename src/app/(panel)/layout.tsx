@@ -15,7 +15,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 	const isTeacher = (user?.privateMetadata.role ?? "student") !== "student";
 
 	return (
-		<div className={`grid h-full w-full grid-cols-[240px,auto] grid-rows-[96px,auto] gap-y-4 bg-background text-text`}>
+		<div className={`grid h-full grid-cols-[240px,auto] grid-rows-[96px,auto] gap-y-4 bg-background text-text`}>
 			<header className="inset-x-0 top-0 col-span-2 flex h-24 w-full items-center justify-center border-b">
 				<div className="flex h-16 w-2/3 items-center justify-between">
 					<div className="flex items-center gap-2">
@@ -39,7 +39,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 				</div>
 			</header>
 			<Sidebar />
-			<main className="mx-auto w-full scroll-auto pl-4">{children}</main>
+			<main className="max-w-[1920px] scroll-auto pl-4">{children}</main>
 		</div>
 	);
 }

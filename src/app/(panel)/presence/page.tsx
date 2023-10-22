@@ -185,9 +185,9 @@ const getAttendenceForClass = async (classId: number, week: { from: Date; to: Da
 	return { schedule, presence, exemptions, studentsList: students };
 };
 
-const getPresenceForStudent = async (studentId: string, week: { from: Date; to: Date }) => {
+const getPresenceForStudent = async (userId: string, week: { from: Date; to: Date }) => {
 	const student = await db.query.Student.findFirst({
-		where: (student, { eq }) => eq(student.userId, studentId),
+		where: (student, { eq }) => eq(student.userId, userId),
 		columns: {
 			id: true,
 			classId: true,
