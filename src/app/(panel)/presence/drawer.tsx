@@ -6,7 +6,7 @@ import { type PresenceStatus, legend } from "./view";
 import { CheckIcon, ChevronDoubleRightIcon, ChevronUpDownIcon } from "@heroicons/react/24/outline";
 import { Fragment } from "react";
 
-const EditableStatuses: PresenceStatus[] = ["none", "present", "absent", "late", "excused", "releasedBySchool"];
+const EditableStatuses: PresenceStatus[] = ["present", "absent", "late", "excused", "releasedBySchool"];
 
 export function PresenceDrawer({ presence, onStatusChange, close }: PresenceDrawerProps) {
 	return (

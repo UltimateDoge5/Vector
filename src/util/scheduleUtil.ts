@@ -141,6 +141,7 @@ export function calculateWeekDates(weekDate?: string) {
 	const next = monday.add(7, "day").format("YYYY-MM-DD");
 
 	return {
+		week: monday.set("hour", 0).set("minute", 0).set("second", 0).set("millisecond", 0).toDate(),
 		prev: prev,
 		next: next,
 		dates: [1, 2, 3, 4, 5].map((day) => dateFormat.format(monday.add(day - 1, "day").toDate())),

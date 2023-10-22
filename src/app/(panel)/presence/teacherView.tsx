@@ -35,7 +35,7 @@ export function TeacherPresenceView({
 
 	console.log("changes", changes);
 	const maxIndex = Math.max(...schedule.map((lesson) => lesson.index));
-	const { prev, next, dates } = calculateWeekDates(weekDate);
+	const { prev, next, dates, week } = calculateWeekDates(weekDate);
 
 	useEffect(() => {
 		window.addEventListener("keydown", (e) => {
@@ -145,9 +145,14 @@ export function TeacherPresenceView({
 					<button
 						className="rounded-lg bg-primary px-4 py-2 text-text"
 						onClick={async () => {
-							const res = await fetch("/api/presence", {
+							const res = await fetch("/presence/api/update", {
 								method: "PUT",
-								body: JSON.stringify(changes),
+								body: JSON.stringify(
+									changes.map((change) => ({
+										...change,
+										date: week,
+									})),
+								),
 							});
 
 							if (res.ok) {
