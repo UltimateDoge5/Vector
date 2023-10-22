@@ -1,71 +1,98 @@
 "use client";
 
 import { Listbox, Transition } from "@headlessui/react";
-import { type StatusChange, type ClassPresence } from "./teacherView";
-import { type PresenceStatus, legend } from "./view";
 import { CheckIcon, ChevronDoubleRightIcon, ChevronUpDownIcon } from "@heroicons/react/24/outline";
 import { Fragment } from "react";
+import { type ClassPresence, type StatusChange } from "./teacherView";
+import { legend, type PresenceStatus } from "./view";
 
 const EditableStatuses: PresenceStatus[] = ["present", "absent", "late", "excused", "releasedBySchool"];
 
-export function PresenceDrawer({ presence, onStatusChange, close }: PresenceDrawerProps) {
+export function PresenceDrawer({ presence, onStatusChange, close, onSave, isUpdating }: PresenceDrawerProps) {
 	return (
 		<>
-			<div className="absolute left-0 top-0 h-screen w-full bg-black/40" onClick={close} />
+			<Transition
+				show={presence !== undefined}
+				as={Fragment}
+				enter="transition ease-out duration-300"
+				enterFrom="opacity-0"
+				enterTo="opacity-100"
+				leave="transition ease-in duration-300"
+				leaveFrom="opacity-100"
+				leaveTo="opacity-0"
+			>
+				<div className="absolute left-0 top-0 h-screen w-full bg-black/40" onClick={close} />
+			</Transition>
+
 			<div
-				className="fixed right-0 top-0 z-10 h-screen w-2/3 min-w-[256px] overflow-y-auto rounded-l-lg bg-white p-4"
+				className={`fixed right-0 top-0 z-10 h-screen w-2/3 min-w-[256px] overflow-y-auto rounded-l-lg bg-white p-4 transition-transform 
+				${presence !== undefined ? "translate-x-0 transform" : "translate-x-full transform"}`}
 				aria-labelledby="drawer-label"
 			>
 				<ChevronDoubleRightIcon className="absolute left-6 top-2 h-6 w-6 cursor-pointer" onClick={close} />
-				<div className="flex flex-col items-center justify-center">
-					<h2 className="text-2xl">Obecności {presence.lessonName}</h2>
-					<p>
-						{presence.hours.from}-{presence.hours.to} | {presence.teacherName}
-					</p>
+				{presence !== undefined && (
+					<div className="flex flex-col items-center justify-center">
+						<h2 className="text-2xl">Obecności {presence.lessonName}</h2>
+						<p>
+							{presence.hours.from}-{presence.hours.to} | {presence.teacherName}
+						</p>
 
-					<div className="w-full flex-col gap-2 scroll-auto px-4">
-						<table className="w-full">
-							<thead>
-								<tr className="text-left">
-									<th>Nr</th>
-									<th>Imię i nazwisko</th>
-									<th>Obecność</th>
-								</tr>
-							</thead>
-							<tbody>
-								{Object.entries(presence.students)
-									.sort((a, b) => {
-										if (a[1].name.split(" ")[1]! < b[1].name.split(" ")[1]!) {
-											return -1;
-										}
-										if (a[1].name.split(" ")[1]! > b[1].name.split(" ")[1]!) {
-											return 1;
-										}
-										return 0;
-									})
-									.map(([id, student], i) => (
-										<tr key={id} className="border-b py-1">
-											<td>{i + 1}</td>
-											<td>{student.name}</td>
-											<td>
-												<PresenceListbox
-													status={student.status}
-													onStatusChange={(status) =>
-														onStatusChange({
-															studentId: parseInt(id),
-															status,
-															scheduleId: presence.scheduleId,
-															exemptionId: presence.exemptionId,
-														})
-													}
-												/>
-											</td>
-										</tr>
-									))}
-							</tbody>
-						</table>
+						<div className="mt-4 w-full flex-col gap-2 scroll-auto px-4">
+							<table className="w-full">
+								<thead>
+									<tr className="text-left">
+										<th>Nr</th>
+										<th>Imię i nazwisko</th>
+										<th>Obecność</th>
+									</tr>
+								</thead>
+								<tbody>
+									{Object.entries(presence.students)
+										.sort((a, b) => {
+											if (a[1].name.split(" ")[1]! < b[1].name.split(" ")[1]!) {
+												return -1;
+											}
+											if (a[1].name.split(" ")[1]! > b[1].name.split(" ")[1]!) {
+												return 1;
+											}
+											return 0;
+										})
+										.map(([id, student], i) => (
+											<tr key={id} className="border-b py-1">
+												<td>{i + 1}</td>
+												<td>{student.name}</td>
+												<td>
+													<PresenceListbox
+														status={student.status}
+														onStatusChange={(status) =>
+															onStatusChange({
+																studentId: parseInt(id),
+																status,
+																scheduleId: presence.scheduleId,
+																exemptionId: presence.exemptionId,
+															})
+														}
+													/>
+												</td>
+											</tr>
+										))}
+								</tbody>
+							</table>
+						</div>
+
+						<div className="mt-2 w-full">
+							<button
+								disabled={isUpdating}
+								className="w-full rounded-lg bg-primary/80 px-4 py-2 text-text disabled:cursor-not-allowed disabled:opacity-50"
+								onClick={() => {
+									onSave();
+								}}
+							>
+								Zapisz zamiany
+							</button>
+						</div>
 					</div>
-				</div>
+				)}
 			</div>
 		</>
 	);
@@ -75,7 +102,7 @@ const PresenceListbox = ({ status, onStatusChange }: { status: PresenceStatus; o
 	return (
 		<Listbox value={status} onChange={(v) => onStatusChange(v)}>
 			<div className="relative">
-				<Listbox.Button className="relative flex w-full cursor-default items-center gap-2 rounded-lg bg-white py-2 pl-3 pr-10 text-left focus:outline-none sm:text-sm">
+				<Listbox.Button className="relative flex w-full min-w-[256px] cursor-default items-center gap-2 rounded-lg bg-white py-2 pl-3  text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary sm:text-sm">
 					<div className={`h-4 w-4 rounded-md ${legend[status].color}`} />
 					<span className="block truncate">{legend[status].text}</span>
 					<span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -117,5 +144,7 @@ const PresenceListbox = ({ status, onStatusChange }: { status: PresenceStatus; o
 interface PresenceDrawerProps {
 	presence: ClassPresence;
 	onStatusChange: (status: StatusChange) => void;
+	isUpdating: boolean;
 	close: () => void;
+	onSave: () => void;
 }

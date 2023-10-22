@@ -1,5 +1,16 @@
 import { ClerkProvider } from "@clerk/nextjs";
+import { type Metadata } from "next";
 import { Inter } from "next/font/google";
+
+export const metadata: Metadata = {
+	title: "Dziennik Vector",
+	description: "Dziennik elektroniczny Vector",
+	icons: {
+		apple: "/apple-touch-icon.png",
+		icon: "/favicon.ico",
+	},
+	manifest: "/manifest.json",
+};
 
 const inter = Inter({
 	subsets: ["latin"],

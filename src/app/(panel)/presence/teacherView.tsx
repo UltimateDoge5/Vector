@@ -1,12 +1,12 @@
 "use client";
 import { ExclamationTriangleIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { type ISchedule, calculateWeekDates, stringToHslColor } from "~/util/scheduleUtil";
 import { days, schoolHours } from "../schedule/view";
 import { PresenceDrawer } from "./drawer";
 import { type PresenceStatus } from "./view";
-import { Portal, Transition } from "@headlessui/react";
+import { Transition } from "@headlessui/react";
 
 export function TeacherPresenceView({
 	schedule,
@@ -27,17 +27,21 @@ export function TeacherPresenceView({
 	const [changes, setChanges] = useState<StatusChange[]>([]);
 	const [isUpdating, setIsUpdating] = useState(false);
 
+	const presenceSnapshot = useRef<ClassPresence[]>(presenceInit);
+	const wasListenerAdded = useRef(false);
+
 	const selectedPresence = presence.find(
 		(presence) =>
 			(presence.scheduleId !== -1 && presence.scheduleId === selectedLessonIds.scheduleId) ||
 			(presence.exemptionId !== -1 && presence.exemptionId === selectedLessonIds.exemptionId),
 	)!;
 
-	console.log("changes", changes);
 	const maxIndex = Math.max(...schedule.map((lesson) => lesson.index));
 	const { prev, next, dates, week } = calculateWeekDates(weekDate);
 
 	useEffect(() => {
+		presenceSnapshot.current = structuredClone(presenceInit);
+
 		window.addEventListener("keydown", (e) => {
 			if (e.key === "Escape") setSelectedLessonIds({ scheduleId: -1, exemptionId: -1 });
 		});
@@ -47,6 +51,56 @@ export function TeacherPresenceView({
 				if (e.key === "Escape") setSelectedLessonIds({ scheduleId: -1, exemptionId: -1 });
 			});
 	}, []);
+
+	useEffect(() => {
+		if (changes.length === 0 && wasListenerAdded.current) {
+			window.removeEventListener("beforeunload", (e) => {
+				e.preventDefault();
+			});
+
+			wasListenerAdded.current = false;
+		} else if (!wasListenerAdded.current) {
+			window.addEventListener("beforeunload", (e) => {
+				e.preventDefault();
+			});
+
+			wasListenerAdded.current = true;
+		}
+	}, [changes]);
+
+	const saveChanges = async () => {
+		if (isUpdating || changes.length === 0) return;
+
+		const res = await fetch("/presence/api/update", {
+			method: "PUT",
+			body: JSON.stringify(
+				changes.map((change) => ({
+					...change,
+					date: week,
+				})),
+			),
+		});
+
+		if (res.ok) {
+			changes.forEach((change) => {
+				//update the snapshot
+				const snapshot = presenceSnapshot.current.find(
+					(lesson) =>
+						(lesson.scheduleId === change.scheduleId || lesson.exemptionId === change.exemptionId) &&
+						lesson.students[change.studentId],
+				);
+
+				if (snapshot) {
+					snapshot.students[change.studentId]!.status = change.status;
+				}
+			});
+
+			setChanges([]);
+			setIsUpdating(false);
+		} else {
+			alert("Wystąpił błąd podczas zapisywania zmian. Spróbuj ponownie później.");
+		}
+	};
 
 	return (
 		<>
@@ -135,7 +189,7 @@ export function TeacherPresenceView({
 				leaveFrom="opacity-100"
 				leaveTo="opacity-0"
 			>
-				<div className="fixed bottom-0 right-0 flex w-full justify-between rounded-t-lg border-b-4 border-primary bg-white p-4">
+				<div className="fixed bottom-0 right-0 flex w-full justify-between rounded-t-lg border-b-4 border-accent/80 bg-white p-4">
 					<h3 className="inline-flex items-center gap-2 text-xl">
 						<div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20">
 							<ExclamationTriangleIcon className="h-6 w-6 stroke-accent/80" />
@@ -143,72 +197,60 @@ export function TeacherPresenceView({
 						Masz niezapisane zmiany!
 					</h3>
 					<button
-						className="rounded-lg bg-primary px-4 py-2 text-text"
-						onClick={async () => {
-							const res = await fetch("/presence/api/update", {
-								method: "PUT",
-								body: JSON.stringify(
-									changes.map((change) => ({
-										...change,
-										date: week,
-									})),
-								),
-							});
-
-							if (res.ok) {
-								setChanges([]);
-								setIsUpdating(false);
-							} else {
-								alert("Wystąpił błąd podczas zapisywania zmian. Spróbuj ponownie później.");
-							}
-						}}
+						disabled={isUpdating}
+						className="rounded-lg bg-primary px-4 py-2 text-text disabled:cursor-not-allowed disabled:opacity-50"
+						onClick={saveChanges}
 					>
 						Zapisz zmiany
 					</button>
 				</div>
 			</Transition>
 
-			{selectedPresence && (
-				<Portal>
-					<PresenceDrawer
-						presence={selectedPresence}
-						close={() => setSelectedLessonIds({ scheduleId: -1, exemptionId: -1 })}
-						onStatusChange={(statusChange) => {
-							const changesCopy = [...changes];
-							console.log("changesCopy", changesCopy);
-							const changeIndex = changesCopy.findIndex(
-								(change) =>
-									(change.scheduleId === selectedPresence.scheduleId ||
-										change.scheduleId === selectedPresence.exemptionId) &&
-									change.studentId === statusChange.studentId,
-							);
+			<PresenceDrawer
+				isUpdating={isUpdating}
+				presence={selectedPresence}
+				close={() => setSelectedLessonIds({ scheduleId: -1, exemptionId: -1 })}
+				onSave={saveChanges}
+				onStatusChange={(statusChange) => {
+					const changesCopy = [...changes];
+					const changeIndex = changesCopy.findIndex(
+						(change) =>
+							(change.scheduleId === selectedPresence.scheduleId || change.scheduleId === selectedPresence.exemptionId) &&
+							change.studentId === statusChange.studentId,
+					);
 
-							console.log("changeIndex", changeIndex);
-							if (changeIndex !== -1) {
-								changesCopy[changeIndex]!.status = statusChange.status;
-							} else {
-								changesCopy.push({
-									...statusChange,
-								});
+					// TODO: Fix this
+					// If the change is the same as in the snapshot, remove it from changes
+					// Otherwise, update or add the change
+					const snapshot = presenceSnapshot.current.find(
+						(lesson) =>
+							lesson.scheduleId === selectedPresence.scheduleId || lesson.exemptionId === selectedPresence.exemptionId,
+					);
+
+					console.log(snapshot?.students, selectedPresence.students, statusChange.status);
+					if (snapshot && snapshot.students[statusChange.studentId]!.status === statusChange.status) {
+						console.log("same");
+						if (changeIndex !== -1) changesCopy.splice(changeIndex, 1);
+					} else {
+						if (changeIndex !== -1) {
+							changesCopy[changeIndex] = statusChange;
+						} else {
+							changesCopy.push(statusChange);
+						}
+					}
+
+					setChanges(changesCopy);
+					setPresence(
+						[...presence].map((lesson) => {
+							if (lesson.scheduleId === selectedPresence.scheduleId || lesson.exemptionId === selectedPresence.exemptionId) {
+								lesson.students[statusChange.studentId]!.status = statusChange.status;
 							}
 
-							setChanges(changesCopy);
-							setPresence(
-								[...presence].map((lesson) => {
-									if (
-										lesson.scheduleId === selectedPresence.scheduleId ||
-										lesson.exemptionId === selectedPresence.exemptionId
-									) {
-										lesson.students[statusChange.studentId]!.status = statusChange.status;
-									}
-
-									return lesson;
-								}),
-							);
-						}}
-					/>
-				</Portal>
-			)}
+							return lesson;
+						}),
+					);
+				}}
+			/>
 		</>
 	);
 }

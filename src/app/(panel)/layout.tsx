@@ -9,11 +9,6 @@ import { db } from "~/server/db";
 import { Suspense } from "react";
 import { headers } from "next/headers";
 
-export const metadata = {
-	title: "miniature-pancake",
-	icons: [{ rel: "icon", url: "/favicon.ico" }],
-};
-
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const user = await currentUser();
 	const isTeacher = (user?.privateMetadata.role ?? "student") !== "student";
