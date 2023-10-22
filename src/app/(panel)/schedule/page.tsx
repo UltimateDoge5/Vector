@@ -1,7 +1,7 @@
 import { currentUser } from "@clerk/nextjs";
-import { ScheduleView, type ISchedule } from "~/app/(panel)/schedule/view";
+import { ScheduleView } from "~/app/(panel)/schedule/view";
 import { db } from "~/server/db";
-import { mapWithExceptions } from "~/util/scheduleUtil";
+import { type ISchedule, mapWithExceptions } from "~/util/scheduleUtil";
 import { getWeekDates } from "~/util/weekDates";
 
 export const runtime = "edge";
@@ -24,6 +24,7 @@ export default async function SchedulePage({ searchParams }: { searchParams: { w
 				lesson: schedule.lesson,
 				with: isTeacher ? "Klasa " + schedule.class!.name : schedule.teacher!.name,
 				exemption: {
+					id: -1,
 					isExemption: false,
 					cancelation: false,
 					reason: "",

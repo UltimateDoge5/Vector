@@ -1,12 +1,12 @@
 "use client";
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import { ExclamationTriangleIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { type ISchedule, calculateWeekDates, stringToHslColor } from "~/util/scheduleUtil";
 import { days, schoolHours } from "../schedule/view";
 import { PresenceDrawer } from "./drawer";
 import { type PresenceStatus } from "./view";
-import { Portal } from "@headlessui/react";
+import { Portal, Transition } from "@headlessui/react";
 
 export function TeacherPresenceView({
 	schedule,
@@ -24,6 +24,8 @@ export function TeacherPresenceView({
 		scheduleId: -1,
 		exemptionId: -1,
 	});
+	const [changes, setChanges] = useState<StatusChange[]>([]);
+	const [isUpdating, setIsUpdating] = useState(false);
 
 	const selectedPresence = presence.find(
 		(presence) =>
@@ -31,6 +33,7 @@ export function TeacherPresenceView({
 			(presence.exemptionId !== -1 && presence.exemptionId === selectedLessonIds.exemptionId),
 	)!;
 
+	console.log("changes", changes);
 	const maxIndex = Math.max(...schedule.map((lesson) => lesson.index));
 	const { prev, next, dates } = calculateWeekDates(weekDate);
 
@@ -121,12 +124,82 @@ export function TeacherPresenceView({
 					</tbody>
 				</table>
 			</div>
+
+			<Transition
+				as={Fragment}
+				show={changes.length > 0 || isUpdating}
+				enter="transition ease-out duration-100"
+				enterFrom="opacity-0"
+				enterTo="opacity-100"
+				leave="transition ease-in duration-75"
+				leaveFrom="opacity-100"
+				leaveTo="opacity-0"
+			>
+				<div className="fixed bottom-0 right-0 flex w-full justify-between rounded-t-lg border-b-4 border-primary bg-white p-4">
+					<h3 className="inline-flex items-center gap-2 text-xl">
+						<div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20">
+							<ExclamationTriangleIcon className="h-6 w-6 stroke-accent/80" />
+						</div>
+						Masz niezapisane zmiany!
+					</h3>
+					<button
+						className="rounded-lg bg-primary px-4 py-2 text-text"
+						onClick={async () => {
+							const res = await fetch("/api/presence", {
+								method: "PUT",
+								body: JSON.stringify(changes),
+							});
+
+							if (res.ok) {
+								setChanges([]);
+								setIsUpdating(false);
+							} else {
+								alert("Wystąpił błąd podczas zapisywania zmian. Spróbuj ponownie później.");
+							}
+						}}
+					>
+						Zapisz zmiany
+					</button>
+				</div>
+			</Transition>
+
 			{selectedPresence && (
 				<Portal>
 					<PresenceDrawer
 						presence={selectedPresence}
-						setPresence={(v) => {
-							setPresence(presence.map((p) => (p.scheduleId === v.scheduleId ? v : p)));
+						close={() => setSelectedLessonIds({ scheduleId: -1, exemptionId: -1 })}
+						onStatusChange={(statusChange) => {
+							const changesCopy = [...changes];
+							console.log("changesCopy", changesCopy);
+							const changeIndex = changesCopy.findIndex(
+								(change) =>
+									(change.scheduleId === selectedPresence.scheduleId ||
+										change.scheduleId === selectedPresence.exemptionId) &&
+									change.studentId === statusChange.studentId,
+							);
+
+							console.log("changeIndex", changeIndex);
+							if (changeIndex !== -1) {
+								changesCopy[changeIndex]!.status = statusChange.status;
+							} else {
+								changesCopy.push({
+									...statusChange,
+								});
+							}
+
+							setChanges(changesCopy);
+							setPresence(
+								[...presence].map((lesson) => {
+									if (
+										lesson.scheduleId === selectedPresence.scheduleId ||
+										lesson.exemptionId === selectedPresence.exemptionId
+									) {
+										lesson.students[statusChange.studentId]!.status = statusChange.status;
+									}
+
+									return lesson;
+								}),
+							);
 						}}
 					/>
 				</Portal>
@@ -142,4 +215,11 @@ export interface ClassPresence {
 	teacherName: string;
 	hours: (typeof schoolHours)[number];
 	students: Record<number, { status: PresenceStatus; name: string }>;
+}
+
+export interface StatusChange {
+	studentId: number;
+	scheduleId: number | null;
+	exemptionId: number | null;
+	status: PresenceStatus;
 }
