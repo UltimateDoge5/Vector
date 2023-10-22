@@ -2,11 +2,11 @@
 
 import { Combobox, Dialog, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon } from '@heroicons/react/24/outline';
-import { FormEvent, Fragment, useMemo, useState } from 'react';
+import { FormEvent, Fragment, useEffect, useMemo, useState } from 'react';
 import { ClassDto, StudentDto } from '~/types/dtos';
 
-type Props = {
-    student: StudentDto
+interface Props {
+    student: StudentDto,
     isOpen: boolean,
     setIsOpen: (state: boolean) => void,
     editStudent: (userId: string, name: string, classId: number) => void,
@@ -14,11 +14,15 @@ type Props = {
 }
 
 export default function EditStudentModal({ student, isOpen, setIsOpen, editStudent, classes }: Props) {
-    const [name, setName] = useState(student.name);
+    const [name, setName] = useState();
 
-    const [selectedClass, setSelectedClass] = useState<ClassDto | undefined>(
-        classes.find(classItem => classItem.id === student.class.id));
+    const [selectedClass, setSelectedClass] = useState<ClassDto | undefined>();
     const [query, setQuery] = useState('')
+
+    useEffect(() => {
+        setName(student.name);
+        setSelectedClass(classes.find(classItem => classItem.id === student.class?.id));
+    }, [student, classes])
 
     const filteredClasses = useMemo(
         () => query === ''
@@ -139,7 +143,7 @@ export default function EditStudentModal({ student, isOpen, setIsOpen, editStude
                                     </Combobox>
 
                                     <button
-                                        className="bg-primary hover:bg-primary/90 py-3 rounded-lg text-white font-bold mt-2 disabled:bg-primary/50 disabled:cursor-not-allowed transition"
+                                        className="bg-primary hover:bg-primary/90 py-3 rounded-lg text-text font-bold mt-2 disabled:bg-primary/50 disabled:cursor-not-allowed transition"
                                         type="submit"
                                         disabled={!name || !selectedClass}
 

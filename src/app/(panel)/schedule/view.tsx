@@ -1,7 +1,8 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import dayjs from "dayjs";
 import Link from "next/link";
 
-const hours = [
+export const hours = [
 	{ from: "7:30", to: "8:15" },
 	{ from: "8:20", to: "9:05" },
 	{ from: "9:10", to: "9:55" },
@@ -19,7 +20,7 @@ const hours = [
 	{ from: "19:10", to: "19:55" },
 ];
 
-const days = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"];
+export const days = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"];
 
 export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedule[]; title: string; weekDate?: string }) {
 	const maxIndex = Math.max(...schedule.map((lesson) => lesson.index));
@@ -63,11 +64,11 @@ export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedul
 			</div>
 			<table className="w-full table-fixed">
 				<colgroup>
-					<col className="w-[10%]" />
+					<col className="w-36" />
 				</colgroup>
 				<tbody className="[&_tr:last-child]:border-0">
 					<tr>
-						<th className="h-12 w-1/6 px-4 text-left align-middle font-medium">Lekcja</th>
+						<th className="h-12 w-1/6 px-4 align-middle font-medium">Lekcja</th>
 						{days.map((day, i) => (
 							<th key={day} className="h-12 px-4 text-center align-middle font-medium">
 								{day}
@@ -92,10 +93,8 @@ export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedul
 									return (
 										<td rowSpan={block.to - block.from + 1} className="p-1.5 align-middle" key={day}>
 											<div
-												className={`relative h-max rounded-lg p-2  ${
-													block.exemption.cancelation
-														? "line-through grayscale"
-														: "transition-colors hover:saturate-150"
+												className={`relative h-max rounded-lg p-2 transition-all  ${
+													block.exemption.cancelation ? "line-through grayscale" : "hover:saturate-150"
 												}`}
 												style={{
 													background: stringToHslColor(block.lesson.name!, 80, 80),
@@ -139,23 +138,23 @@ function stringToHslColor(str: string, s: number, l: number) {
 	return "hsl(" + h + ", " + s + "%, " + l + "%)";
 }
 
-function calculateBlockHeight(from: number, to: number) {
+export function calculateBlockHeight(from: number, to: number) {
 	const size = to - from + 1;
 	return 72 * size - 4 + (size - 1) * 11.5; // 72px is the height of one row, 4px is the padding, 11.5px is the margin
 }
 
-function calculateWeekDates(weekDate?: string) {
-	const date = weekDate ? new Date(weekDate) : new Date();
-	const day = date.getDay();
-	const diff = date.getDate() - day + (day == 0 ? -6 : 1);
+export function calculateWeekDates(weekDate?: string) {
+	const dateFormat = Intl.DateTimeFormat("pl-PL", { month: "long", day: "numeric" });
+	const date = weekDate ? dayjs(weekDate) : dayjs();
 
-	const prev = new Date(date.setDate(diff - 7));
-	const next = new Date(date.setDate(diff + 7));
+	const monday = date.day(1);
+	const prev = monday.subtract(7, "day").format("YYYY-MM-DD");
+	const next = monday.add(7, "day").format("YYYY-MM-DD");
 
 	return {
-		prev: `${prev.getFullYear()}-${prev.getMonth() + 1}-${prev.getDate()}`,
-		next: `${next.getFullYear()}-${next.getMonth() + 1}-${next.getDate()}`,
-		dates: [1, 2, 3, 4, 5].map((day) => new Date(date.setDate(diff + day)).toLocaleString("pl-PL", { day: "numeric", month: "long" })),
+		prev: prev,
+		next: next,
+		dates: [1, 2, 3, 4, 5].map((day) => dateFormat.format(monday.add(day - 1, "day").toDate())),
 	};
 }
 

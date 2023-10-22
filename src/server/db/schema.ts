@@ -47,7 +47,8 @@ export const Grade = mysqlTable("grade", {
 
 export const Presence = mysqlTable("presence", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
-	tableId: bigint("tableId", { mode: "number" }).notNull(),
+	exemptionId: bigint("exemptionId", { mode: "number" }),
+	tableId: bigint("tableId", { mode: "number" }),
 	studentId: bigint("studentId", { mode: "number" }).notNull(),
 	date: timestamp("date", { mode: "date" }).notNull(),
 	status: mysqlEnum("status", ["present", "absent", "late", "released", "releasedBySchool"]).notNull(),
@@ -60,14 +61,14 @@ export const Lesson = mysqlTable("lesson", {
 
 export const Class = mysqlTable("class", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
-	teacherId: bigint("teacherId", { mode: "number" }).notNull(),
+	teacherId: bigint("teacherId", { mode: "number" }).notNull().unique(),
 	name: varchar("name", { length: 255 }).notNull(),
 });
 
 export const Teacher = mysqlTable("teacher", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
 	userId: varchar("userId", { length: 32 }).notNull(),
-	classId: bigint("classId", { mode: "number" }),
+	classId: bigint("classId", { mode: "number" }).unique(),
 	name: varchar("name", { length: 255 }).notNull(),
 	admin: boolean("admin").default(false),
 });

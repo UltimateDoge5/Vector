@@ -1,19 +1,29 @@
 "use client"
 
-import { useState } from "react";
+import { Menu, Transition } from "@headlessui/react";
+import { ArchiveBoxXMarkIcon, EllipsisVerticalIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+import { ColumnDef } from "@tanstack/react-table";
+import { Fragment, useState } from "react";
 import { ClassDto, StudentDto } from "~/types/dtos";
-import AddStudentModal from "./AddStudentModal";
-import StudentListItem from "./StudentListItem";
+import { DataTable } from "../dataTable";
+import AddStudentModal from "./addStudentModal";
+import EditStudentModal from "./editStudentModal";
 
-type Props = {
+interface Props {
     students: StudentDto[],
     classes: ClassDto[],
+}
+
+interface EditModalState {
+    student: StudentDto,
+    isOpen: boolean
 }
 
 export default function StudentsManagement({ students, classes }: Props) {
     const [studentsList, setStudentsList] = useState(students);
 
-    const [isOpenModal, setIsOpenModal] = useState(false);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [editModalState, setEditModalState] = useState<EditModalState>({ student: {}, isOpen: false });
 
     const addStudent = async (formData: { name: string, email: string }, classId: number) => {
         const payload = {
@@ -71,27 +81,103 @@ export default function StudentsManagement({ students, classes }: Props) {
         }
     }
 
+    const columns: ColumnDef<StudentDto>[] = [
+        {
+            header: "Imię i Nazwisko",
+            accessorKey: "name",
+        },
+        {
+            header: "Klasa",
+            accessorKey: "class.name",
+        },
+        {
+            header: " ",
+            accessorKey: "",
+            cell: ({ row }) => (
+                <Menu as="div" className="relative inline-block text-right w-full">
+                    <div>
+                        <Menu.Button className="inline-flex w-full justify-end rounded-3x px-2 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+                            <EllipsisVerticalIcon className="h-5 w-5 text-accent/70" />
+                        </Menu.Button>
+                    </div>
+                    <Transition
+                        as={Fragment}
+                        enter="transition ease-out duration-100"
+                        enterFrom="transform opacity-0 scale-95"
+                        enterTo="transform opacity-100 scale-100"
+                        leave="transition ease-in duration-75"
+                        leaveFrom="transform opacity-100 scale-100"
+                        leaveTo="transform opacity-0 scale-95"
+                    >
+                        <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <div className="px-1 py-1" onClick={() => setEditModalState({ student: row.original, isOpen: true })}>
+                                <Menu.Item>
+                                    {({ active }) => (
+                                        <button
+                                            className={`${active ? 'bg-accent/50 text-white' : 'text-text'
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm font-bold`}
+                                        >
+                                            <PencilSquareIcon
+                                                className="mr-2 h-5 w-5"
+                                                aria-hidden="true"
+                                            />
+                                            Edytuj
+                                        </button>
+                                    )}
+                                </Menu.Item>
+                            </div>
+
+                            <div className="px-1 py-1 " onClick={() => deleteStudent(row.original.userId)}>
+                                <Menu.Item>
+                                    {({ active }) => (
+                                        <button
+                                            className={`${active ? 'bg-accent/50 text-white' : 'text-text'
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm font-bold`}
+                                        >
+                                            <ArchiveBoxXMarkIcon
+                                                className="mr-2 h-5 w-5"
+                                                aria-hidden="true"
+                                            />
+                                            Usuń
+                                        </button>
+                                    )}
+                                </Menu.Item>
+                            </div>
+
+                        </Menu.Items>
+                    </Transition>
+                </Menu>
+            )
+        }
+    ];
+
 
     return (
-        <>
-            <div className="mx-auto w-full">
+        <div className="px-10">
 
-                <div className="flex justify-between items-center mb-5">
-                    <h1 className="border-l-accent border-l-4 font-bold px-3 text-3xl">Uczniowie</h1>
-                    <button className="bg-primary hover:bg-primary/90 py-3 px-5 rounded-lg text-white font-bold " onClick={() => setIsOpenModal(true)}>Dodaj ucznia</button>
-                </div>
-
-                <ul className="border-t-2 py-2">
-                    {studentsList.map((student, index) => <StudentListItem student={student} index={index} key={student.userId} deleteStudent={deleteStudent} editStudent={editStudent} classes={classes} />)}
-                </ul>
-            </div>
+            <DataTable
+                columns={columns}
+                data={studentsList}
+                noDataText="Brak uczniów"
+                title="Uczniowie"
+                primaryActionBtn={<button className="bg-primary hover:bg-primary/90 py-3 px-5 rounded-lg text-text font-bold " onClick={() => setIsAddModalOpen(true)}>Dodaj ucznia</button>}
+            />
 
             <AddStudentModal
-                isOpen={isOpenModal}
-                setIsOpen={setIsOpenModal}
+                isOpen={isAddModalOpen}
+                setIsOpen={setIsAddModalOpen}
                 addStudent={addStudent}
                 classes={classes}
             />
-        </>
+
+            <EditStudentModal
+                student={editModalState.student}
+                isOpen={editModalState.isOpen}
+                setIsOpen={(state: boolean) => setEditModalState({ ...editModalState, isOpen: state })}
+                editStudent={editStudent}
+                classes={classes}
+            />
+
+        </div>
     )
 }

@@ -6,16 +6,16 @@ export default {
 	theme: {
 		extend: {
 			fontFamily: {
-				sans: ["var(--font-sans)", ...fontFamily.sans]
+				sans: ["var(--font-sans)", ...fontFamily.sans],
 			},
 			colors: {
-				'text': '#030512',
-				'background': '#f1efee',
-				'primary': '#91cfed',
-				'secondary': '#c2caf5',
-				'accent': '#1331dd',
+				text: "#030512",
+				background: "#f1efee",
+				primary: "#91cfed",
+				secondary: "#c2caf5",
+				accent: "#1331dd",
 			},
-		}
+		},
 	},
-	plugins: []
+	plugins: [],
 } satisfies Config;

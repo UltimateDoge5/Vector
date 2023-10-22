@@ -1,4 +1,4 @@
-import StudentsManagement from "~/components/students/StudentsManagement";
+import StudentsManagement from "~/components/students/studentsManagement";
 import { db } from "~/server/db";
 import { ClassDto, StudentDto } from "~/types/dtos";
 

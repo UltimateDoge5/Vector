@@ -5,7 +5,7 @@ import { ChevronUpDownIcon } from '@heroicons/react/24/outline';
 import { FormEvent, Fragment, useMemo, useState } from 'react';
 import { ClassDto } from '~/types/dtos';
 
-type Props = {
+interface Props {
     isOpen: boolean,
     setIsOpen: (state: boolean) => void,
     addStudent: (formData: { name: string, email: string }, classId: number) => void,
@@ -15,7 +15,7 @@ type Props = {
 export default function AddStudentModal({ isOpen, setIsOpen, addStudent, classes }: Props) {
     const [formData, setFormData] = useState({ name: "", email: "" })
 
-    const [selectedClass, setSelectedClass] = useState<ClassDto>();
+    const [selectedClass, setSelectedClass] = useState<ClassDto>({});
     const [query, setQuery] = useState('')
 
     const filteredClasses = useMemo(
@@ -44,6 +44,7 @@ export default function AddStudentModal({ isOpen, setIsOpen, addStudent, classes
         setIsOpen(false);
     }
 
+    console.log(selectedClass);
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" className="relative z-10" onClose={() => setIsOpen(false)}>
@@ -149,7 +150,7 @@ export default function AddStudentModal({ isOpen, setIsOpen, addStudent, classes
                                     </Combobox>
 
                                     <button
-                                        className="bg-primary hover:bg-primary/90 py-3 rounded-lg text-white font-bold mt-2 disabled:bg-primary/50 disabled:cursor-not-allowed transition"
+                                        className="bg-primary hover:bg-primary/90 py-3 rounded-lg text-text font-bold mt-2 disabled:bg-primary/50 disabled:cursor-not-allowed transition"
                                         type="submit"
                                         disabled={!formData.name || !formData.email || !selectedClass}
 

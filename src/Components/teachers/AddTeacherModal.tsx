@@ -3,7 +3,7 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { FormEvent, Fragment, useState } from 'react';
 
-type Props = {
+interface Props {
     isOpen: boolean,
     setIsOpen: (state: boolean) => void,
     addTeacher: (formData: { name: string, email: string }) => void
@@ -78,7 +78,7 @@ export default function AddTeacherModal({ isOpen, setIsOpen, addTeacher }: Props
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     />
 
-                                    <button className="bg-primary hover:bg-primary/90 py-3 rounded-lg text-white font-bold mt-2 disabled:bg-primary/50 disabled:cursor-not-allowed transition" type="submit" disabled={!formData.name || !formData.email}>Dodaj</button>
+                                    <button className="bg-primary hover:bg-primary/90 py-3 rounded-lg text-text font-bold mt-2 disabled:bg-primary/50 disabled:cursor-not-allowed transition" type="submit" disabled={!formData.name || !formData.email}>Dodaj</button>
                                 </form>
 
                             </Dialog.Panel>

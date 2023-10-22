@@ -1,10 +1,10 @@
 "use client"
 
 import { Dialog, Transition } from '@headlessui/react';
-import { FormEvent, Fragment, useState } from 'react';
+import { FormEvent, Fragment, useEffect, useState } from 'react';
 import { TeacherDto } from '~/types/dtos';
 
-type Props = {
+interface Props {
     teacher: TeacherDto
     isOpen: boolean,
     setIsOpen: (state: boolean) => void,
@@ -13,6 +13,10 @@ type Props = {
 
 export default function EditTeacherModal({ teacher, isOpen, setIsOpen, editTeacher }: Props) {
     const [name, setName] = useState(teacher.name);
+
+    useEffect(() => {
+        setName(teacher.name);
+    }, [teacher])
 
     const onSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -70,7 +74,7 @@ export default function EditTeacherModal({ teacher, isOpen, setIsOpen, editTeach
                                         onChange={(e) => setName(e.target.value)}
                                     />
 
-                                    <button className="bg-primary hover:bg-primary/90 py-3 rounded-lg text-white font-bold mt-2 disabled:bg-primary/50 disabled:cursor-not-allowed transition" type="submit" disabled={!name}>Edytuj</button>
+                                    <button className="bg-primary hover:bg-primary/90 py-3 rounded-lg text-text font-bold mt-2 disabled:bg-primary/50 disabled:cursor-not-allowed transition" type="submit" disabled={!name}>Edytuj</button>
                                 </form>
 
                             </Dialog.Panel>
