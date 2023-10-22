@@ -5,17 +5,17 @@ import { FormEvent, Fragment, useEffect, useState } from 'react';
 import { TeacherDto } from '~/types/dtos';
 
 interface Props {
-    teacher: TeacherDto
+    teacher: TeacherDto | null
     isOpen: boolean,
     setIsOpen: (state: boolean) => void,
     editTeacher: (userId: string, name: string) => void
 }
 
 export default function EditTeacherModal({ teacher, isOpen, setIsOpen, editTeacher }: Props) {
-    const [name, setName] = useState(teacher.name);
+    const [name, setName] = useState("");
 
     useEffect(() => {
-        setName(teacher.name);
+        setName(teacher!.name);
     }, [teacher])
 
     const onSubmit = (e: FormEvent) => {
@@ -26,7 +26,7 @@ export default function EditTeacherModal({ teacher, isOpen, setIsOpen, editTeach
             return;
         }
 
-        editTeacher(teacher.userId, name);
+        editTeacher(teacher!.userId, name);
         setIsOpen(false);
     }
 
@@ -62,7 +62,7 @@ export default function EditTeacherModal({ teacher, isOpen, setIsOpen, editTeach
                                     as="h3"
                                     className="text-lg font-bold leading-6 text-gray-900"
                                 >
-                                    Edytuj {teacher.name}
+                                    Edytuj {teacher!.name}
                                 </Dialog.Title>
 
                                 <form className="flex flex-col my-3" onSubmit={onSubmit}>

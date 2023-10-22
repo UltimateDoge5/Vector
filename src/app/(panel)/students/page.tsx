@@ -1,14 +1,15 @@
 import StudentsManagement from "~/components/students/studentsManagement";
 import { db } from "~/server/db";
-import { ClassDto, StudentDto } from "~/types/dtos";
+import { ClassDto, StudentWithClassDto } from "~/types/dtos";
 
 export default async function Page() {
-  const students: StudentDto[] = await db.query.Student.findMany({
+  const students: StudentWithClassDto[] = await db.query.Student.findMany({
     with: {
       class: {
         columns: {
           id: true,
-          name: true
+          name: true,
+          teacherId: true
         }
       }
     },
@@ -16,6 +17,7 @@ export default async function Page() {
       id: true,
       userId: true,
       name: true,
+      classId: true,
     }
   })
 

@@ -4,13 +4,13 @@ import { Menu, Transition } from "@headlessui/react";
 import { ArchiveBoxXMarkIcon, EllipsisVerticalIcon, PencilSquareIcon, UserMinusIcon, UserPlusIcon } from "@heroicons/react/24/outline";
 import { ColumnDef } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
-import { TeacherDto } from "~/types/dtos";
+import { TeacherDto, TeacherWithPasswordDto } from "~/types/dtos";
 import { DataTable } from "../dataTable";
 import AddTeacherModal from "./addTeacherModal";
 import EditTeacherModal from "./editTeacherModal";
 
 interface EditModalState {
-    teacher: TeacherDto,
+    teacher: TeacherDto | null,
     isOpen: boolean
 }
 
@@ -18,7 +18,7 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
     const [teachersList, setTeachersList] = useState(teachers);
 
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [editModalState, setEditModalState] = useState<EditModalState>({ teacher: {}, isOpen: false });
+    const [editModalState, setEditModalState] = useState<EditModalState>({ teacher: null, isOpen: false });
 
     const addTeacher = async (formData: { name: string, email: string }) => {
         const payload = {
@@ -33,7 +33,7 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
         });
 
         if (response.ok) {
-            const teacherWithPassword = await response.json();
+            const teacherWithPassword: TeacherWithPasswordDto = await response.json() as TeacherWithPasswordDto;
 
             console.log(`Domyślne hasło: ${teacherWithPassword.password}`);
 
@@ -204,12 +204,12 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
                 setIsOpen={setIsAddModalOpen}
                 addTeacher={addTeacher} />
 
-            <EditTeacherModal
+            {editModalState.teacher && <EditTeacherModal
                 teacher={editModalState.teacher}
                 isOpen={editModalState.isOpen}
                 setIsOpen={(state: boolean) => setEditModalState({ ...editModalState, isOpen: state })}
                 editTeacher={editTeacher}
-            />
+            />}
 
         </div>
     )

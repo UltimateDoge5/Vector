@@ -3,10 +3,10 @@
 import { Combobox, Dialog, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon } from '@heroicons/react/24/outline';
 import { FormEvent, Fragment, useEffect, useMemo, useState } from 'react';
-import { ClassDto, StudentDto } from '~/types/dtos';
+import { ClassDto, StudentWithClassDto } from '~/types/dtos';
 
 interface Props {
-    student: StudentDto,
+    student: StudentWithClassDto | null,
     isOpen: boolean,
     setIsOpen: (state: boolean) => void,
     editStudent: (userId: string, name: string, classId: number) => void,
@@ -14,14 +14,14 @@ interface Props {
 }
 
 export default function EditStudentModal({ student, isOpen, setIsOpen, editStudent, classes }: Props) {
-    const [name, setName] = useState();
+    const [name, setName] = useState("");
 
-    const [selectedClass, setSelectedClass] = useState<ClassDto | undefined>();
-    const [query, setQuery] = useState('')
+    const [selectedClass, setSelectedClass] = useState<ClassDto | null>(null);
+    const [query, setQuery] = useState("")
 
     useEffect(() => {
-        setName(student.name);
-        setSelectedClass(classes.find(classItem => classItem.id === student.class?.id));
+        setName(student!.name);
+        setSelectedClass(classes.find(classItem => classItem.id === student!.class?.id) ?? null);
     }, [student, classes])
 
     const filteredClasses = useMemo(
@@ -42,7 +42,7 @@ export default function EditStudentModal({ student, isOpen, setIsOpen, editStude
             return;
         }
 
-        editStudent(student.userId, name, selectedClass.id);
+        editStudent(student!.userId, name, selectedClass.id);
         setIsOpen(false);
     }
 
@@ -77,7 +77,7 @@ export default function EditStudentModal({ student, isOpen, setIsOpen, editStude
                                     as="h3"
                                     className="text-lg font-bold leading-6 text-gray-900"
                                 >
-                                    Edytuj {student.name}
+                                    Edytuj {student!.name}
                                 </Dialog.Title>
 
                                 <form className="flex flex-col my-3" onSubmit={onSubmit}>
@@ -93,7 +93,7 @@ export default function EditStudentModal({ student, isOpen, setIsOpen, editStude
                                         <div className="relative mt-1">
                                             <Combobox.Input
                                                 className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
-                                                displayValue={(classItem: ClassDto) => classItem.name}
+                                                displayValue={(classItem: ClassDto | null) => classItem ? classItem.name : ""}
                                                 onChange={(event) => setQuery(event.target.value)}
                                             />
                                             <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">

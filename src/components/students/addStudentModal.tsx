@@ -15,7 +15,7 @@ interface Props {
 export default function AddStudentModal({ isOpen, setIsOpen, addStudent, classes }: Props) {
     const [formData, setFormData] = useState({ name: "", email: "" })
 
-    const [selectedClass, setSelectedClass] = useState<ClassDto>({});
+    const [selectedClass, setSelectedClass] = useState<ClassDto | null>(null);
     const [query, setQuery] = useState('')
 
     const filteredClasses = useMemo(
@@ -40,11 +40,10 @@ export default function AddStudentModal({ isOpen, setIsOpen, addStudent, classes
         addStudent(formData, selectedClass.id);
 
         setFormData({ name: "", email: "" });
-        setSelectedClass({});
+        setSelectedClass(null);
         setIsOpen(false);
     }
 
-    console.log(selectedClass);
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" className="relative z-10" onClose={() => setIsOpen(false)}>
@@ -100,7 +99,7 @@ export default function AddStudentModal({ isOpen, setIsOpen, addStudent, classes
                                         <div className="relative mt-1">
                                             <Combobox.Input
                                                 className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
-                                                displayValue={(classItem: ClassDto) => classItem.name}
+                                                displayValue={(classItem: ClassDto | null) => classItem ? classItem.name : ""}
                                                 onChange={(event) => setQuery(event.target.value)}
                                             />
                                             <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">

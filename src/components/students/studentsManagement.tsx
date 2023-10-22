@@ -4,18 +4,18 @@ import { Menu, Transition } from "@headlessui/react";
 import { ArchiveBoxXMarkIcon, EllipsisVerticalIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import { ColumnDef } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
-import { ClassDto, StudentDto } from "~/types/dtos";
+import { ClassDto, StudentWithClassDto, StudentWithPasswordDto } from "~/types/dtos";
 import { DataTable } from "../dataTable";
 import AddStudentModal from "./addStudentModal";
 import EditStudentModal from "./editStudentModal";
 
 interface Props {
-    students: StudentDto[],
+    students: StudentWithClassDto[],
     classes: ClassDto[],
 }
 
 interface EditModalState {
-    student: StudentDto,
+    student: StudentWithClassDto | null,
     isOpen: boolean
 }
 
@@ -23,7 +23,7 @@ export default function StudentsManagement({ students, classes }: Props) {
     const [studentsList, setStudentsList] = useState(students);
 
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [editModalState, setEditModalState] = useState<EditModalState>({ student: {}, isOpen: false });
+    const [editModalState, setEditModalState] = useState<EditModalState>({ student: null, isOpen: false });
 
     const addStudent = async (formData: { name: string, email: string }, classId: number) => {
         const payload = {
@@ -39,7 +39,7 @@ export default function StudentsManagement({ students, classes }: Props) {
         });
 
         if (response.ok) {
-            const studentWithPassword = await response.json();
+            const studentWithPassword: StudentWithPasswordDto = await response.json() as StudentWithPasswordDto;
 
             console.log(`Domyślne hasło: ${studentWithPassword.password}`);
 
@@ -65,7 +65,7 @@ export default function StudentsManagement({ students, classes }: Props) {
 
             const updatedClass = classes.find(clas => clas.id === classId);
 
-            setStudentsList(studentsList.map(student => student.userId === userId ? { ...student, name, class: updatedClass } : student))
+            setStudentsList(studentsList.map(student => student.userId === userId ? { ...student, name, class: updatedClass } as StudentWithClassDto : student))
         }
     }
 
@@ -81,7 +81,7 @@ export default function StudentsManagement({ students, classes }: Props) {
         }
     }
 
-    const columns: ColumnDef<StudentDto>[] = [
+    const columns: ColumnDef<StudentWithClassDto>[] = [
         {
             header: "Imię i Nazwisko",
             accessorKey: "name",
@@ -170,13 +170,13 @@ export default function StudentsManagement({ students, classes }: Props) {
                 classes={classes}
             />
 
-            <EditStudentModal
+            {editModalState.student && <EditStudentModal
                 student={editModalState.student}
                 isOpen={editModalState.isOpen}
                 setIsOpen={(state: boolean) => setEditModalState({ ...editModalState, isOpen: state })}
                 editStudent={editStudent}
                 classes={classes}
-            />
+            />}
 
         </div>
     )
