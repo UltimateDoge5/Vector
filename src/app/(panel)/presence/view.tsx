@@ -16,7 +16,7 @@ export const legend = {
 	present: { color: "bg-green-400", text: "Obecny" },
 	absent: { color: "bg-red-400", text: "Nieobecny" },
 	late: { color: "bg-yellow-400", text: "Spóźniony" },
-	excused: { color: "bg-amber-400", text: "Usprawiedliwiony" },
+	excused: { color: "bg-emerald-300", text: "Usprawiedliwiony" },
 	released: { color: "bg-blue-400", text: "Zwolniony" },
 	releasedBySchool: { color: "bg-purple-400", text: "Zwolniony przez szkołę" },
 } satisfies Record<
@@ -29,8 +29,6 @@ export const legend = {
 
 export function PresenceView({ presence, weekDate }: { presence: IPresence[]; weekDate?: string }) {
 	const maxIndex = Math.max(...presence.map((lesson) => lesson.index));
-
-	console.log(presence);
 
 	const blocks: Block[] = [];
 	// If there are two or more same lessons in a row, merge them

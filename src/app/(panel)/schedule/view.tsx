@@ -132,7 +132,7 @@ export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedul
 												<div
 													className={`relative h-max rounded-lg p-2 transition-all
 												  ${block.exemption.cancelation ? "line-through grayscale" : "hover:saturate-150"}
-												  ${isDismissionMode ? "cursor-pointer" : "pointer-events-none"}
+												  ${isDismissionMode ? "cursor-pointer" : ""}
 												  ${isDissmised ? "grayscale" : ""}`}
 													style={{
 														background: stringToHslColor(block.lesson.name!, 80, 80),
