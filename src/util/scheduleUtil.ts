@@ -2,6 +2,26 @@ import dayjs from "dayjs";
 import { type PresenceStatus } from "~/app/(panel)/presence/view";
 import { type Exemptions, type Presence } from "~/server/db/schema";
 
+export const schoolHours = [
+	{ from: "7:30", to: "8:15" },
+	{ from: "8:20", to: "9:05" },
+	{ from: "9:10", to: "9:55" },
+	{ from: "10:00", to: "10:45" },
+	{ from: "10:50", to: "11:35" },
+	{ from: "11:40", to: "12:25" },
+	{ from: "12:30", to: "13:15" },
+	{ from: "13:20", to: "14:05" },
+	{ from: "14:10", to: "14:55" },
+	{ from: "15:00", to: "15:45" },
+	{ from: "15:50", to: "16:35" },
+	{ from: "16:40", to: "17:25" },
+	{ from: "17:30", to: "18:15" },
+	{ from: "18:20", to: "19:05" },
+	{ from: "19:10", to: "19:55" },
+];
+
+export const days = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"];
+
 export function mapWithPresence(schedule: IPresence[], exemptions: IExemption[], presence: (typeof Presence.$inferSelect)[]): IPresence[] {
 	exemptions.forEach((exemption) => {
 		switch (exemption.type) {
