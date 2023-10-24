@@ -7,7 +7,7 @@ import { Presence } from "~/server/db/schema";
 
 export async function POST(req: NextRequest) {
 	const user = (await currentUser())!;
-	const body = req.json();
+	const body = (await req.json()) as unknown;
 
 	const schema = z.object({
 		dismissals: z.array(
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 				tableId: dismission.scheduleId,
 				exemptionId: dismission.exceptionId,
 				studentId: studentId.id,
-				status: "excused",
+				status: "released",
 				date: data.date,
 			});
 		}),

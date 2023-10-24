@@ -6,7 +6,7 @@ import { PresenceView } from "./view";
 import { getWeekDates } from "~/util/weekDates";
 import { type ClassPresence, TeacherPresenceView } from "./teacherView";
 import { type IPresence, type ISchedule, mapWithExceptions, mapWithPresence } from "~/util/scheduleUtil";
-import { schoolHours } from "../schedule/view";
+import { schoolHours } from "~/util/scheduleUtil";
 import { type SQL, inArray } from "drizzle-orm";
 import { Presence } from "~/server/db/schema";
 
@@ -15,7 +15,6 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 	const user = await currentUser();
 
 	const isTeacher = (user?.privateMetadata.role ?? "student") !== "student";
-
 	const week = getWeekDates(searchParams.week);
 
 	if (isTeacher) {

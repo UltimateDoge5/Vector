@@ -73,7 +73,7 @@ export function mapWithPresence(schedule: IPresence[], exemptions: IExemption[],
 	});
 
 	presence.forEach((presence) => {
-		const index = schedule.findIndex((lesson) => lesson.id === presence.tableId || lesson.exemption.id === presence.exemptionId);
+		const index = schedule.findIndex((lesson) => lesson.id === presence.tableId && lesson.exemption.id === presence.exemptionId);
 
 		if (index != -1) {
 			schedule[index]!.status = presence.status;

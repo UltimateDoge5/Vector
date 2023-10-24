@@ -45,17 +45,17 @@ export default async function SchedulePage({ searchParams }: { searchParams: { w
 }
 
 const getDataForStudent = async (userId: string, week: { from: Date; to: Date }) => {
+	const student = (await db.query.Student.findFirst({
+		where: (stud, { eq }) => eq(stud.userId, userId),
+		columns: {
+			classId: true,
+		},
+	})) as { classId: number };
+
 	const schedule = await db.query.Schedule.findMany({
+		where: (schedule, { eq }) => eq(schedule.classId, student.classId),
 		with: {
 			class: {
-				with: {
-					students: {
-						where: (student, { eq }) => eq(student.userId, userId),
-						columns: {
-							id: true,
-						},
-					},
-				},
 				columns: {
 					name: true,
 				},

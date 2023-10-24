@@ -1,6 +1,7 @@
 "use client";
 import { ChevronLeftIcon, ChevronRightIcon, PencilSquareIcon } from "@heroicons/react/20/solid";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import dayjs from "dayjs";
 import Link from "next/link";
 import { useState } from "react";
 import { calculateBlockHeight, calculateWeekDates, days, schoolHours, stringToHslColor, type ISchedule } from "~/util/scheduleUtil";
@@ -10,6 +11,28 @@ export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedul
 
 	const [dissmisedLessons, setDissmisedLessons] = useState<Dismissal[]>([]);
 	const [isDismissionMode, setIsDismissionMode] = useState(false);
+	const [loading, setLoading] = useState(false);
+
+	const sendDismissals = async () => {
+		setLoading(true);
+		const res = await fetch("/api/dismissals", {
+			method: "POST",
+			body: JSON.stringify({
+				dismissals: dissmisedLessons,
+				date: dayjs(weekDate).set("hour", 0).set("minute", 0).set("second", 0).format("YYYY-MM-DD"),
+			}),
+		});
+
+		setLoading(false);
+
+		if (!res.ok) {
+			alert("Wystąpił błąd podczas wysyłania zwolnień");
+			return;
+		}
+
+		setIsDismissionMode(false);
+		setDissmisedLessons([]);
+	};
 
 	const blocks: Block[] = [];
 	// If there are two or more same lessons in a row, merge them
@@ -45,7 +68,14 @@ export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedul
 					<div className="flex items-center gap-2">
 						<button
 							className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-text"
-							onClick={() => setIsDismissionMode((prev) => !prev)}
+							disabled={loading}
+							onClick={async () => {
+								if (isDismissionMode && dissmisedLessons.length > 0) {
+									await sendDismissals();
+								} else {
+									setIsDismissionMode((prev) => !prev);
+								}
+							}}
 						>
 							<PencilSquareIcon className="h-5 w-5" />
 							{dissmisedLessons.length > 0 ? "Wyślij zwolnienia" : isDismissionMode ? "Anuluj" : "Edytuj zwolnienia"}

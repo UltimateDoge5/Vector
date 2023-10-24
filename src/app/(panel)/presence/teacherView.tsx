@@ -3,7 +3,7 @@ import { ExclamationTriangleIcon, InformationCircleIcon } from "@heroicons/react
 import Link from "next/link";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { type ISchedule, calculateWeekDates, stringToHslColor } from "~/util/scheduleUtil";
-import { days, schoolHours } from "../schedule/view";
+import { days, schoolHours } from "~/util/scheduleUtil";
 import { PresenceDrawer } from "./drawer";
 import { type PresenceStatus } from "./view";
 import { Transition } from "@headlessui/react";

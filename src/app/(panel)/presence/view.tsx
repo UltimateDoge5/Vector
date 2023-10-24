@@ -1,8 +1,8 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { type Presence } from "~/server/db/schema";
-import { days, schoolHours } from "../schedule/view";
-import { calculateWeekDates, calculateBlockHeight, type IPresence } from "~/util/scheduleUtil";
+
+import { calculateWeekDates, calculateBlockHeight, type IPresence, days, schoolHours } from "~/util/scheduleUtil";
 
 export type PresenceStatus = (typeof Presence.$inferSelect)["status"] | "none";
 
@@ -29,6 +29,8 @@ export const legend = {
 
 export function PresenceView({ presence, weekDate }: { presence: IPresence[]; weekDate?: string }) {
 	const maxIndex = Math.max(...presence.map((lesson) => lesson.index));
+
+	console.log(presence);
 
 	const blocks: Block[] = [];
 	// If there are two or more same lessons in a row, merge them
