@@ -4,7 +4,7 @@ import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronDoubleRightIcon, ChevronUpDownIcon } from "@heroicons/react/24/outline";
 import { Fragment } from "react";
 import { type ClassPresence, type StatusChange } from "./teacherView";
-import { legend, type PresenceStatus } from "./view";
+import { PresenceLegend, type PresenceStatus } from "./view";
 
 const EditableStatuses: PresenceStatus[] = ["present", "absent", "late", "excused", "releasedBySchool"];
 
@@ -103,8 +103,8 @@ const PresenceListbox = ({ status, onStatusChange }: { status: PresenceStatus; o
 		<Listbox value={status} onChange={(v) => onStatusChange(v)}>
 			<div className="relative">
 				<Listbox.Button className="relative flex w-full min-w-[256px] cursor-default items-center gap-2 rounded-lg bg-white py-2 pl-3  text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary sm:text-sm">
-					<div className={`h-4 w-4 rounded-md ${legend[status].color}`} />
-					<span className="block truncate">{legend[status].text}</span>
+					<div className={`h-4 w-4 rounded-md ${PresenceLegend[status].color}`} />
+					<span className="block truncate">{PresenceLegend[status].text}</span>
 					<span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
 						<ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
 					</span>
@@ -121,9 +121,9 @@ const PresenceListbox = ({ status, onStatusChange }: { status: PresenceStatus; o
 							>
 								{({ selected }) => (
 									<div className="flex items-center gap-2">
-										<div className={`h-4 w-4 rounded-md ${legend[status].color}`} />
+										<div className={`h-4 w-4 rounded-md ${PresenceLegend[status].color}`} />
 										<span className={`block truncate ${selected ? "font-medium" : "font-normal"}`}>
-											{legend[status].text}
+											{PresenceLegend[status].text}
 										</span>
 										{selected ? (
 											<span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary">

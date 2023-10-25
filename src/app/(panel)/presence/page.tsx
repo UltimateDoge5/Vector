@@ -6,16 +6,16 @@ import { PresenceView } from "./view";
 import { getWeekDates } from "~/util/weekDates";
 import { type ClassPresence, TeacherPresenceView } from "./teacherView";
 import { type IPresence, type ISchedule, mapWithExceptions, mapWithPresence } from "~/util/scheduleUtil";
-import { schoolHours } from "../schedule/view";
+import { schoolHours } from "~/util/scheduleUtil";
 import { type SQL, inArray } from "drizzle-orm";
 import { Presence } from "~/server/db/schema";
+import { isTeacher as isTeacherCheck } from "~/util/authUtil";
 
 export default async function Schedule({ searchParams }: { searchParams: { week: string } }) {
 	const selectedClass = parseInt(cookies().get("selectedClassId")?.value ?? "1") ?? 1;
 	const user = await currentUser();
 
-	const isTeacher = (user?.privateMetadata.role ?? "student") !== "student";
-
+	const isTeacher = isTeacherCheck(user);
 	const week = getWeekDates(searchParams.week);
 
 	if (isTeacher) {
@@ -33,7 +33,7 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 					lesson: schedule.lesson,
 					with: schedule.teacher!.name,
 					exemption: {
-						id: -1,
+						id: null,
 						isExemption: false,
 						cancelation: false,
 						reason: "",
@@ -94,7 +94,7 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 				lesson: schedule.lesson,
 				with: isTeacher ? "Klasa " + schedule.class!.name : schedule.teacher!.name,
 				exemption: {
-					id: -1,
+					id: null,
 					isExemption: false,
 					cancelation: false,
 					reason: "",
