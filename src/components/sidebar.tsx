@@ -18,7 +18,7 @@ export async function Sidebar() {
                 <SidebarItem name="Plan zajęć" icon={<TableCellsIcon className="h-5 w-5" />} link="/schedule" />
                 <SidebarItem name="Zadania" icon={<PencilSquareIcon className="h-5 w-5" />} link="/assignments" />
             </div>
-            {role != "student" ? (
+            {role == "admin" ? (
                 <div className="mt-2 flex flex-col gap-y-1 border-t-2 pt-2">
                     <DisclosureButton
                         name="Użytkownicy"
