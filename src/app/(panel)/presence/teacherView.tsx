@@ -7,6 +7,7 @@ import { days, schoolHours } from "~/util/scheduleUtil";
 import { PresenceDrawer } from "./drawer";
 import { type PresenceStatus } from "./view";
 import { Transition } from "@headlessui/react";
+import { Button } from "~/components/ui/button";
 
 export function TeacherPresenceView({
 	schedule,
@@ -35,8 +36,8 @@ export function TeacherPresenceView({
 
 	const selectedPresence = presence.find(
 		(presence) =>
-			(presence.scheduleId !== -1 && presence.scheduleId === selectedLessonIds.scheduleId) ||
-			(presence.exemptionId !== -1 && presence.exemptionId === selectedLessonIds.exemptionId),
+			(presence.scheduleId !== null && presence.scheduleId === selectedLessonIds.scheduleId) ||
+			(presence.exemptionId !== null && presence.exemptionId === selectedLessonIds.exemptionId),
 	)!;
 
 	const maxIndex = Math.max(...schedule.map((lesson) => lesson.index));
@@ -199,13 +200,14 @@ export function TeacherPresenceView({
 						</div>
 						Masz niezapisane zmiany!
 					</h3>
-					<button
+					<Button
+						loading={isUpdating}
 						disabled={isUpdating}
 						className="rounded-lg bg-primary px-4 py-2 text-text disabled:cursor-not-allowed disabled:opacity-50"
 						onClick={saveChanges}
 					>
 						Zapisz zmiany
-					</button>
+					</Button>
 				</div>
 			</Transition>
 
@@ -222,15 +224,11 @@ export function TeacherPresenceView({
 							change.studentId === statusChange.studentId,
 					);
 
-					// TODO: Fix this
-					// If the change is the same as in the snapshot, remove it from changes
-					// Otherwise, update or add the change
 					const snapshot = presenceSnapshot.current.find(
 						(lesson) =>
 							lesson.scheduleId === selectedPresence.scheduleId || lesson.exemptionId === selectedPresence.exemptionId,
 					);
 
-					console.log(snapshot?.students, selectedPresence.students, statusChange.status);
 					if (snapshot && snapshot.students[statusChange.studentId]!.status === statusChange.status) {
 						console.log("same");
 						if (changeIndex !== -1) changesCopy.splice(changeIndex, 1);
