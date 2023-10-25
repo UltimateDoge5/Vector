@@ -9,12 +9,13 @@ import { type IPresence, type ISchedule, mapWithExceptions, mapWithPresence } fr
 import { schoolHours } from "~/util/scheduleUtil";
 import { type SQL, inArray } from "drizzle-orm";
 import { Presence } from "~/server/db/schema";
+import { isTeacher as isTeacherCheck } from "~/util/authUtil";
 
 export default async function Schedule({ searchParams }: { searchParams: { week: string } }) {
 	const selectedClass = parseInt(cookies().get("selectedClassId")?.value ?? "1") ?? 1;
 	const user = await currentUser();
 
-	const isTeacher = (user?.privateMetadata.role ?? "student") !== "student";
+	const isTeacher = isTeacherCheck(user);
 	const week = getWeekDates(searchParams.week);
 
 	if (isTeacher) {

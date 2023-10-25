@@ -1,8 +1,11 @@
+"use client";
+import { ChevronLeftIcon, ChevronRightIcon, PencilSquareIcon } from "@heroicons/react/20/solid";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { useState } from "react";
 import { type Presence } from "~/server/db/schema";
 
-import { calculateWeekDates, calculateBlockHeight, type IPresence, days, schoolHours } from "~/util/scheduleUtil";
+import { calculateBlockHeight, calculateWeekDates, days, schoolHours, type IPresence } from "~/util/scheduleUtil";
 
 export type PresenceStatus = (typeof Presence.$inferSelect)["status"] | "none";
 
@@ -11,7 +14,7 @@ interface Block extends IPresence {
 	to: number;
 }
 
-export const legend = {
+export const PresenceLegend = {
 	none: { color: "bg-gray-400", text: "Brak" },
 	present: { color: "bg-green-400", text: "Obecny" },
 	absent: { color: "bg-red-400", text: "Nieobecny" },
@@ -27,8 +30,37 @@ export const legend = {
 	}
 >;
 
-export function PresenceView({ presence, weekDate }: { presence: IPresence[]; weekDate?: string }) {
-	const maxIndex = Math.max(...presence.map((lesson) => lesson.index));
+export function PresenceView({ presence: presenceInit, weekDate }: { presence: IPresence[]; weekDate?: string }) {
+	const maxIndex = Math.max(...presenceInit.map((lesson) => lesson.index));
+
+	const [presence, setPresence] = useState<IPresence[]>(presenceInit);
+
+	const excuseLessons = (excuses: ReturnType<typeof getLessonsToExcuse>) => {
+		// const res = await fetch("/presence/api/excuse", {
+		// 	method: "POST",
+		// 	body: JSON.stringify({
+		// 		excuses,
+		// 		date: dayjs(weekDate).day(1).set("hour", 0).set("minute", 0).set("second", 0).toDate(),
+		// 	}),
+		// });
+
+		// if (!res.ok) {
+		// 	alert("Wystąpił błąd podczas wysyłania usprawiedliwień");
+		// 	return;
+		// }
+
+		const newPresence = [...presence];
+
+		excuses.forEach((excuse) => {
+			const presence = newPresence.find((p) => p.id === excuse.scheduleId && p.exemption.id === excuse.exemptionId);
+
+			if (presence) {
+				presence.status = "excused";
+			}
+		});
+
+		setPresence(newPresence);
+	};
 
 	const blocks: Block[] = [];
 	// If there are two or more same lessons in a row, merge them
@@ -56,21 +88,37 @@ export function PresenceView({ presence, weekDate }: { presence: IPresence[]; we
 	});
 
 	const { prev, next, dates } = calculateWeekDates(weekDate);
+	const lessonsToExcuse = getLessonsToExcuse(presence);
 
 	return (
-		<div className="flex w-full flex-col items-center justify-center rounded-lg">
-			<div className="mb-2 flex w-full justify-evenly">
-				<Link className="rounded bg-primary px-4 py-2" href={`/presence?week=${prev}`}>
-					Poprzedni tydzień
-				</Link>
-				<h2 className="text-2xl">Obecności</h2>
-				<Link className="rounded bg-primary px-4 py-2" href={`/presence?week=${next}`}>
-					Następny tydzień
-				</Link>
+		<div className="flex w-full flex-col rounded-lg">
+			<h2 className="mb-3 border-l-4 border-accent pl-2 text-2xl font-bold">Obecności</h2>
+			<div className="mb-2 flex w-full justify-between border-b pb-2">
+				<div className="flex items-center gap-2">
+					<button
+						className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-text disabled:grayscale"
+						disabled={lessonsToExcuse.length === 0}
+						onClick={() => excuseLessons(lessonsToExcuse)}
+					>
+						<PencilSquareIcon className="h-5 w-5" />
+						Usprawiedliw nieobecnośći
+					</button>
+				</div>
+				<div className="flex items-center gap-2">
+					<Link className="flex items-center rounded-lg bg-primary px-4 py-2" href={`/presence?week=${prev}`}>
+						<ChevronLeftIcon className="h-5 w-5" />
+						Poprzedni tydzień
+					</Link>
+
+					<Link className="flex items-center rounded-lg bg-primary px-4 py-2" href={`/presence?week=${next}`}>
+						Następny tydzień
+						<ChevronRightIcon className="h-5 w-5" />
+					</Link>
+				</div>
 			</div>
 
-			<div className="mb-2 flex justify-center gap-8">
-				{Object.entries(legend).map(([key, value]) => (
+			<div className="mb-2 flex justify-center gap-8 border-b pb-2">
+				{Object.entries(PresenceLegend).map(([key, value]) => (
 					<div key={key} className="flex items-center gap-2">
 						<div className={`h-5 w-5 rounded-md ${value.color}`} />
 						<p className="text-lg">{value.text}</p>
@@ -109,9 +157,9 @@ export function PresenceView({ presence, weekDate }: { presence: IPresence[]; we
 									return (
 										<td rowSpan={block.to - block.from + 1} className="p-1.5 align-middle" key={day}>
 											<div
-												className={`relative h-max rounded-lg p-2 transition-all ${legend[block.status].color} ${
-													block.exemption.cancelation ? "line-through" : "hover:saturate-150"
-												}`}
+												className={`relative h-max rounded-lg p-2 transition-all ${
+													PresenceLegend[block.status].color
+												} ${block.exemption.cancelation ? "line-through" : "hover:saturate-150"}`}
 												style={{
 													height: `${calculateBlockHeight(block.from, block.to)}px`,
 												}}
@@ -142,3 +190,33 @@ export function PresenceView({ presence, weekDate }: { presence: IPresence[]; we
 		</div>
 	);
 }
+
+const getLessonsToExcuse = (presence: IPresence[]) => {
+	const lessonsToExcuse: {
+		scheduleId: number;
+		exemptionId: number;
+	}[] = [];
+
+	//	Index and dayOfWeek of days where status is "present"
+	const maxPresence = [-1, -1, -1, -1, -1];
+	presence.forEach((presence) => {
+		if (maxPresence[presence.dayOfWeek]! < presence.index && presence.status === "present") {
+			maxPresence[presence.dayOfWeek] = presence.index;
+		}
+	});
+
+	//Lesson cannot be excused after the student has been present before that day
+	presence.forEach((presence) => {
+		if (
+			(maxPresence[presence.dayOfWeek]! > presence.index || maxPresence[presence.dayOfWeek] === -1) &&
+			(presence.status === "absent" || presence.status === "late")
+		) {
+			lessonsToExcuse.push({
+				scheduleId: presence.id,
+				exemptionId: presence.exemption.id,
+			});
+		}
+	});
+
+	return lessonsToExcuse;
+};

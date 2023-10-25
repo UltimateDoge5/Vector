@@ -1,14 +1,15 @@
 import { currentUser } from "@clerk/nextjs";
 import { and, eq, or } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { db } from "~/server/db";
 import { Presence } from "~/server/db/schema";
+import { isStudent } from "~/util/authUtil";
 
 export async function PUT(req: NextRequest) {
 	const user = await currentUser();
 
-	if ((user?.privateMetadata.role ?? "student") === "student") {
+	if (isStudent(user)) {
 		return new NextResponse(null, { status: 401 });
 	}
 
