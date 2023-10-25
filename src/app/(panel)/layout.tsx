@@ -39,7 +39,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 				</div>
 			</header>
 			<Sidebar />
-			<main className="max-w-[1920px] scroll-auto pl-4">{children}</main>
+			<main className="max-w-[1920px] scroll-auto px-4">{children}</main>
 		</div>
 	);
 }

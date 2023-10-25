@@ -45,17 +45,18 @@ export default async function SchedulePage({ searchParams }: { searchParams: { w
 }
 
 const getDataForStudent = async (userId: string, week: { from: Date; to: Date }) => {
+	const student = (await db.query.Student.findFirst({
+		where: (stud, { eq }) => eq(stud.userId, userId),
+		columns: {
+			id: true,
+			classId: true,
+		},
+	}))!;
+
 	const schedule = await db.query.Schedule.findMany({
+		where: (schedule, { eq }) => eq(schedule.classId, student.classId),
 		with: {
 			class: {
-				with: {
-					students: {
-						where: (student, { eq }) => eq(student.userId, userId),
-						columns: {
-							id: true,
-						},
-					},
-				},
 				columns: {
 					name: true,
 				},
@@ -86,6 +87,47 @@ const getDataForStudent = async (userId: string, week: { from: Date; to: Date })
 				},
 			},
 		},
+	});
+
+	// Get student's dismissions
+	const presence = await db.query.Presence.findMany({
+		where: (presence, { eq, gte, lte, and }) =>
+			and(
+				eq(presence.studentId, student.classId),
+				gte(presence.date, week.from),
+				lte(presence.date, week.to),
+				eq(presence.status, "released"),
+			),
+
+		with: {
+			table: {
+				columns: {
+					teacherId: true,
+				},
+			},
+		},
+	});
+
+	// Transform dismissions to exemptions
+	presence.forEach((p) => {
+		exemptions.push({
+			id: p.exemptionId!, //Either id or -1
+			class: null,
+			lesson: null,
+			classId: null,
+			lessonId: null,
+			scheduleId: p.tableId!, //Either id or -1
+			teacherId: p.table!.teacherId,
+			teacher: {
+				name: "",
+			},
+			reason: "Zwolnienie z lekcji",
+			date: p.date,
+			dayOfWeek: null,
+			index: null,
+			room: null,
+			type: "cancelation",
+		});
 	});
 
 	return { schedule, exemptions };
@@ -130,5 +172,5 @@ const getDataForTeacher = async (userId: string, week: { from: Date; to: Date })
 		},
 	});
 
-	return { schedule, exemptions };
+	return { schedule, exemptions, presence: {} };
 };
