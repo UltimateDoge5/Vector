@@ -49,7 +49,7 @@ export const DataTable = <TData, TValue>({
 									className="transition-colors hover:bg-secondary/10"
 								>
 									{row.getVisibleCells().map((cell) => (
-										<td key={cell.id} className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+										<td key={cell.id} className="p-2 align-middle [&:has([role=checkbox])]:pr-0">
 											{flexRender(cell.column.columnDef.cell, cell.getContext())}
 										</td>
 									))}
