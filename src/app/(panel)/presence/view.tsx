@@ -3,7 +3,7 @@ import { ChevronLeftIcon, ChevronRightIcon, PencilSquareIcon } from "@heroicons/
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import dayjs from "dayjs";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { type Presence } from "~/server/db/schema";
 
 import { calculateBlockHeight, calculateWeekDates, days, schoolHours, type IPresence } from "~/util/scheduleUtil";
@@ -35,6 +35,10 @@ export function PresenceView({ presence: presenceInit, weekDate }: { presence: I
 	const maxIndex = Math.max(...presenceInit.map((lesson) => lesson.index));
 
 	const [presence, setPresence] = useState<IPresence[]>(presenceInit);
+
+	useEffect(() => {
+		setPresence(presenceInit);
+	}, [presenceInit]);
 
 	const excuseLessons = async (excuses: ReturnType<typeof getLessonsToExcuse>) => {
 		const res = await fetch("/presence/api/excuse", {
