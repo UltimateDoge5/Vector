@@ -1,13 +1,12 @@
-import Link from "next/link";
-import { HomeIcon, AcademicCapIcon, CheckBadgeIcon, TableCellsIcon, PencilSquareIcon, UsersIcon } from "@heroicons/react/24/outline";
-import { type JSX } from "react";
 import { currentUser } from "@clerk/nextjs";
+import { AcademicCapIcon, CheckBadgeIcon, HomeIcon, PencilSquareIcon, TableCellsIcon, UsersIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
+import { type JSX } from "react";
+import { isAdmin } from "~/util/authUtil";
 import DisclosureButton from "./disclosure";
 
 export async function Sidebar() {
 	const user = await currentUser();
-
-	const role = user?.privateMetadata.role ?? "student";
 
 	return (
 		<aside className="w-60 px-5">
@@ -18,7 +17,7 @@ export async function Sidebar() {
 				<SidebarItem name="Plan zajęć" icon={<TableCellsIcon className="h-5 w-5" />} link="/schedule" />
 				<SidebarItem name="Zadania" icon={<PencilSquareIcon className="h-5 w-5" />} link="/assignments" />
 			</div>
-			{role != "student" && (
+			{isAdmin(user) && (
 				<div className="mt-2 flex flex-col gap-y-1 border-t-2 pt-2">
 					<DisclosureButton
 						name="Użytkownicy"
