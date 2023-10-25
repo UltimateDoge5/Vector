@@ -20,9 +20,12 @@ export function TeacherPresenceView({
 	className?: string;
 }) {
 	const [presence, setPresence] = useState<ClassPresence[]>(presenceInit);
-	const [selectedLessonIds, setSelectedLessonIds] = useState({
-		scheduleId: -1,
-		exemptionId: -1,
+	const [selectedLessonIds, setSelectedLessonIds] = useState<{
+		scheduleId: number | null;
+		exemptionId: number | null;
+	}>({
+		scheduleId: null,
+		exemptionId: null,
 	});
 	const [changes, setChanges] = useState<StatusChange[]>([]);
 	const [isUpdating, setIsUpdating] = useState(false);
@@ -43,12 +46,12 @@ export function TeacherPresenceView({
 		presenceSnapshot.current = structuredClone(presenceInit);
 
 		window.addEventListener("keydown", (e) => {
-			if (e.key === "Escape") setSelectedLessonIds({ scheduleId: -1, exemptionId: -1 });
+			if (e.key === "Escape") setSelectedLessonIds({ scheduleId: null, exemptionId: null });
 		});
 
 		return () =>
 			window.removeEventListener("keydown", (e) => {
-				if (e.key === "Escape") setSelectedLessonIds({ scheduleId: -1, exemptionId: -1 });
+				if (e.key === "Escape") setSelectedLessonIds({ scheduleId: null, exemptionId: null });
 			});
 	}, []);
 

@@ -1,6 +1,7 @@
 "use client";
 import { ChevronLeftIcon, ChevronRightIcon, PencilSquareIcon } from "@heroicons/react/20/solid";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import dayjs from "dayjs";
 import Link from "next/link";
 import { useState } from "react";
 import { type Presence } from "~/server/db/schema";
@@ -35,19 +36,19 @@ export function PresenceView({ presence: presenceInit, weekDate }: { presence: I
 
 	const [presence, setPresence] = useState<IPresence[]>(presenceInit);
 
-	const excuseLessons = (excuses: ReturnType<typeof getLessonsToExcuse>) => {
-		// const res = await fetch("/presence/api/excuse", {
-		// 	method: "POST",
-		// 	body: JSON.stringify({
-		// 		excuses,
-		// 		date: dayjs(weekDate).day(1).set("hour", 0).set("minute", 0).set("second", 0).toDate(),
-		// 	}),
-		// });
+	const excuseLessons = async (excuses: ReturnType<typeof getLessonsToExcuse>) => {
+		const res = await fetch("/presence/api/excuse", {
+			method: "PUT",
+			body: JSON.stringify({
+				excuses,
+				date: dayjs(weekDate).day(1).format("YYYY-MM-DD"),
+			}),
+		});
 
-		// if (!res.ok) {
-		// 	alert("Wystąpił błąd podczas wysyłania usprawiedliwień");
-		// 	return;
-		// }
+		if (!res.ok) {
+			alert("Wystąpił błąd podczas wysyłania usprawiedliwień");
+			return;
+		}
 
 		const newPresence = [...presence];
 
@@ -193,11 +194,11 @@ export function PresenceView({ presence: presenceInit, weekDate }: { presence: I
 
 const getLessonsToExcuse = (presence: IPresence[]) => {
 	const lessonsToExcuse: {
-		scheduleId: number;
-		exemptionId: number;
+		scheduleId: number | null;
+		exemptionId: number | null;
 	}[] = [];
 
-	//	Index and dayOfWeek of days where status is "present"
+	//	Index and dayOfWeek of days where status is "present", start at -1 as 0 is a valid index
 	const maxPresence = [-1, -1, -1, -1, -1];
 	presence.forEach((presence) => {
 		if (maxPresence[presence.dayOfWeek]! < presence.index && presence.status === "present") {

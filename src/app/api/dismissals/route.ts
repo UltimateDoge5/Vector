@@ -1,6 +1,5 @@
 import { currentUser } from "@clerk/nextjs";
-import dayjs from "dayjs";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { db } from "~/server/db";
 import { Presence } from "~/server/db/schema";

@@ -33,7 +33,7 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 					lesson: schedule.lesson,
 					with: schedule.teacher!.name,
 					exemption: {
-						id: -1,
+						id: null,
 						isExemption: false,
 						cancelation: false,
 						reason: "",
@@ -94,7 +94,7 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 				lesson: schedule.lesson,
 				with: isTeacher ? "Klasa " + schedule.class!.name : schedule.teacher!.name,
 				exemption: {
-					id: -1,
+					id: null,
 					isExemption: false,
 					cancelation: false,
 					reason: "",

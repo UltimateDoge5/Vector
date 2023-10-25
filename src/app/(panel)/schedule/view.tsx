@@ -19,7 +19,7 @@ export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedul
 			method: "POST",
 			body: JSON.stringify({
 				dismissals: dissmisedLessons,
-				date: dayjs(weekDate).set("hour", 0).set("minute", 0).set("second", 0).format("YYYY-MM-DD"),
+				date: dayjs(weekDate).day(1).set("hour", 0).set("minute", 0).set("second", 0).format("YYYY-MM-DD"),
 			}),
 		});
 
@@ -194,8 +194,8 @@ export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedul
 }
 
 interface Dismissal {
-	scheduleId: number;
-	exceptionId: number;
+	scheduleId: number | null;
+	exceptionId: number | null;
 }
 
 interface Block extends ISchedule {

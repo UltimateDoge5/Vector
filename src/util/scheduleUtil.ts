@@ -27,7 +27,7 @@ export function mapWithPresence(schedule: IPresence[], exemptions: IExemption[],
 		switch (exemption.type) {
 			case "addition":
 				schedule.push({
-					id: -1,
+					id: null,
 					dayOfWeek: exemption.dayOfWeek!,
 					index: exemption.index!,
 					room: exemption.room!,
@@ -74,7 +74,7 @@ export function mapWithPresence(schedule: IPresence[], exemptions: IExemption[],
 
 	presence.forEach((presence) => {
 		const index = schedule.findIndex(
-			(scheduleItem) => scheduleItem.id === presence.tableId && scheduleItem.exemption.id === (presence.exemptionId ?? -1),
+			(scheduleItem) => scheduleItem.id === presence.tableId && scheduleItem.exemption.id === presence.exemptionId,
 		);
 
 		if (index != -1) {
@@ -90,7 +90,7 @@ export function mapWithExceptions(schedule: ISchedule[], exemptions: IExemption[
 		switch (exemption.type) {
 			case "addition":
 				schedule.push({
-					id: -1, // Ids are not used in views, only for easier exemptions mapping
+					id: null, // Ids are not used in views, only for easier exemptions mapping
 					dayOfWeek: exemption.dayOfWeek!,
 					index: exemption.index!,
 					room: exemption.room!,
@@ -184,7 +184,7 @@ type IExemption = typeof Exemptions.$inferSelect & {
 };
 
 export interface ISchedule {
-	id: number;
+	id: number | null;
 	dayOfWeek: number;
 	index: number;
 	room: string;
@@ -194,7 +194,7 @@ export interface ISchedule {
 	};
 	with: string;
 	exemption: {
-		id: number;
+		id: number | null;
 		isExemption: boolean;
 		cancelation: boolean;
 		reason: string | null;
