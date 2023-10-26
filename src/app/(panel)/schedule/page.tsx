@@ -1,6 +1,7 @@
 import { currentUser } from "@clerk/nextjs";
-import { ScheduleView, type ISchedule } from "~/app/(panel)/schedule/view";
+import { ScheduleView } from "~/app/(panel)/schedule/view";
 import { db } from "~/server/db";
+import { type ISchedule, mapWithExceptions } from "~/util/scheduleUtil";
 import { getWeekDates } from "~/util/weekDates";
 
 export const runtime = "edge";
@@ -13,15 +14,17 @@ export default async function SchedulePage({ searchParams }: { searchParams: { w
 
 	const { schedule, exemptions } = isTeacher ? await getDataForTeacher(user!.id, week) : await getDataForStudent(user!.id, week);
 
-	const finalSchedule: ISchedule[] = schedule.map(
+	let mappedSchedule: ISchedule[] = schedule.map(
 		(schedule) =>
 			({
+				id: schedule.id,
 				dayOfWeek: schedule.dayOfWeek,
 				index: schedule.index,
 				room: schedule.room,
 				lesson: schedule.lesson,
 				with: isTeacher ? "Klasa " + schedule.class!.name : schedule.teacher!.name,
 				exemption: {
+					id: -1,
 					isExemption: false,
 					cancelation: false,
 					reason: "",
@@ -29,51 +32,12 @@ export default async function SchedulePage({ searchParams }: { searchParams: { w
 			}) satisfies ISchedule,
 	);
 
-	exemptions.forEach((exemption) => {
-		switch (exemption.type) {
-			case "addition":
-				finalSchedule.push({
-					dayOfWeek: exemption.dayOfWeek!,
-					index: exemption.index!,
-					room: exemption.room!,
-					lesson: exemption.lesson!,
-					with: isTeacher ? "Klasa " + exemption.class!.name : exemption.teacher!.name,
-					exemption: {
-						isExemption: true,
-						cancelation: false,
-						reason: exemption.reason,
-					},
-				});
-				break;
-			case "change":
-				const index = schedule.findIndex((lesson) => lesson.id == exemption.scheduleId);
-
-				finalSchedule[index] = {
-					dayOfWeek: exemption.dayOfWeek!,
-					index: exemption.index!,
-					room: exemption.room!,
-					lesson: exemption.lesson!,
-					with: isTeacher ? "Klasa " + exemption.class!.name : exemption.teacher!.name,
-					exemption: {
-						isExemption: true,
-						cancelation: false,
-						reason: exemption.reason,
-					},
-				};
-				break;
-			case "cancelation": {
-				const index = schedule.findIndex((lesson) => lesson.id == exemption.scheduleId);
-				finalSchedule[index]!.exemption.cancelation = true;
-				finalSchedule[index]!.exemption.isExemption = true;
-				finalSchedule[index]!.exemption.reason = exemption.reason;
-				break;
-			}
-		}
-	});
+	// Remap with exemptions
+	mappedSchedule = mapWithExceptions(mappedSchedule, exemptions, isTeacher);
 
 	return (
 		<ScheduleView
-			schedule={finalSchedule}
+			schedule={mappedSchedule}
 			title={isTeacher ? "Plan lekcji nauczyciela" : "Twój plan lekcji"}
 			weekDate={searchParams.week}
 		/>
@@ -81,17 +45,18 @@ export default async function SchedulePage({ searchParams }: { searchParams: { w
 }
 
 const getDataForStudent = async (userId: string, week: { from: Date; to: Date }) => {
+	const student = (await db.query.Student.findFirst({
+		where: (stud, { eq }) => eq(stud.userId, userId),
+		columns: {
+			id: true,
+			classId: true,
+		},
+	}))!;
+
 	const schedule = await db.query.Schedule.findMany({
+		where: (schedule, { eq }) => eq(schedule.classId, student.classId),
 		with: {
 			class: {
-				with: {
-					students: {
-						where: (student, { eq }) => eq(student.userId, userId),
-						columns: {
-							id: true,
-						},
-					},
-				},
 				columns: {
 					name: true,
 				},
@@ -122,6 +87,47 @@ const getDataForStudent = async (userId: string, week: { from: Date; to: Date })
 				},
 			},
 		},
+	});
+
+	// Get student's dismissions
+	const presence = await db.query.Presence.findMany({
+		where: (presence, { eq, gte, lte, and }) =>
+			and(
+				eq(presence.studentId, student.classId),
+				gte(presence.date, week.from),
+				lte(presence.date, week.to),
+				eq(presence.status, "released"),
+			),
+
+		with: {
+			table: {
+				columns: {
+					teacherId: true,
+				},
+			},
+		},
+	});
+
+	// Transform dismissions to exemptions
+	presence.forEach((p) => {
+		exemptions.push({
+			id: p.exemptionId!, //Either id or -1
+			class: null,
+			lesson: null,
+			classId: null,
+			lessonId: null,
+			scheduleId: p.tableId!, //Either id or -1
+			teacherId: p.table!.teacherId,
+			teacher: {
+				name: "",
+			},
+			reason: "Zwolnienie z lekcji",
+			date: p.date,
+			dayOfWeek: null,
+			index: null,
+			room: null,
+			type: "cancelation",
+		});
 	});
 
 	return { schedule, exemptions };
@@ -166,5 +172,5 @@ const getDataForTeacher = async (userId: string, week: { from: Date; to: Date })
 		},
 	});
 
-	return { schedule, exemptions };
+	return { schedule, exemptions, presence: {} };
 };

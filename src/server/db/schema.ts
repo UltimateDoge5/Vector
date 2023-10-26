@@ -66,7 +66,7 @@ export const Presence = mysqlTable("presence", {
 	tableId: bigint("tableId", { mode: "number" }),
 	studentId: bigint("studentId", { mode: "number" }).notNull(),
 	date: timestamp("date", { mode: "date" }).notNull(),
-	status: mysqlEnum("status", ["present", "absent", "late", "released", "releasedBySchool"]).notNull(),
+	status: mysqlEnum("status", ["present", "absent", "late", "excused", "released", "releasedBySchool"]).notNull(),
 });
 
 export const Lesson = mysqlTable("lesson", {

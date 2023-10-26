@@ -1,33 +1,28 @@
-import "~/styles/globals.css";
-
 import { SignedIn, UserButton, currentUser } from "@clerk/nextjs";
-import Link from "next/link";
-import { Sidebar } from "~/components/sidebar";
-import ClassSelector from "~/components/classSelector";
 import { cookies } from "next/headers";
-import { db } from "~/server/db";
+import Link from "next/link";
 import { Suspense } from "react";
-import { headers } from "next/headers";
-
-export const metadata = {
-	title: "miniature-pancake",
-	icons: [{ rel: "icon", url: "/favicon.ico" }],
-};
+import ClassSelector from "~/components/classSelector";
+import { Logo } from "~/components/logo";
+import { Sidebar } from "~/components/sidebar";
+import { db } from "~/server/db";
+import { isTeacher } from "~/util/authUtil";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const user = await currentUser();
-	const isTeacher = (user?.privateMetadata.role ?? "student") !== "student";
 
 	return (
 		<div className={`grid h-full grid-cols-[240px,auto] grid-rows-[96px,auto] gap-y-4 bg-background text-text`}>
 			<header className="inset-x-0 top-0 col-span-2 flex h-24 w-full items-center justify-center border-b">
 				<div className="flex h-16 w-2/3 items-center justify-between">
 					<div className="flex items-center gap-2">
-						<Link href="/">LOGO</Link>
-						{isTeacher && (
+						<Link href="/">
+							<Logo className="h-10 w-10" />
+						</Link>
+						{isTeacher(user) && (
 							<>
 								{"/"}
-								<Suspense fallback={<div className="animate-pulse bg-slate-500">Loading</div>}>
+								<Suspense fallback={<div className="h-8 w-32 animate-pulse bg-slate-500">Loading</div>}>
 									<ClassSelectorWrapper />
 								</Suspense>
 							</>
@@ -41,7 +36,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 				</div>
 			</header>
 			<Sidebar />
-			<main className="max-w-[1920px] scroll-auto pl-4">{children}</main>
+			<main className="max-w-[1920px] scroll-auto px-4">{children}</main>
 		</div>
 	);
 }
@@ -59,7 +54,5 @@ const ClassSelectorWrapper = async () => {
 		selectedClass = classes[0]!.id;
 	}
 
-	const headersList = headers();
-
-	return <ClassSelector classes={classes} selectedClassId={selectedClass} url={headersList.get("next-url")!} />;
+	return <ClassSelector classes={classes} selectedClassId={selectedClass} />;
 };
