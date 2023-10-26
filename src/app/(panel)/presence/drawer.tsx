@@ -5,6 +5,7 @@ import { CheckIcon, ChevronDoubleRightIcon, ChevronUpDownIcon } from "@heroicons
 import { Fragment } from "react";
 import { type ClassPresence, type StatusChange } from "./teacherView";
 import { PresenceLegend, type PresenceStatus } from "./view";
+import { Button } from "~/components/ui/button";
 
 const EditableStatuses: PresenceStatus[] = ["present", "absent", "late", "excused", "releasedBySchool"];
 
@@ -81,15 +82,16 @@ export function PresenceDrawer({ presence, onStatusChange, close, onSave, isUpda
 						</div>
 
 						<div className="mt-2 w-full">
-							<button
+							<Button
 								disabled={isUpdating}
+								loading={isUpdating}
 								className="w-full rounded-lg bg-primary/80 px-4 py-2 text-text disabled:cursor-not-allowed disabled:opacity-50"
 								onClick={() => {
 									onSave();
 								}}
 							>
 								Zapisz zamiany
-							</button>
+							</Button>
 						</div>
 					</div>
 				)}

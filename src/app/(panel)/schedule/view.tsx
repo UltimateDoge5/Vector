@@ -4,6 +4,7 @@ import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { useState } from "react";
+import { Button } from "~/components/ui/button";
 import { calculateBlockHeight, calculateWeekDates, days, schoolHours, stringToHslColor, type ISchedule } from "~/util/scheduleUtil";
 
 export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedule[]; title: string; weekDate?: string }) {
@@ -66,8 +67,8 @@ export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedul
 				<h2 className="mb-3 border-l-4 border-accent pl-2 text-2xl font-bold">{title}</h2>
 				<div className="mb-2 flex w-full justify-between border-b pb-2">
 					<div className="flex items-center gap-2">
-						<button
-							className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-text"
+						<Button
+							loading={loading}
 							disabled={loading}
 							onClick={async () => {
 								if (isDismissionMode && dissmisedLessons.length > 0) {
@@ -79,8 +80,7 @@ export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedul
 						>
 							<PencilSquareIcon className="h-5 w-5" />
 							{dissmisedLessons.length > 0 ? "Wyślij zwolnienia" : isDismissionMode ? "Anuluj" : "Edytuj zwolnienia"}
-						</button>
-
+						</Button>
 						{dissmisedLessons.length > 0 && <span>{dissmisedLessons.length} zastępstw do wysłania</span>}
 					</div>
 					<div className="flex items-center gap-2">
