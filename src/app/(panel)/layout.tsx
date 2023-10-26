@@ -1,18 +1,15 @@
-import "~/styles/globals.css";
-
 import { SignedIn, UserButton, currentUser } from "@clerk/nextjs";
-import Link from "next/link";
-import { Sidebar } from "~/components/sidebar";
-import ClassSelector from "~/components/classSelector";
 import { cookies } from "next/headers";
-import { db } from "~/server/db";
+import Link from "next/link";
 import { Suspense } from "react";
-import { headers } from "next/headers";
+import ClassSelector from "~/components/classSelector";
 import { Logo } from "~/components/logo";
+import { Sidebar } from "~/components/sidebar";
+import { db } from "~/server/db";
+import { isTeacher } from "~/util/authUtil";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const user = await currentUser();
-	const isTeacher = (user?.privateMetadata.role ?? "student") !== "student";
 
 	return (
 		<div className={`grid h-full grid-cols-[240px,auto] grid-rows-[96px,auto] gap-y-4 bg-background text-text`}>
@@ -22,10 +19,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 						<Link href="/">
 							<Logo className="h-10 w-10" />
 						</Link>
-						{isTeacher && (
+						{isTeacher(user) && (
 							<>
 								{"/"}
-								<Suspense fallback={<div className="animate-pulse bg-slate-500">Loading</div>}>
+								<Suspense fallback={<div className="h-8 w-32 animate-pulse bg-slate-500">Loading</div>}>
 									<ClassSelectorWrapper />
 								</Suspense>
 							</>
@@ -57,7 +54,5 @@ const ClassSelectorWrapper = async () => {
 		selectedClass = classes[0]!.id;
 	}
 
-	const headersList = headers();
-
-	return <ClassSelector classes={classes} selectedClassId={selectedClass} url={headersList.get("next-url")!} />;
+	return <ClassSelector classes={classes} selectedClassId={selectedClass} />;
 };

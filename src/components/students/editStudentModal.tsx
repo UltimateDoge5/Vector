@@ -146,8 +146,9 @@ export default function EditStudentModal({ student, isOpen, setIsOpen, editStude
                                         className="bg-primary hover:bg-primary/90 py-3 rounded-lg text-text font-bold mt-2 disabled:bg-primary/50 disabled:cursor-not-allowed transition"
                                         type="submit"
                                         disabled={!name || !selectedClass}
-
-                                    >Edytuj</button>
+                                    >
+                                        Edytuj
+                                    </button>
                                 </form>
 
                             </Dialog.Panel>

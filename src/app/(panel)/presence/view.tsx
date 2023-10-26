@@ -4,6 +4,7 @@ import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Button } from "~/components/ui/button";
 import { type Presence } from "~/server/db/schema";
 
 import { calculateBlockHeight, calculateWeekDates, days, schoolHours, type IPresence } from "~/util/scheduleUtil";
@@ -35,12 +36,14 @@ export function PresenceView({ presence: presenceInit, weekDate }: { presence: I
 	const maxIndex = Math.max(...presenceInit.map((lesson) => lesson.index));
 
 	const [presence, setPresence] = useState<IPresence[]>(presenceInit);
+	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
 		setPresence(presenceInit);
 	}, [presenceInit]);
 
 	const excuseLessons = async (excuses: ReturnType<typeof getLessonsToExcuse>) => {
+		setLoading(true);
 		const res = await fetch("/presence/api/excuse", {
 			method: "PUT",
 			body: JSON.stringify({
@@ -48,6 +51,8 @@ export function PresenceView({ presence: presenceInit, weekDate }: { presence: I
 				date: dayjs(weekDate).day(1).format("YYYY-MM-DD"),
 			}),
 		});
+
+		setLoading(false);
 
 		if (!res.ok) {
 			alert("Wystąpił błąd podczas wysyłania usprawiedliwień");
@@ -100,14 +105,10 @@ export function PresenceView({ presence: presenceInit, weekDate }: { presence: I
 			<h2 className="mb-3 border-l-4 border-accent pl-2 text-2xl font-bold">Obecności</h2>
 			<div className="mb-2 flex w-full justify-between border-b pb-2">
 				<div className="flex items-center gap-2">
-					<button
-						className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-text disabled:grayscale"
-						disabled={lessonsToExcuse.length === 0}
-						onClick={() => excuseLessons(lessonsToExcuse)}
-					>
+					<Button loading={loading} disabled={lessonsToExcuse.length === 0} onClick={() => excuseLessons(lessonsToExcuse)}>
 						<PencilSquareIcon className="h-5 w-5" />
 						Usprawiedliw nieobecnośći
-					</button>
+					</Button>
 				</div>
 				<div className="flex items-center gap-2">
 					<Link className="flex items-center rounded-lg bg-primary px-4 py-2" href={`/presence?week=${prev}`}>
