@@ -5,7 +5,7 @@ import { twMerge } from "tailwind-merge";
 const common = `inline-flex justify-center items-center rounded-md ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
  enabled:hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50 px-4 py-2 transition-all disabled:grayscale`;
 
-export function Button({ children, color, className, loading, ...props }: ButtonProps & ComponentProps<"button">) {
+export function Button({ icon, children, color, className, loading, ...props }: ButtonProps & ComponentProps<"button">) {
 	const theme: Record<colors, string> = {
 		primary: `bg-primary`,
 		secondary: "bg-secondary",
@@ -13,6 +13,7 @@ export function Button({ children, color, className, loading, ...props }: Button
 
 	return (
 		<button {...props} className={twMerge(common, theme[color ?? "primary"], className)}>
+			{icon && !loading && <>{icon}</>}
 			{loading && <LoadingIcon />}
 			{children}
 		</button>
@@ -33,6 +34,7 @@ const LoadingIcon = () => (
 type colors = "primary" | "secondary";
 
 interface ButtonProps {
+	icon?: JSX.Element;
 	loading?: boolean;
 	color?: colors;
 	className?: string;

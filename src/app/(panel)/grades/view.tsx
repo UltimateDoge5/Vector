@@ -1,6 +1,13 @@
 import { type IGrade } from "./page";
 
-const GradesColors = ["bg-red-500/40", "bg-purple-400/40", "bg-yellow-500/40", "bg-blue-400/40", "bg-emerald-400/50", "bg-green-400/80"];
+export const GradesColors = [
+	"bg-red-500/40",
+	"bg-purple-400/40",
+	"bg-yellow-500/40",
+	"bg-blue-400/40",
+	"bg-emerald-400/50",
+	"bg-green-400/80",
+];
 const dateFormat = Intl.DateTimeFormat("pl-PL", { day: "2-digit", month: "short", year: "numeric" });
 
 export default function GradesView({ grades }: { grades: IGrade[] }) {

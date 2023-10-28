@@ -25,9 +25,22 @@ export default async function Grades({ searchParams }: { searchParams: { lesson?
 				</div>
 			);
 
+		const grouped: Record<string, ReturnType<typeof groupByStudent>> = {};
+		lessons.forEach((lesson) => (grouped[lesson.name] = groupByStudent(lesson)));
+
+		const gradelessLessons = lessons.map((lesson) => ({
+			name: lesson.name,
+			gradeDefinitions: lesson.gradeDefinitions.map((def) => ({
+				id: def.id,
+				name: def.name,
+				weight: def.weight,
+			})),
+		}));
+
 		return (
 			<TeacherGradeView
 				lessons={lessons}
+				grades={grouped}
 				initSelection={searchParams.lesson ?? lessons[0]!.name}
 				students={students}
 				className={className}
@@ -114,6 +127,7 @@ const getDataForTeacher = async (userId: string) => {
 							grades: true,
 						},
 						columns: {
+							id: true,
 							name: true,
 							weight: true,
 						},
@@ -134,6 +148,28 @@ const getDataForTeacher = async (userId: string) => {
 	return { lessons: lessonGroups.map((lg) => lg.lesson[0]!), students, className: lessonGroups?.[0]?.class[0]?.name ?? "Brak nazwy" };
 };
 
+const groupByStudent = (selectedLesson: ILesson) => {
+	const grouped: Record<number, Omit<IGrade, "lesson" | "weight">[]> = {};
+
+	selectedLesson.gradeDefinitions.forEach((def) => {
+		def.grades.forEach((grade) => {
+			if (!grouped[grade.studentId]) {
+				grouped[grade.studentId] = [];
+			}
+
+			grouped[grade.studentId]!.push({
+				value: grade.grade,
+				name: def.name,
+				description: grade.description,
+				timestamp: grade.timestamp,
+				id: grade.id,
+			});
+		});
+	});
+
+	return grouped;
+};
+
 export interface IGrade {
 	id: number;
 	name: string;
@@ -147,8 +183,18 @@ export interface IGrade {
 export interface ILesson {
 	name: string;
 	gradeDefinitions: {
+		id: number;
 		name: string;
 		weight: number;
 		grades: (typeof Grade.$inferSelect & { studentId: number })[];
+	}[];
+}
+
+export interface IColDef {
+	name: string;
+	gradeDefinitions: {
+		id: number;
+		name: string;
+		weight: number;
 	}[];
 }
