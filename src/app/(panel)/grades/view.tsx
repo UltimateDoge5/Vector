@@ -1,6 +1,7 @@
 import { type IGrade } from "./page";
 
-const GradesColors = ["bg-red-500/40", "bg-purple-400/40", "bg-yellow-500/40", "bg-blue-400/40", "bg-emerald-400/40", "bg-green-400/40	"];
+const GradesColors = ["bg-red-500/40", "bg-purple-400/40", "bg-yellow-500/40", "bg-blue-400/40", "bg-emerald-400/50", "bg-green-400/80"];
+const dateFormat = Intl.DateTimeFormat("pl-PL", { day: "2-digit", month: "short", year: "numeric" });
 
 export default function GradesView({ grades }: { grades: IGrade[] }) {
 	const grouped = groupByLesson(grades);
@@ -25,8 +26,15 @@ export default function GradesView({ grades }: { grades: IGrade[] }) {
 											key={grade.id}
 											className={`${
 												GradesColors[grade.value - 1]
-											} flex h-7 w-7 items-center justify-center rounded text-lg`}
+											} group  relative flex h-7 w-7 items-center justify-center rounded text-lg`}
 										>
+											<div className="pointer-events-none absolute top-full z-10 flex w-max max-w-md flex-col gap-0.5 rounded-md bg-white p-2 text-sm text-black opacity-0 shadow transition-all group-hover:pointer-events-auto group-hover:opacity-100">
+												<span className="font-bold">Tytuł: {grade.name}</span>
+												<span>Waga: {grade.weight}</span>
+												<span>Opis: {grade.description ?? "Brak opisu"}</span>
+												<span>Data: {dateFormat.format(grade.timestamp)}</span>
+											</div>
+
 											{grade.value}
 										</div>
 									))}

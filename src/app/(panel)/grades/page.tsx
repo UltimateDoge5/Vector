@@ -1,11 +1,34 @@
 import { currentUser } from "@clerk/nextjs";
 import { db } from "~/server/db";
-import { isTeacher as isTeacherCheck } from "~/util/authUtil";
+import { getSelectedClass, isTeacher as isTeacherCheck } from "~/util/authUtil";
 import GradesView from "./view";
+import { TeacherGradeView } from "./teacherView";
+import { type Grade } from "~/server/db/schema";
 
-export default async function Grades() {
+export default async function Grades({ searchParams }: { searchParams: { lesson?: string } }) {
 	const user = await currentUser();
 	const isTeacher = isTeacherCheck(user);
+
+	// console.log(await getDataForTeacher("user_2WtVEuDuEZ3mNPCRvGUs6jMogLx"));
+
+	if (true) {
+		const { lessons, students, className } = await getDataForTeacher("user_2WtVEuDuEZ3mNPCRvGUs6jMogLx");
+		if (lessons === undefined)
+			return (
+				<div className="flex w-full flex-col rounded-lg">
+					<h2>Brak lekcji z tą klasą</h2>
+				</div>
+			);
+
+		return (
+			<TeacherGradeView
+				lessons={lessons}
+				initSelection={searchParams.lesson ?? lessons[0]!.name}
+				students={students}
+				className={className}
+			/>
+		);
+	}
 
 	const grades = await getDataForStudent(user!.id);
 
@@ -42,6 +65,7 @@ const getDataForStudent = async (userId: string) => {
 				id: true,
 				grade: true,
 				description: true,
+				timestamp: true,
 			},
 		})
 	).map((grade) => ({
@@ -51,9 +75,58 @@ const getDataForStudent = async (userId: string) => {
 		description: grade.description,
 		weight: grade.gradeDefinition.weight,
 		lesson: grade.gradeDefinition.lesson.name,
+		timestamp: grade.timestamp,
 	}));
 
 	return grades;
+};
+
+const getDataForTeacher = async (userId: string) => {
+	const selectedClass = getSelectedClass();
+
+	const { id } = (await db.query.Teacher.findFirst({
+		where: (t, { eq }) => eq(t.userId, userId),
+		columns: {
+			id: true,
+		},
+	}))!;
+
+	const students = await db.query.Student.findMany({
+		where: (s, { eq }) => eq(s.classId, selectedClass),
+		columns: {
+			id: true,
+			name: true,
+		},
+	})!;
+
+	const lessonGroups = await db.query.LessonGroup.findMany({
+		where: (lg, { eq, and }) => and(eq(lg.classId, selectedClass), eq(lg.teacherId, id)),
+		with: {
+			lesson: {
+				with: {
+					gradeDefinitions: {
+						with: {
+							grades: true,
+						},
+						columns: {
+							name: true,
+							weight: true,
+						},
+					},
+				},
+				columns: {
+					name: true,
+				},
+			},
+			class: {
+				columns: {
+					name: true,
+				},
+			},
+		},
+	});
+
+	return { lessons: lessonGroups.map((lg) => lg.lesson[0]!), students, className: lessonGroups?.[0]?.class[0]?.name ?? "Brak nazwy" };
 };
 
 export interface IGrade {
@@ -63,4 +136,14 @@ export interface IGrade {
 	description: string | null;
 	weight: number;
 	lesson: string;
+	timestamp: Date;
+}
+
+export interface ILesson {
+	name: string;
+	gradeDefinitions: {
+		name: string;
+		weight: number;
+		grades: (typeof Grade.$inferSelect & { studentId: number })[];
+	}[];
 }

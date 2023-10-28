@@ -7,7 +7,17 @@ import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { calculateBlockHeight, calculateWeekDates, days, schoolHours, stringToHslColor, type ISchedule } from "~/util/scheduleUtil";
 
-export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedule[]; title: string; weekDate?: string }) {
+export function ScheduleView({
+	schedule,
+	title,
+	weekDate,
+	isTeacher,
+}: {
+	schedule: ISchedule[];
+	title: string;
+	weekDate?: string;
+	isTeacher: boolean;
+}) {
 	const maxIndex = Math.max(...schedule.map((lesson) => lesson.index));
 
 	const [dissmisedLessons, setDissmisedLessons] = useState<Dismissal[]>([]);
@@ -67,21 +77,25 @@ export function ScheduleView({ schedule, title, weekDate }: { schedule: ISchedul
 				<h2 className="mb-3 border-l-4 border-accent pl-2 text-2xl font-bold">{title}</h2>
 				<div className="mb-2 flex w-full justify-between border-b pb-2">
 					<div className="flex items-center gap-2">
-						<Button
-							loading={loading}
-							disabled={loading}
-							onClick={async () => {
-								if (isDismissionMode && dissmisedLessons.length > 0) {
-									await sendDismissals();
-								} else {
-									setIsDismissionMode((prev) => !prev);
-								}
-							}}
-						>
-							<PencilSquareIcon className="h-5 w-5" />
-							{dissmisedLessons.length > 0 ? "Wyślij zwolnienia" : isDismissionMode ? "Anuluj" : "Edytuj zwolnienia"}
-						</Button>
-						{dissmisedLessons.length > 0 && <span>{dissmisedLessons.length} zastępstw do wysłania</span>}
+						{!isTeacher && (
+							<>
+								<Button
+									loading={loading}
+									disabled={loading}
+									onClick={async () => {
+										if (isDismissionMode && dissmisedLessons.length > 0) {
+											await sendDismissals();
+										} else {
+											setIsDismissionMode((prev) => !prev);
+										}
+									}}
+								>
+									<PencilSquareIcon className="h-5 w-5" />
+									{dissmisedLessons.length > 0 ? "Wyślij zwolnienia" : isDismissionMode ? "Anuluj" : "Edytuj zwolnienia"}
+								</Button>
+								{dissmisedLessons.length > 0 && <span>{dissmisedLessons.length} zastępstw do wysłania</span>}
+							</>
+						)}
 					</div>
 					<div className="flex items-center gap-2">
 						<Link className="flex items-center rounded-lg bg-primary px-4 py-2" href={`/schedule?week=${prev}`}>
