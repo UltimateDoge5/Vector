@@ -32,7 +32,7 @@ export const DataTable = <TData, TValue>({
 							<tr key={headerGroup.id} className="mb-2 border-y py-2">
 								{headerGroup.headers.map((header) => {
 									return (
-										<th key={header.id} className="h-12 px-4 text-left align-middle">
+										<th key={header.id} className="h-12 px-4 text-left align-middle font-semibold">
 											{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
 										</th>
 									);

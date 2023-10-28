@@ -11,8 +11,8 @@ export default function GradesView({ grades }: { grades: IGrade[] }) {
 			<table>
 				<thead>
 					<tr className="mb-2 border-y py-2">
-						<th className="h-12 w-20 border-r-2 p-2 text-left align-middle">Przedmiot</th>
-						<th className="h-12 p-2 text-left align-middle">Oceny</th>
+						<th className="h-12 w-20 border-r-2 p-2 text-left align-middle font-semibold">Przedmiot</th>
+						<th className="h-12 p-2 text-left align-middle font-semibold">Oceny</th>
 					</tr>
 				</thead>
 				<tbody>

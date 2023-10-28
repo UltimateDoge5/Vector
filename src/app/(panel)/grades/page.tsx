@@ -1,13 +1,18 @@
 import { currentUser } from "@clerk/nextjs";
+import { type Metadata } from "next";
 import { db } from "~/server/db";
-import { getSelectedClass, isTeacher as isTeacherCheck } from "~/util/authUtil";
-import GradesView from "./view";
-import { TeacherGradeView } from "./teacherView";
 import { type Grade } from "~/server/db/schema";
+import { getSelectedClass } from "~/util/authUtil";
+import { TeacherGradeView } from "./teacherView";
+import GradesView from "./view";
+
+export const metadata: Metadata = {
+	title: "Dziennik Vector | Oceny",
+	description: "Oceny uczniów",
+};
 
 export default async function Grades({ searchParams }: { searchParams: { lesson?: string } }) {
 	const user = await currentUser();
-	const isTeacher = isTeacherCheck(user);
 
 	// console.log(await getDataForTeacher("user_2WtVEuDuEZ3mNPCRvGUs6jMogLx"));
 
