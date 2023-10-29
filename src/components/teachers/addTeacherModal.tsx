@@ -62,6 +62,7 @@ export default function AddTeacherModal({ isOpen, setIsOpen, addTeacher }: Props
                                 </Dialog.Title>
 
                                 <form className="flex flex-col my-3" onSubmit={onSubmit}>
+									<span className="mt-4 font-medium">Imię i Nazwisko</span>
                                     <input
                                         type="text"
                                         className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
@@ -70,6 +71,7 @@ export default function AddTeacherModal({ isOpen, setIsOpen, addTeacher }: Props
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     />
 
+									<span className="mt-4 font-medium">E-mail</span>
                                     <input
                                         type="email"
                                         className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"

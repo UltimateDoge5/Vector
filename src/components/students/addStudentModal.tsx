@@ -79,6 +79,7 @@ export default function AddStudentModal({ isOpen, setIsOpen, addStudent, classes
                                 </Dialog.Title>
 
                                 <form className="flex flex-col my-3" onSubmit={onSubmit}>
+									<span className="mt-4 font-medium">Imię i Nazwisko</span>
                                     <input
                                         type="text"
                                         className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
@@ -87,6 +88,7 @@ export default function AddStudentModal({ isOpen, setIsOpen, addStudent, classes
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     />
 
+									<span className="mt-4 font-medium">E-mail</span>
                                     <input
                                         type="email"
                                         className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
@@ -95,6 +97,7 @@ export default function AddStudentModal({ isOpen, setIsOpen, addStudent, classes
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     />
 
+									<span className="mt-4 font-medium">Klasa</span>
                                     <Combobox value={selectedClass} onChange={setSelectedClass}>
                                         <div className="relative mt-1">
                                             <Combobox.Input
