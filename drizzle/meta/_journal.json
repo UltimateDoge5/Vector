@@ -85,6 +85,34 @@
       "when": 1697823786643,
       "tag": "0011_magical_starhawk",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1697980263095,
+      "tag": "0012_clever_riptide",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1697982777714,
+      "tag": "0013_pretty_pepper_potts",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1698086301950,
+      "tag": "0014_strong_colonel_america",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1698088009313,
+      "tag": "0015_clever_gamora",
+      "breakpoints": true
     }
   ]
 }

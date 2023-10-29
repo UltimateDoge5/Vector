@@ -1,23 +1,28 @@
 "use client";
-import { type ComponentProps } from "react";
+import { forwardRef, type ComponentProps } from "react";
 import { twMerge } from "tailwind-merge";
 
 const common = `inline-flex justify-center items-center rounded-md ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
  enabled:hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50 px-4 py-2 transition-all disabled:grayscale`;
 
-export function Button({ children, color, className, loading, ...props }: ButtonProps & ComponentProps<"button">) {
-	const theme: Record<colors, string> = {
-		primary: `bg-primary`,
-		secondary: "bg-secondary",
-	};
+export const Button = forwardRef<HTMLButtonElement, ButtonProps & ComponentProps<"button">>(
+	({ icon, children, color, className, loading, ...props }, ref) => {
+		const theme: Record<colors, string> = {
+			primary: `bg-primary`,
+			secondary: "bg-secondary",
+		};
 
-	return (
-		<button {...props} className={twMerge(common, theme[color ?? "primary"], className)}>
-			{loading && <LoadingIcon />}
-			{children}
-		</button>
-	);
-}
+		return (
+			<button {...props} ref={ref} className={twMerge(common, theme[color ?? "primary"], className)}>
+				{icon && !loading && <>{icon}</>}
+				{loading && <LoadingIcon />}
+				{children}
+			</button>
+		);
+	},
+);
+
+Button.displayName = "Button";
 
 const LoadingIcon = () => (
 	<svg className="-ml-1 mr-3 h-5 w-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -33,6 +38,7 @@ const LoadingIcon = () => (
 type colors = "primary" | "secondary";
 
 interface ButtonProps {
+	icon?: JSX.Element;
 	loading?: boolean;
 	color?: colors;
 	className?: string;
