@@ -14,8 +14,6 @@ export const metadata: Metadata = {
 export default async function Grades({ searchParams }: { searchParams: { lesson?: string } }) {
 	const user = await currentUser();
 
-	// console.log(await getDataForTeacher("user_2WtVEuDuEZ3mNPCRvGUs6jMogLx"));
-
 	if (true) {
 		const { lessons, students, className } = await getDataForTeacher("user_2WtVEuDuEZ3mNPCRvGUs6jMogLx");
 		if (lessons === undefined)
@@ -28,15 +26,6 @@ export default async function Grades({ searchParams }: { searchParams: { lesson?
 		const grouped: Record<string, ReturnType<typeof groupByStudent>> = {};
 		lessons.forEach((lesson) => (grouped[lesson.name] = groupByStudent(lesson)));
 
-		const gradelessLessons = lessons.map((lesson) => ({
-			name: lesson.name,
-			gradeDefinitions: lesson.gradeDefinitions.map((def) => ({
-				id: def.id,
-				name: def.name,
-				weight: def.weight,
-			})),
-		}));
-
 		return (
 			<TeacherGradeView
 				lessons={lessons}
@@ -48,9 +37,7 @@ export default async function Grades({ searchParams }: { searchParams: { lesson?
 		);
 	}
 
-	const grades = await getDataForStudent(user!.id);
-
-	return <GradesView grades={grades} />;
+	return <GradesView grades={await getDataForStudent(user!.id)} />;
 }
 
 const getDataForStudent = async (userId: string) => {
@@ -133,9 +120,6 @@ const getDataForTeacher = async (userId: string) => {
 						},
 					},
 				},
-				columns: {
-					name: true,
-				},
 			},
 			class: {
 				columns: {
@@ -181,6 +165,7 @@ export interface IGrade {
 }
 
 export interface ILesson {
+	id: number;
 	name: string;
 	gradeDefinitions: {
 		id: number;
@@ -191,6 +176,7 @@ export interface ILesson {
 }
 
 export interface IColDef {
+	id: number;
 	name: string;
 	gradeDefinitions: {
 		id: number;
