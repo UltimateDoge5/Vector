@@ -9,16 +9,17 @@ import { type IColDef, type IGrade } from "./page";
 import { GradesColors } from "./view";
 import { ActionModal } from "~/components/ui/modal";
 import { Input } from "~/components/ui/input";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
 export function TeacherGradeView({
-	                                 lessons: lessonsInit,
-	                                 grades: gradesInit,
-	                                 students,
-	                                 initSelection,
-	                                 className
-                                 }: {
+	lessons: lessonsInit,
+	grades: gradesInit,
+	students,
+	initSelection,
+	className,
+}: {
 	lessons: IColDef[];
-	grades: Record<string, Record<number, Omit<IGrade, "weight" | "lesson">[]>>;
+	grades: Record<string, Record<number, Omit<IGrade, "weight" | "lesson" | "timestamp">[]>>;
 	students: { name: string; id: number }[];
 	initSelection: string;
 	className: string;
@@ -34,18 +35,44 @@ export function TeacherGradeView({
 
 	const [modalData, setModalData] = useReducer((state: ModalData, newState: Partial<ModalData>) => ({ ...state, ...newState }), {
 		name: "",
-		weight: 1
+		weight: 1,
+		description: "",
+		studentId: -1,
+		defId: -1,
 	});
 
 	const router = useRouter();
 
 	const selectedLesson = lessons.find((g) => g.name === selectedLessonName)!;
-	const gradesSnapshot = useRef(grades[selectedLessonName] ?? {});
+	const gradesSnapshot = useRef(structuredClone(grades[selectedLessonName]) ?? {});
 
 	// Reset the snapshot when the selected lesson changes
 	useEffect(() => {
-		gradesSnapshot.current = grades[selectedLessonName] ?? {};
+		gradesSnapshot.current = structuredClone(grades[selectedLessonName]) ?? {};
 	}, [selectedLessonName]);
+
+	const saveChanges = async () => {
+		setIsLoading(true);
+		const res = await fetch("/grades/api/grade", {
+			method: "PUT",
+			body: JSON.stringify(changes),
+		});
+
+		setIsLoading(false);
+
+		if (!res.ok) {
+			console.error(res);
+			return;
+		}
+
+		gradesSnapshot.current = grades[selectedLessonName] ?? {};
+		setChanges([]);
+	};
+
+	const isGettingDeleted = (defId: number, studentId: number) => {
+		const changeIdx = changes.findIndex((c) => c.definitionId === defId && c.studentId === studentId);
+		return changeIdx !== -1 && changes[changeIdx]!.type === "delete";
+	};
 
 	return (
 		<>
@@ -85,8 +112,8 @@ export function TeacherGradeView({
 									"w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700",
 									"ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2",
 									lesson.name === selectedLessonName
-									? "bg-slate-200 shadow"
-									: "text-text hover:bg-white/[0.12] hover:text-white"
+										? "bg-slate-200 shadow"
+										: "text-text hover:bg-white/[0.12] hover:text-white",
 								)}
 							>
 								{lesson.name}
@@ -120,8 +147,13 @@ export function TeacherGradeView({
 									return (
 										<td
 											key={def.name}
-											className="h-12 min-w-[96px] max-w-xs border-r p-2 text-left align-middle"
-											onClick={() => setEditedCell([def.id, student.id])}
+											className={`h-12 min-w-[96px] max-w-xs border-r p-2 text-left align-middle
+												${isGettingDeleted(def.id, student.id) ? "bg-red-300/80" : ""}
+											`}
+											onClick={() => {
+												if (isGettingDeleted(def.id, student.id)) return;
+												setEditedCell([def.id, student.id]);
+											}}
 											onBlur={() => setEditedCell(null)}
 										>
 											<div className="inline-flex w-full items-center justify-between">
@@ -132,20 +164,28 @@ export function TeacherGradeView({
 														defaultValue={grade?.value}
 														className="h-full w-24 rounded p-1 text-center"
 														onKeyDown={(e) => {
-															if (e.key === "Escape" || e.key === "Enter") setEditedCell(null);
+															if (e.key === "Escape") setEditedCell(null);
+															else if (e.key === "Enter") {
+																// Check if we can go to the next row
+																const nextRowIdx = students.findIndex((s) => s.id === student.id) + 1;
+																const nextRow = students[nextRowIdx];
+
+																if (nextRow) setEditedCell([def.id, nextRow.id]);
+																else setEditedCell(null);
+															}
 														}}
 														onChange={(e) => {
 															const value = e.target.valueAsNumber;
-															if (isNaN(value)) return;
+															if (isNaN(value) || isGettingDeleted(def.id, student.id)) return;
 
 															// Check if the change already exists
 															const changeIdx = changes.findIndex(
-																(c) => c.gradeDefinitionId === def.id && c.studentId === student.id
+																(c) => c.definitionId === def.id && c.studentId === student.id,
 															);
 
 															// Check if the change is the same as the original value in the snapshot, if so, remove it or don't add it
 															const originalValue = gradesSnapshot.current[student.id]?.find(
-																(g) => g.name === def.name
+																(g) => g.name === def.name,
 															)?.value;
 
 															// If the change is the same as the original value, remove it
@@ -155,12 +195,16 @@ export function TeacherGradeView({
 																		changes.splice(changeIdx, 1);
 																		return [...changes];
 																	});
-																	setGrades((grades) => {
-																		grades[selectedLessonName]![student.id]!.filter(
-																			(g) => g.name !== def.name
-																		);
-																		return { ...grades };
-																	});
+
+																	const newGrades = structuredClone(grades);
+																	newGrades[selectedLessonName]![student.id]!.splice(
+																		newGrades[selectedLessonName]![student.id]!.findIndex(
+																			(g) => g.name === def.name,
+																		),
+																		1,
+																	);
+
+																	setGrades(newGrades);
 																}
 																return;
 															}
@@ -168,18 +212,12 @@ export function TeacherGradeView({
 															// If the change already exists, update it
 															if (changeIdx !== -1) {
 																setChanges((changes) => {
-																	changes[changeIdx] = {
-																		gradeDefinitionId: def.id,
-																		studentId: student.id,
-																		description: null,
-																		value
-																	};
-
+																	changes[changeIdx]!.value = value;
 																	return [...changes];
 																});
 																setGrades((grades) => {
 																	grades[selectedLessonName]![student.id]!.find(
-																		(g) => g.name === def.name
+																		(g) => g.name === def.name,
 																	)!.value = value;
 																	return { ...grades };
 																});
@@ -188,37 +226,36 @@ export function TeacherGradeView({
 																setChanges((changes) => [
 																	...changes,
 																	{
-																		gradeDefinitionId: def.id,
+																		type: "insert",
+																		definitionId: def.id,
 																		studentId: student.id,
 																		description: null,
-																		value
-																	}
-																]);
-																setGrades((grades) => {
-																	if (!grades[selectedLessonName]![student.id])
-																		grades[selectedLessonName]![student.id] = [];
-
-																	grades[selectedLessonName]![student.id]!.push({
-																		id: -1,
-																		name: def.name,
 																		value,
-																		description: null,
-																		timestamp: new Date()
-																	});
-																	return { ...grades };
+																	},
+																]);
+																const newGrades = structuredClone(grades);
+																if (!newGrades[selectedLessonName]![student.id])
+																	newGrades[selectedLessonName]![student.id] = [];
+
+																newGrades[selectedLessonName]![student.id]!.push({
+																	id: -1,
+																	name: def.name,
+																	value,
+																	description: null,
 																});
+																setGrades(newGrades);
 															}
 														}}
 													/>
 												) : (
-													 <div
-														 className={`${
-															 grade?.value !== undefined ? GradesColors[grade.value - 1] : ""
-														 } flex h-7 w-7 items-center justify-center rounded text-lg`}
-													 >
+													<div
+														className={`${
+															grade?.value !== undefined ? GradesColors[grade.value - 1] : ""
+														} flex h-7 w-7 items-center justify-center rounded text-lg`}
+													>
 														{grade?.value ?? "-"}
 													</div>
-												 )}
+												)}
 												{grade?.value && (
 													<Menu as="div" className="relative inline-block text-left">
 														<div>
@@ -244,12 +281,20 @@ export function TeacherGradeView({
 																				className={`${
 																					active ? "bg-primary text-text" : "text-gray-900"
 																				} group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-																				onClick={() => setModalMode("desc")}
+																				onClick={() => {
+																					setModalMode("desc");
+																					setModalData({
+																						name: def.name,
+																						description: grade?.description ?? "",
+																						studentId: student.id,
+																						defId: def.id,
+																					});
+																				}}
 																			>
 																				<PencilIcon className="mr-2 h-5 w-5" aria-hidden="true" />
 																				{grade?.description === null
-																				 ? "Add description"
-																				 : "Edit description"}
+																					? "Add description"
+																					: "Edit description"}
 																			</button>
 																		)}
 																	</Menu.Item>
@@ -259,16 +304,32 @@ export function TeacherGradeView({
 																		{({ active }) => (
 																			<button
 																				className={`${
-																					active ? "bg-red-300 " : "text-red-500"
+																					active ? "bg-red-300" : "text-red-500"
 																				} group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-																				onClick={() =>
+																				onClick={(e) => {
+																					e.stopPropagation();
+																					setChanges((changes) => [
+																						...changes,
+																						{
+																							type: "delete",
+																							definitionId: def.id,
+																							studentId: student.id,
+																							description: null,
+																							value: -1,
+																						},
+																					]);
 																					setGrades((grades) => {
-																						grades[selectedLessonName]![student.id]!.filter(
-																							(g) => g.name !== def.name
+																						const newGrades = structuredClone(grades);
+																						newGrades[selectedLessonName]![student.id]!.splice(
+																							newGrades[selectedLessonName]![
+																								student.id
+																							]!.findIndex((g) => g.name === def.name),
+																							1,
 																						);
-																						return { ...grades };
-																					})
-																				}
+
+																						return newGrades;
+																					});
+																				}}
 																			>
 																				<TrashIcon className="mr-2 h-5 w-5" aria-hidden="true" />
 																				Delete
@@ -280,79 +341,6 @@ export function TeacherGradeView({
 														</Transition>
 													</Menu>
 												)}
-												<ActionModal
-													open={modalMode === "desc"}
-													setOpen={() => setModalMode("")}
-													title={editedCell ? "Edytuj opis" : "Dodaj opis"}
-													actionText="Zapisz"
-													dismissible
-													colors={{
-														button: "bg-primary hover:bg-primary/[0.8] text-text"
-													}}
-													icon={false}
-													titleClassName="text-2xl"
-													confirmDisabled={!modalData.description}
-													onConfirm={() => {
-														// Check if the change already exists
-														const changeIdx = changes.findIndex(
-															(c) => c.gradeDefinitionId === def.id && c.studentId === student.id
-														);
-
-														// If the change already exists, update it
-														if (changeIdx !== -1) {
-															setChanges((changes) => {
-																changes[changeIdx] = {
-																	gradeDefinitionId: def.id,
-																	studentId: student.id,
-																	description: modalData.description!,
-																	value: grade!.value
-																};
-
-																return [...changes];
-															});
-															setGrades((grades) => {
-																grades[selectedLessonName]![student.id]!.find(
-																	(g) => g.name === def.name
-																)!.description = modalData.description!;
-																return { ...grades };
-															});
-														} else {
-															// If the change doesn't exist, add it
-															setChanges((changes) => [
-																...changes,
-																{
-																	gradeDefinitionId: def.id,
-																	studentId: student.id,
-																	description: modalData.description!,
-																	value: grade!.value
-																}
-															]);
-															setGrades((grades) => {
-																if (!grades[selectedLessonName]![student.id])
-																	grades[selectedLessonName]![student.id] = [];
-
-																grades[selectedLessonName]![student.id]!.push({
-																	id: -1,
-																	name: def.name,
-																	value: grade!.value,
-																	description: modalData.description!,
-																	timestamp: new Date()
-																});
-																return { ...grades };
-															});
-														}
-													}}
-												>
-													<div className="flex flex-col gap-2">
-														<textarea
-															className="h-32 resize-none rounded p-2 w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50"
-															name="desc"
-															id="desc"
-															value={modalData.description}
-															onChange={(e) => setModalData({ description: e.target.value })}
-														/>
-													</div>
-												</ActionModal>
 											</div>
 										</td>
 									);
@@ -362,6 +350,49 @@ export function TeacherGradeView({
 					</tbody>
 				</table>
 			</div>
+			<Transition
+				as={Fragment}
+				show={changes.length > 0 || isLoading}
+				enter="transition ease-out duration-200"
+				enterFrom="opacity-0"
+				enterTo="opacity-100"
+				leave="transition ease-in duration-100"
+				leaveFrom="opacity-100"
+				leaveTo="opacity-0"
+			>
+				<div className="fixed bottom-0 right-0 flex w-full justify-between rounded-t-lg border-b-4 border-accent/80 bg-white p-4">
+					<h3 className="inline-flex items-center gap-2 text-xl">
+						<div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20">
+							<ExclamationTriangleIcon className="h-6 w-6 stroke-accent/80" />
+						</div>
+						Masz niezapisane zmiany!
+					</h3>
+					<div className="flex items-center justify-center gap-2">
+						<Button
+							disabled={isLoading}
+							className="bg-white text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-200"
+							onClick={() => {
+								setChanges([]);
+								setGrades((grades) => {
+									grades[selectedLessonName] = structuredClone(gradesSnapshot.current);
+									return { ...grades };
+								});
+							}}
+						>
+							Cofnij
+						</Button>
+						<Button
+							loading={isLoading}
+							disabled={isLoading}
+							className="rounded-lg bg-primary px-4 py-2 text-text disabled:cursor-not-allowed disabled:opacity-50"
+							onClick={saveChanges}
+						>
+							Zapisz zmiany
+						</Button>
+					</div>
+				</div>
+			</Transition>
+
 			<ActionModal
 				open={modalMode === "def"}
 				setOpen={() => setModalMode("")}
@@ -369,7 +400,7 @@ export function TeacherGradeView({
 				actionText="Zapisz"
 				dismissible
 				colors={{
-					button: "bg-primary hover:bg-primary/[0.8] text-text"
+					button: "bg-primary hover:bg-primary/[0.8] text-text",
 				}}
 				loading={isLoading}
 				icon={false}
@@ -382,8 +413,8 @@ export function TeacherGradeView({
 						body: JSON.stringify({
 							lessonId: lessons.find((l) => l.name === selectedLessonName)!.id,
 							name: modalData.name!,
-							weight: modalData.weight!
-						})
+							weight: modalData.weight!,
+						}),
 					});
 
 					setIsLoading(false);
@@ -396,11 +427,13 @@ export function TeacherGradeView({
 					const { id } = (await res.json()) as { id: string };
 
 					const newLessons = [...lessons];
-					newLessons.find((l) => l.name === selectedLessonName)!.gradeDefinitions.push({
-						id: parseInt(id),
-						name: modalData.name!,
-						weight: modalData.weight!
-					});
+					newLessons
+						.find((l) => l.name === selectedLessonName)!
+						.gradeDefinitions.push({
+							id: parseInt(id),
+							name: modalData.name!,
+							weight: modalData.weight!,
+						});
 					setLessons(newLessons);
 					setModalMode("");
 				}}
@@ -425,6 +458,66 @@ export function TeacherGradeView({
 					/>
 				</div>
 			</ActionModal>
+
+			<ActionModal
+				open={modalMode === "desc"}
+				setOpen={() => setModalMode("")}
+				title={editedCell ? "Edytuj opis" : "Dodaj opis"}
+				actionText="Zapisz"
+				dismissible
+				colors={{
+					button: "bg-primary hover:bg-primary/[0.8] text-text",
+				}}
+				icon={false}
+				titleClassName="text-2xl"
+				confirmDisabled={!modalData.description}
+				onConfirm={() => {
+					// Check if the change already exists
+					const changeIdx = changes.findIndex((c) => c.definitionId === modalData.defId && c.studentId === modalData.studentId);
+
+					// If the change already exists, update it
+					if (changeIdx !== -1) {
+						setChanges((changes) => {
+							changes[changeIdx]!.description = modalData.description!;
+							return [...changes];
+						});
+						// Grade always exists, so we don't need to check for it
+						setGrades((grades) => {
+							console.log(grades[selectedLessonName]![modalData.studentId]);
+							grades[selectedLessonName]![modalData.studentId]!.find((g) => g.name === modalData.name)!.description =
+								modalData.description!;
+							return { ...grades };
+						});
+					} else {
+						// If the change doesn't exist, add it
+						setChanges((changes) => [
+							...changes,
+							{
+								type: "update",
+								definitionId: modalData.defId,
+								studentId: modalData.studentId,
+								description: modalData.description!,
+							},
+						]);
+						// Grade always exists, so we don't need to check for it
+						setGrades((grades) => {
+							grades[selectedLessonName]![modalData.studentId]!.find((g) => g.name === modalData.name)!.description =
+								modalData.description!;
+							return { ...grades };
+						});
+					}
+				}}
+			>
+				<div className="flex flex-col gap-2">
+					<textarea
+						className="h-32 w-full resize-none rounded border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-primary/50"
+						name="desc"
+						id="desc"
+						value={modalData.description}
+						onChange={(e) => setModalData({ description: e.target.value })}
+					/>
+				</div>
+			</ActionModal>
 		</>
 	);
 }
@@ -433,12 +526,14 @@ interface ModalData {
 	name?: string;
 	weight?: number;
 	description?: string;
-
+	studentId: number;
+	defId: number;
 }
 
 interface IChange {
+	type: "insert" | "update" | "delete";
+	value?: number;
 	studentId: number;
-	gradeDefinitionId: number;
-	value: number;
+	definitionId: number;
 	description: string | null;
 }
