@@ -2,7 +2,7 @@ import { currentUser } from "@clerk/nextjs";
 import { type Metadata } from "next";
 import { db } from "~/server/db";
 import { type Grade } from "~/server/db/schema";
-import { getSelectedClass } from "~/util/authUtil";
+import { getSelectedClass, isTeacher } from "~/util/authUtil";
 import { TeacherGradeView } from "./teacherView";
 import GradesView from "./view";
 
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default async function Grades({ searchParams }: { searchParams: { lesson?: string } }) {
 	const user = await currentUser();
 
-	if (true) {
+	if (isTeacher(user)) {
 		const { lessons, students, className } = await getDataForTeacher("user_2WtVEuDuEZ3mNPCRvGUs6jMogLx");
 		if (lessons === undefined)
 			return (
