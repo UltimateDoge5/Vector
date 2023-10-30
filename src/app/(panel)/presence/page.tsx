@@ -21,7 +21,7 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 	if (isTeacher) {
 		const { schedule, presence, exemptions, studentsList } = await getAttendenceForClass(selectedClass, week);
 
-		if (schedule.length === 0) return <h1 className="m-auto">Brak planu dla tej klasy</h1>;
+		if (schedule.length === 0) return <h2 className="m-auto w-fit text-3xl">Brak planu dla tej klasy</h2>;
 
 		let mappedSchedule: ISchedule[] = schedule.map(
 			(schedule) =>
@@ -83,6 +83,7 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 	}
 
 	const { presence, exemptions, schedule } = await getPresenceForStudent(user!.id, week);
+	if (schedule.length === 0) return <h2 className="m-auto w-fit text-3xl">Brak planu dla tej klasy</h2>;
 
 	let mappedSchedule: IPresence[] = schedule.map(
 		(schedule) =>
@@ -129,18 +130,21 @@ const getAttendenceForClass = async (classId: number, week: { from: Date; to: Da
 		},
 	});
 
+	const exemptionsConditions: SQL<unknown>[] = [];
+	if (schedule.length > 0)
+		exemptionsConditions.push(
+			inArray(
+				Presence.tableId,
+				schedule.map((lesson) => lesson.id),
+			),
+		);
+
 	const exemptions = await db.query.Exemptions.findMany({
 		where: (exemption, { and, lte, gte, eq, or }) =>
 			and(
 				gte(exemption.date, week.from),
 				lte(exemption.date, week.to),
-				or(
-					eq(exemption.scheduleId, classId),
-					inArray(
-						exemption.scheduleId,
-						schedule.map((lesson) => lesson.id),
-					),
-				),
+				or(eq(exemption.scheduleId, classId), ...exemptionsConditions),
 			),
 		with: {
 			class: true,

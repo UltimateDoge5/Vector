@@ -1,13 +1,13 @@
 "use client";
+import { Transition } from "@headlessui/react";
 import { ExclamationTriangleIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { Fragment, useEffect, useRef, useState } from "react";
-import { type ISchedule, calculateWeekDates, stringToHslColor } from "~/util/scheduleUtil";
-import { days, schoolHours } from "~/util/scheduleUtil";
+import { toast } from "react-toastify";
+import { Button } from "~/components/ui/button";
+import { calculateWeekDates, days, schoolHours, stringToHslColor, type ISchedule } from "~/util/scheduleUtil";
 import { PresenceDrawer } from "./drawer";
 import { type PresenceStatus } from "./view";
-import { Transition } from "@headlessui/react";
-import { Button } from "~/components/ui/button";
 
 export function TeacherPresenceView({
 	schedule,
@@ -99,10 +99,15 @@ export function TeacherPresenceView({
 				}
 			});
 
+			toast("Zmiany zapisano pomyślnie.", {
+				type: "success",
+			});
 			setChanges([]);
 			setIsUpdating(false);
 		} else {
-			alert("Wystąpił błąd podczas zapisywania zmian. Spróbuj ponownie później.");
+			toast("Wystąpił błąd podczas zapisywania zmian. Spróbuj ponownie później.", {
+				type: "error",
+			});
 		}
 	};
 
@@ -119,7 +124,7 @@ export function TeacherPresenceView({
 					</Link>
 				</div>
 
-				<table className="w-full table-fixed">
+				<table className="h-[1px] w-full table-fixed">
 					<colgroup>
 						<col className="w-36" />
 					</colgroup>
@@ -135,7 +140,7 @@ export function TeacherPresenceView({
 							))}
 						</tr>
 						{schoolHours.slice(0, maxIndex + 2).map((hour, index) => (
-							<tr key={index} className={index % 2 == 1 ? "" : "bg-secondary/20"}>
+							<tr key={index} className={index % 2 == 1 ? "h-full" : "h-full bg-secondary/20"}>
 								<td className="p-4 align-middle">
 									{hour.from} - {hour.to}
 								</td>
@@ -144,9 +149,9 @@ export function TeacherPresenceView({
 
 									if (lesson) {
 										return (
-											<td className="p-1.5 align-middle" key={day}>
+											<td className="p-1.5 px-1 align-middle" key={day}>
 												<button
-													className={`relative h-max w-full rounded-lg p-2 text-left transition-all`}
+													className={`relative h-full w-full rounded-lg p-2 text-left transition-all`}
 													style={{
 														background: stringToHslColor(lesson.lesson.name!, 80, 80),
 													}}

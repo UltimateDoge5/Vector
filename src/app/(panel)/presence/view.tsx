@@ -4,10 +4,11 @@ import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import { Button } from "~/components/ui/button";
 import { type Presence } from "~/server/db/schema";
 
-import { calculateBlockHeight, calculateWeekDates, days, schoolHours, type IPresence } from "~/util/scheduleUtil";
+import { calculateWeekDates, days, schoolHours, type IPresence } from "~/util/scheduleUtil";
 
 export type PresenceStatus = (typeof Presence.$inferSelect)["status"] | "none";
 
@@ -55,7 +56,9 @@ export function PresenceView({ presence: presenceInit, weekDate }: { presence: I
 		setLoading(false);
 
 		if (!res.ok) {
-			alert("Wystąpił błąd podczas wysyłania usprawiedliwień");
+			toast("Wystąpił błąd podczas wysyłania usprawiedliwień", {
+				type: "error",
+			});
 			return;
 		}
 
@@ -69,6 +72,9 @@ export function PresenceView({ presence: presenceInit, weekDate }: { presence: I
 			}
 		});
 
+		toast("Usprawiedliwiono nieobecności", {
+			type: "success",
+		});
 		setPresence(newPresence);
 	};
 
@@ -105,8 +111,12 @@ export function PresenceView({ presence: presenceInit, weekDate }: { presence: I
 			<h2 className="mb-3 border-l-4 border-accent pl-2 text-2xl font-bold">Obecności</h2>
 			<div className="mb-2 flex w-full justify-between border-b pb-2">
 				<div className="flex items-center gap-2">
-					<Button loading={loading} disabled={lessonsToExcuse.length === 0} onClick={() => excuseLessons(lessonsToExcuse)}>
-						<PencilSquareIcon className="h-5 w-5" />
+					<Button
+						loading={loading}
+						disabled={lessonsToExcuse.length === 0}
+						onClick={() => excuseLessons(lessonsToExcuse)}
+						icon={<PencilSquareIcon className="h-5 w-5" />}
+					>
 						Usprawiedliw nieobecnośći
 					</Button>
 				</div>
@@ -132,7 +142,7 @@ export function PresenceView({ presence: presenceInit, weekDate }: { presence: I
 				))}
 			</div>
 
-			<table className="w-full table-fixed">
+			<table className="h-[1px] w-full table-fixed">
 				<colgroup>
 					<col className="w-36" />
 				</colgroup>
@@ -148,7 +158,7 @@ export function PresenceView({ presence: presenceInit, weekDate }: { presence: I
 						))}
 					</tr>
 					{schoolHours.slice(0, maxIndex + 2).map((hour, index) => (
-						<tr key={index} className={index % 2 == 1 ? "" : "bg-secondary/20"}>
+						<tr key={index} className={index % 2 == 1 ? "h-full" : "h-full bg-secondary/20"}>
 							<td className="p-4 align-middle">
 								{hour.from} - {hour.to}
 							</td>
@@ -161,14 +171,11 @@ export function PresenceView({ presence: presenceInit, weekDate }: { presence: I
 
 								if (block.from === index) {
 									return (
-										<td rowSpan={block.to - block.from + 1} className="p-1.5 align-middle" key={day}>
+										<td rowSpan={block.to - block.from + 1} className="p-1.5 px-1 align-middle" key={day}>
 											<div
-												className={`relative h-max rounded-lg p-2 transition-all ${
+												className={`relative h-full rounded-lg p-2 transition-all ${
 													PresenceLegend[block.status].color
 												} ${block.exemption.cancelation ? "line-through" : "hover:saturate-150"}`}
-												style={{
-													height: `${calculateBlockHeight(block.from, block.to)}px`,
-												}}
 											>
 												<h3>{block.lesson.name}</h3>
 												<p className="text-sm font-light">

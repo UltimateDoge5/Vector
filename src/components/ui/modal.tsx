@@ -70,8 +70,11 @@ export function ActionModal({
 												{icon ?? <ExclamationTriangleIcon className="h-6 w-6" aria-hidden="true" />}
 											</div>
 										)}
-										<div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
-											<Dialog.Title as="h3" className={twMerge("text-base font-semibold leading-6 text-gray-900", titleClassName)}>
+										<div className="mt-3 w-full text-center sm:ml-4 sm:mt-0 sm:text-left">
+											<Dialog.Title
+												as="h3"
+												className={twMerge("text-base font-semibold leading-6 text-gray-900", titleClassName)}
+											>
 												{title}
 											</Dialog.Title>
 											<div className="mt-2">{children}</div>
@@ -87,7 +90,7 @@ export function ActionModal({
 										)}
 										onClick={() => {
 											onConfirm();
-											if(!loading) setOpen(false);
+											if (!loading) setOpen(false);
 										}}
 										// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
 										disabled={loading || confirmDisabled}
@@ -104,7 +107,7 @@ export function ActionModal({
 										disabled={loading}
 									>
 										{secondaryText ?? "Anuluj"}
-									</Button >
+									</Button>
 								</div>
 							</Dialog.Panel>
 						</Transition.Child>

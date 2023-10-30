@@ -4,8 +4,9 @@ import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "react-toastify";
 import { Button } from "~/components/ui/button";
-import { calculateBlockHeight, calculateWeekDates, days, schoolHours, stringToHslColor, type ISchedule } from "~/util/scheduleUtil";
+import { calculateWeekDates, days, schoolHours, stringToHslColor, type ISchedule } from "~/util/scheduleUtil";
 
 export function ScheduleView({
 	schedule,
@@ -37,10 +38,15 @@ export function ScheduleView({
 		setLoading(false);
 
 		if (!res.ok) {
-			alert("Wystąpił błąd podczas wysyłania zwolnień");
+			toast("Wystąpił błąd podczas wysyłania zwolnień", {
+				type: "error",
+			});
 			return;
 		}
 
+		toast("Zwolnienia zostały wysłane", {
+			type: "success",
+		});
 		setIsDismissionMode(false);
 		setDissmisedLessons([]);
 	};
@@ -89,8 +95,8 @@ export function ScheduleView({
 											setIsDismissionMode((prev) => !prev);
 										}
 									}}
+									icon={<PencilSquareIcon className="h-5 w-5" />}
 								>
-									<PencilSquareIcon className="h-5 w-5" />
 									{dissmisedLessons.length > 0 ? "Wyślij zwolnienia" : isDismissionMode ? "Anuluj" : "Edytuj zwolnienia"}
 								</Button>
 								{dissmisedLessons.length > 0 && <span>{dissmisedLessons.length} zastępstw do wysłania</span>}
@@ -109,7 +115,7 @@ export function ScheduleView({
 						</Link>
 					</div>
 				</div>
-				<table className="w-full table-fixed">
+				<table className="h-[1px] w-full table-fixed">
 					<colgroup>
 						<col className="w-36" />
 					</colgroup>
@@ -125,7 +131,7 @@ export function ScheduleView({
 							))}
 						</tr>
 						{schoolHours.slice(0, maxIndex + 2).map((hour, index) => (
-							<tr key={index} className={index % 2 == 1 ? "" : "bg-secondary/20"}>
+							<tr key={index} className={index % 2 == 1 ? "h-full" : "h-full bg-secondary/20"}>
 								<td className="p-4 align-middle">
 									{hour.from} - {hour.to}
 								</td>
@@ -142,15 +148,14 @@ export function ScheduleView({
 
 									if (block.from === index) {
 										return (
-											<td rowSpan={block.to - block.from + 1} className="p-1.5 align-middle" key={day}>
+											<td rowSpan={block.to - block.from + 1} className="p-1.5 px-1 align-middle" key={day}>
 												<div
-													className={`relative h-max rounded-lg p-2 transition-all
+													className={`relative h-full rounded-lg p-2 transition-all
 												  ${block.exemption.cancelation ? "line-through grayscale" : "hover:saturate-150"}
 												  ${isDismissionMode ? "cursor-pointer" : ""}
 												  ${isDissmised ? "grayscale" : ""}`}
 													style={{
 														background: stringToHslColor(block.lesson.name!, 80, 80),
-														minHeight: `${calculateBlockHeight(block.from, block.to)}px`,
 													}}
 													onClick={() => {
 														if (!isDismissionMode) return;

@@ -6,6 +6,8 @@ import { getSelectedClass, isTeacher } from "~/util/authUtil";
 import { TeacherGradeView } from "./teacherView";
 import GradesView from "./view";
 
+export const runetime = "edge";
+
 export const metadata: Metadata = {
 	title: "Dziennik Vector | Oceny",
 	description: "Oceny uczniów",
@@ -15,8 +17,8 @@ export default async function Grades({ searchParams }: { searchParams: { lesson?
 	const user = await currentUser();
 
 	if (isTeacher(user)) {
-		const { lessons, students, className } = await getDataForTeacher("user_2WtVEuDuEZ3mNPCRvGUs6jMogLx");
-		if (lessons === undefined)
+		const { lessons, students, className } = await getDataForTeacher(user!.id);
+		if (lessons === undefined || lessons.length === 0)
 			return (
 				<div className="flex w-full flex-col rounded-lg">
 					<h2>Brak lekcji z tą klasą</h2>
@@ -26,14 +28,12 @@ export default async function Grades({ searchParams }: { searchParams: { lesson?
 		const grouped: Record<string, ReturnType<typeof groupByStudent>> = {};
 		lessons.forEach((lesson) => (grouped[lesson.name] = groupByStudent(lesson)));
 
+		// Check if the selected class is valid
+		let selectedClass = searchParams.lesson ?? lessons[0]!.name;
+		if (!lessons.some((lesson) => lesson.name === selectedClass)) selectedClass = lessons[0]!.name;
+
 		return (
-			<TeacherGradeView
-				lessons={lessons}
-				grades={grouped}
-				initSelection={searchParams.lesson ?? lessons[0]!.name}
-				students={students}
-				className={className}
-			/>
+			<TeacherGradeView lessons={lessons} grades={grouped} initSelection={selectedClass} students={students} className={className} />
 		);
 	}
 

@@ -149,11 +149,6 @@ export function stringToHslColor(str: string, s: number, l: number) {
 	return "hsl(" + h + ", " + s + "%, " + l + "%)";
 }
 
-export function calculateBlockHeight(from: number, to: number) {
-	const size = to - from + 1;
-	return 72 * size - 4 + (size - 1) * 11.5; // 72px is the height of one row, 4px is the padding, 11.5px is the margin
-}
-
 export function calculateWeekDates(weekDate?: string) {
 	const dateFormat = Intl.DateTimeFormat("pl-PL", { month: "long", day: "numeric" });
 	const date = weekDate ? dayjs(weekDate) : dayjs();

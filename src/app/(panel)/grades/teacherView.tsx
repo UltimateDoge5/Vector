@@ -10,6 +10,7 @@ import { GradesColors } from "./view";
 import { ActionModal } from "~/components/ui/modal";
 import { Input } from "~/components/ui/input";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { ToastContainer, toast } from "react-toastify";
 
 export function TeacherGradeView({
 	lessons: lessonsInit,
@@ -61,10 +62,11 @@ export function TeacherGradeView({
 		setIsLoading(false);
 
 		if (!res.ok) {
-			console.error(res);
+			toast("Wystąpił błąd podczas zapisywania zmian!", { type: "error" });
 			return;
 		}
 
+		toast("Zmiany zapisano pomyślnie.", { type: "success" });
 		gradesSnapshot.current = grades[selectedLessonName] ?? {};
 		setChanges([]);
 	};
@@ -518,6 +520,7 @@ export function TeacherGradeView({
 					/>
 				</div>
 			</ActionModal>
+			<ToastContainer />
 		</>
 	);
 }
