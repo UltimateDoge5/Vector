@@ -2,9 +2,9 @@
 
 import { Menu, Transition } from "@headlessui/react";
 import { ArchiveBoxXMarkIcon, EllipsisVerticalIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
-import { ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
-import { ClassDto, StudentWithClassDto, StudentWithPasswordDto } from "~/types/dtos";
+import { type ClassDto, type StudentWithClassDto, type StudentWithPasswordDto } from "~/types/dtos";
 import { DataTable } from "../dataTable";
 import AddStudentModal from "./addStudentModal";
 import EditStudentModal from "./editStudentModal";

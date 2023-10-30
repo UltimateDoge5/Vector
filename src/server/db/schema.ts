@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { bigint, boolean, int, mysqlEnum, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { bigint, boolean, int, mysqlEnum, json, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 export const Assignment = mysqlTable("assignment", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
@@ -9,6 +9,14 @@ export const Assignment = mysqlTable("assignment", {
 	description: varchar("description", { length: 255 }),
 	dueDate: timestamp("due_date", { mode: "date" }).notNull(),
 	creationDate: timestamp("creation_date", { mode: "date" }).defaultNow(),
+});
+
+export const Announcements = mysqlTable("announcement", {
+	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
+	date: timestamp("date", { mode: "date" }).notNull(),
+	name: varchar("name", { length: 255 }).notNull(),
+	description: varchar("description", { length: 255 }),
+	recipients: json("recipients").$type<{teachers: boolean, classes: number[]}>(),
 });
 
 export const Exemptions = mysqlTable("exemption", {
