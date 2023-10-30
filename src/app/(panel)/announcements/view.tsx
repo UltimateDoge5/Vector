@@ -5,18 +5,13 @@ import { ArchiveBoxXMarkIcon, CheckIcon, ChevronUpDownIcon, EllipsisVerticalIcon
 import { type ColumnDef } from "@tanstack/react-table";
 import { Fragment, useReducer, useState } from "react";
 import { DataTable } from "~/components/dataTable";
+import { Input } from "~/components/ui/input";
 import { ActionModal } from "~/components/ui/modal";
 import { type Announcements } from "~/server/db/schema";
 
 const dateFormat = Intl.DateTimeFormat("pl", { day: "numeric", month: "long", year: "numeric" });
 
-export function AnnouncementsView({
-	classes,
-	announcements: announcementsInit,
-}: {
-	classes: IClasses[];
-	announcements: IAnnouncements[];
-}) {
+export function AnnouncementsView({ classes, announcements: announcementsInit }: { classes: IClasses[]; announcements: IAnnouncements[] }) {
 	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 	const [formData, setFormData] = useReducer(
 		(prev: Omit<IAnnouncements, "id">, next: Partial<Omit<IAnnouncements, "id">>) => ({ ...prev, ...next }),
@@ -49,7 +44,7 @@ export function AnnouncementsView({
 		setLoading(false);
 
 		if (!res.ok) {
-			alert("Wystąpił błąd podczas wysyłania usprawiedliwień");
+			alert("Wystąpił błąd podczas wysyłania ogłoszenia");
 			return;
 		}
 
@@ -61,8 +56,18 @@ export function AnnouncementsView({
 		setIsAddModalOpen(false);
 	};
 
-	const deleteAnnouncement = (_id: number) => {
-		return;
+	const deleteAnnouncement = async (id: number) => {
+		const res = await fetch("/announcements/api", {
+			method: "DELETE",
+			body: JSON.stringify({ id }),
+		});
+
+		if (!res.ok) {
+			alert("Ogłoszenie nie zostało usunięte!");
+			return;
+		}
+
+		setAnnouncements([...announcements].filter((og) => og.id != id));
 	};
 
 	const columns: ColumnDef<IAnnouncements>[] = [
@@ -78,6 +83,26 @@ export function AnnouncementsView({
 			header: "Data",
 			accessorKey: "date",
 			cell: ({ row }) => dateFormat.format(row.getValue("date")),
+		},
+		{
+			header: "Nauczyciele",
+			accessorKey: "recipients",
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+			cell: ({ row }) => ((row.getValue("recipients") as IAnnouncements["recipients"])!.teachers ? "Tak" : "Nie"),
+		},
+		{
+			header: "Klasy",
+			accessorKey: "recipients",
+			id: "ogloszenia",
+			cell: ({ row }) => {
+				// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+				const ids = (row.getValue("recipients") as IAnnouncements["recipients"])!.classes;
+				if (ids.length == 0) {
+					return "Brak klas";
+				}
+
+				return ids.map((classId) => classes.find((c) => c.id == classId)?.name).join(", ");
+			},
 		},
 		{
 			header: " ",
@@ -119,6 +144,7 @@ export function AnnouncementsView({
 			),
 		},
 	];
+
 	return (
 		<>
 			<DataTable
@@ -142,77 +168,90 @@ export function AnnouncementsView({
 				title={"Dodaj ogłoszenie"}
 				actionText={"Dodaj"}
 				loading={loading}
+				colors={{ button: "bg-primary hover:bg-primary/80 text-text" }}
+				icon={false}
+				titleClassName="text-2xl"
 			>
 				<form className="my-3">
-					<span className="mt-4 font-medium">Tytuł</span>
-					<input
-						type="text"
-						className="my-2 w-full flex-1 rounded-lg bg-secondary/30 p-4 text-text outline-none"
-						placeholder="Tytuł"
-						value={formData.name}
-						onChange={(e) => setFormData({ name: e.target.value })}
-					/>
-					<span className="mt-4 font-medium">Opis</span>
-					<input
-						type="text"
-						className="my-2 w-full flex-1 rounded-lg bg-secondary/30 p-4 text-text outline-none"
-						placeholder="Opis"
-						value={formData.description ?? ""}
-						onChange={(e) => setFormData({ description: e.target.value })}
-					/>
-					<span>Nauczyciele</span>
-					<input
-						type="checkbox"
-						className=""
-						onChange={(e) => setFormData({ recipients: { ...formData.recipients!, teachers: e.target.checked } })}
-					/>
-					<span className="mt-4 font-medium">Klasa</span>
-					<Listbox
-						value={formData.recipients!.classes}
-						onChange={(value) => {
-							setFormData({ recipients: { ...formData.recipients!, classes: value } });
-						}}
-						multiple
-					>
-						<div className="relative m-auto mt-2 w-full">
-							<Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-accent/10 p-4 text-left focus:outline-none sm:text-base">
-								<span className="block truncate">
-									{formData.recipients!.classes.map((classId) => classes.find((c) => c.id == classId)?.name).join(", ")}
-								</span>
-								<span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-									<ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-								</span>
-							</Listbox.Button>
-							<Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-								<Listbox.Options className="absolute  mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-base">
-									{classes.map((classItem) => (
-										<Listbox.Option
-											key={classItem.id}
-											className={"relative cursor-pointer select-none py-2 pl-10 pr-4 hover:bg-primary/60"}
-											value={classItem.id}
-										>
-											{({ selected, active }) => (
-												<>
-													<span className={`block truncate ${selected ? "font-medium" : "font-normal"}`}>
-														{classItem.name}
-													</span>
-													{selected ? (
-														<span
-															className={`absolute inset-y-0 left-0 flex items-center pl-3 text-primary ${
-																active ? "text-white" : ""
-															}`}
-														>
-															<CheckIcon className="h-5 w-5" aria-hidden="true" />
+					<div className="flex flex-col gap-1 ">
+						<label className="font-medium">Tytuł</label>
+						<Input placeholder="Tytuł" value={formData.name} onChange={(e) => setFormData({ name: e.target.value })} />
+					</div>
+					<div className="flex flex-col gap-1 mt-3">
+						<label className="font-medium">Opis</label>
+						<Input
+							placeholder="Opis"
+							value={formData.description ?? ""}
+							onChange={(e) => setFormData({ description: e.target.value })}
+						/>
+					</div>
+					<div className="flex flex-col gap-1 mt-3">
+						<span className="font-medium">Klasa</span>
+						<Listbox
+							value={formData.recipients!.classes}
+							onChange={(value) => {
+								setFormData({ recipients: { ...formData.recipients!, classes: value } });
+							}}
+							multiple
+						>
+							<div className="relative m-auto w-full">
+								<Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-accent/10 p-4 text-left focus:outline-none sm:text-base">
+									<span className="block truncate">
+										{formData
+											.recipients!.classes.map((classId) => classes.find((c) => c.id == classId)?.name)
+											.join(", ")}
+									</span>
+									<span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+										<ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+									</span>
+								</Listbox.Button>
+								<Transition
+									as={Fragment}
+									leave="transition ease-in duration-100"
+									leaveFrom="opacity-100"
+									leaveTo="opacity-0"
+								>
+									<Listbox.Options className="absolute  mt-1 max-h-60 w-full overflow-auto z-20 rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-base">
+										{classes.map((classItem) => (
+											<Listbox.Option
+												key={classItem.id}
+												className={"relative cursor-pointer select-none py-2 pl-10 pr-4 hover:bg-primary/60"}
+												value={classItem.id}
+											>
+												{({ selected, active }) => (
+													<>
+														<span className={`block truncate ${selected ? "font-medium" : "font-normal"}`}>
+															{classItem.name}
 														</span>
-													) : null}
-												</>
-											)}
-										</Listbox.Option>
-									))}
-								</Listbox.Options>
-							</Transition>
-						</div>
-					</Listbox>
+														{selected ? (
+															<span
+																className={`absolute inset-y-0 left-0 flex items-center pl-3 text-primary ${
+																	active ? "text-white" : ""
+																}`}
+															>
+																<CheckIcon className="h-5 w-5" aria-hidden="true" />
+															</span>
+														) : null}
+													</>
+												)}
+											</Listbox.Option>
+										))}
+									</Listbox.Options>
+								</Transition>
+							</div>
+						</Listbox>
+					</div>
+					<div className="flex items-center gap-1 mt-3">
+						<label className="font-medium" htmlFor="teachers">
+							Wyślij nauczycielom
+						</label>
+						<input
+							type="checkbox"
+							className=""
+							id="teachers"
+							onChange={(e) => setFormData({ recipients: { ...formData.recipients!, teachers: e.target.checked } })}
+						/>
+					</div>
 				</form>
 			</ActionModal>
 		</>

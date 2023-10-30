@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "~/server/db";
@@ -24,5 +25,22 @@ export async function POST(request: Request) {
 
 	const res = await db.insert(Announcements).values(parsedData.data);
 
-	return NextResponse.json({ id: res.insertId }, { status: 201 });
+	return NextResponse.json({ id: parseInt(res.insertId) }, { status: 201 });
+}
+
+export async function DELETE(request: Request) {
+	const body = (await request.json()) as unknown;
+
+	const schema = z.object({
+		id: z.number(),
+	});
+	const parsedData = schema.safeParse(body);
+
+	if (!parsedData.success) {
+		return new NextResponse(JSON.stringify(parsedData.error), { status: 400 });
+	}
+
+	await db.delete(Announcements).where(eq(Announcements.id, parsedData.data.id));
+
+	return NextResponse.json(null, { status: 201 });
 }
