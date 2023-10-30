@@ -32,7 +32,7 @@ export const DataTable = <TData, TValue>({
 							<tr key={headerGroup.id} className="mb-2 border-y py-2">
 								{headerGroup.headers.map((header) => {
 									return (
-										<th key={header.id} className="h-12 px-4 text-left align-middle">
+										<th key={header.id} className="h-12 px-4 text-left align-middle font-semibold">
 											{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
 										</th>
 									);
@@ -42,14 +42,14 @@ export const DataTable = <TData, TValue>({
 					</thead>
 					<tbody>
 						{table.getRowModel().rows?.length ? (
-							table.getRowModel().rows.map((row, i) => (
+							table.getRowModel().rows.map((row) => (
 								<tr
 									key={row.id}
 									data-state={row.getIsSelected() && "selected"}
 									className="transition-colors hover:bg-secondary/10"
 								>
 									{row.getVisibleCells().map((cell) => (
-										<td key={cell.id} className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+										<td key={cell.id} className="p-2 align-middle [&:has([role=checkbox])]:pr-0">
 											{flexRender(cell.column.columnDef.cell, cell.getContext())}
 										</td>
 									))}

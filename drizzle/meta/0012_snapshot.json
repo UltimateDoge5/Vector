@@ -1,60 +1,9 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "8583e265-99c7-4249-bc8a-435a81343c4b",
+  "id": "8fc31027-e59e-4cca-97cc-d015d23462ba",
   "prevId": "eaa16436-ea87-4d23-bc62-027ac8f6989e",
   "tables": {
-    "announcement": {
-      "name": "announcement",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "date": {
-          "name": "date",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "json": {
-          "name": "json",
-          "type": "json",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "announcement_id": {
-          "name": "announcement_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {}
-    },
     "assignment": {
       "name": "assignment",
       "columns": {
@@ -282,6 +231,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "scheduleId": {
+          "name": "scheduleId",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "timestamp": {
           "name": "timestamp",
           "type": "timestamp",
@@ -393,7 +349,7 @@
         },
         "status": {
           "name": "status",
-          "type": "enum('present','absent','late','excused','released','releasedBySchool')",
+          "type": "enum('present','absent','late','released','releasedBySchool')",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false

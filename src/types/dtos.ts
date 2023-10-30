@@ -1,4 +1,4 @@
-import { type Class, type Student, type Teacher } from "~/server/db/schema"
+import { type Lesson, type Class, type Student, type Teacher } from "~/server/db/schema"
 
 export type TeacherDto = typeof Teacher.$inferSelect;
 
@@ -17,3 +17,5 @@ export interface StudentWithPasswordDto extends StudentWithClassDto {
 };
 
 export type ClassDto = typeof Class.$inferSelect;
+
+export type LessonDto = typeof Lesson.$inferSelect;

@@ -46,10 +46,24 @@ export const Schedule = mysqlTable("schedule", {
 export const Grade = mysqlTable("grade", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
 	studentId: bigint("studentId", { mode: "number" }).notNull(),
-	lessonId: bigint("lessonId", { mode: "number" }).notNull(),
+	definitionId: bigint("definitionId", { mode: "number" }).notNull(),
 	timestamp: timestamp("timestamp", { mode: "date" }).notNull(),
 	description: varchar("description", { length: 255 }),
 	grade: int("grade").notNull(),
+});
+
+export const LessonGroup = mysqlTable("lessonGroup", {
+	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
+	lessonId: bigint("lessonId", { mode: "number" }).notNull(),
+	teacherId: bigint("teacherId", { mode: "number" }).notNull(),
+	classId: bigint("classId", { mode: "number" }).notNull(),
+});
+
+// Group teachers and lessons by class
+export const GradeDefinition = mysqlTable("gradeDefinition", {
+	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
+	lessonId: bigint("lessonId", { mode: "number" }).notNull(),
+	name: varchar("name", { length: 255 }).notNull(),
 	weight: int("weight").notNull(),
 });
 
@@ -102,6 +116,10 @@ export const teacherRelations = relations(Teacher, ({ one, many }) => ({
 		references: [Assignment.teacherId],
 	}),
 	exemptions: many(Exemptions),
+	lessonGroup: one(LessonGroup, {
+		fields: [Teacher.id],
+		references: [LessonGroup.teacherId],
+	}),
 }));
 
 export const classRelations = relations(Class, ({ many, one }) => ({
@@ -112,6 +130,16 @@ export const classRelations = relations(Class, ({ many, one }) => ({
 	students: many(Student),
 	schedule: many(Schedule),
 	assignments: many(Assignment),
+	lessonGroup: one(LessonGroup, {
+		fields: [Class.id],
+		references: [LessonGroup.classId],
+	}),
+}));
+
+export const lessonGroupRelations = relations(LessonGroup, ({ many }) => ({
+	lesson: many(Lesson),
+	class: many(Class),
+	teacher: many(Teacher),
 }));
 
 export const studentRelations = relations(Student, ({ many, one }) => ({
@@ -143,9 +171,13 @@ export const scheduleRelations = relations(Schedule, ({ one, many }) => ({
 	exemptions: many(Exemptions),
 }));
 
-export const lessonRelations = relations(Lesson, ({ many }) => ({
+export const lessonRelations = relations(Lesson, ({ many, one }) => ({
 	schedule: many(Schedule),
-	grades: many(Grade),
+	lessonGroup: one(LessonGroup, {
+		fields: [Lesson.id],
+		references: [LessonGroup.lessonId],
+	}),
+	gradeDefinitions: many(GradeDefinition),
 }));
 
 export const gradeRelations = relations(Grade, ({ one }) => ({
@@ -153,10 +185,18 @@ export const gradeRelations = relations(Grade, ({ one }) => ({
 		fields: [Grade.studentId],
 		references: [Student.id],
 	}),
+	gradeDefinition: one(GradeDefinition, {
+		fields: [Grade.definitionId],
+		references: [GradeDefinition.id],
+	}),
+}));
+
+export const gradeDefinitionRelations = relations(GradeDefinition, ({ one, many }) => ({
 	lesson: one(Lesson, {
-		fields: [Grade.lessonId],
+		fields: [GradeDefinition.lessonId],
 		references: [Lesson.id],
 	}),
+	grades: many(Grade),
 }));
 
 export const presenceRelations = relations(Presence, ({ one }) => ({

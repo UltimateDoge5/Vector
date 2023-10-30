@@ -1,0 +1,1 @@
+ALTER TABLE `grade` ADD `scheduleId` bigint NOT NULL;

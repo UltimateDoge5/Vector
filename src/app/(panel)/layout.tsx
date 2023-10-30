@@ -6,7 +6,7 @@ import ClassSelector from "~/components/classSelector";
 import { Logo } from "~/components/logo";
 import { Sidebar } from "~/components/sidebar";
 import { db } from "~/server/db";
-import { isTeacher } from "~/util/authUtil";
+import { getSelectedClass, isTeacher } from "~/util/authUtil";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const user = await currentUser();
@@ -42,7 +42,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 }
 
 const ClassSelectorWrapper = async () => {
-	let selectedClass = parseInt(cookies().get("selectedClassId")?.value ?? "-1");
+	let selectedClass = getSelectedClass();
 	const classes = await db.query.Class.findMany({
 		columns: {
 			name: true,

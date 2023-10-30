@@ -37,9 +37,10 @@ export default async function SchedulePage({ searchParams }: { searchParams: { w
 
 	return (
 		<ScheduleView
+			isTeacher={isTeacher}
 			schedule={mappedSchedule}
-			title={isTeacher ? "Plan lekcji nauczyciela" : "Twój plan lekcji"}
 			weekDate={searchParams.week}
+			title={isTeacher ? "Plan lekcji nauczyciela" : "Twój plan lekcji"}
 		/>
 	);
 }

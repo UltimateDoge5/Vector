@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "d7e60821-1d1e-4dd1-97d4-c8f285d526be",
-  "prevId": "8fc31027-e59e-4cca-97cc-d015d23462ba",
+  "id": "17be55d4-51c4-4c8d-9a2e-2cf6c229a19f",
+  "prevId": "d7e60821-1d1e-4dd1-97d4-c8f285d526be",
   "tables": {
     "assignment": {
       "name": "assignment",
@@ -224,8 +224,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "lessonId": {
-          "name": "lessonId",
+        "definitionId": {
+          "name": "definitionId",
           "type": "bigint",
           "primaryKey": false,
           "notNull": true,
@@ -251,6 +251,43 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "grade_id": {
+          "name": "grade_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "gradeDefinition": {
+      "name": "gradeDefinition",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "lessonId": {
+          "name": "lessonId",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "weight": {
           "name": "weight",
@@ -263,8 +300,8 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {
-        "grade_id": {
-          "name": "grade_id",
+        "gradeDefinition_id": {
+          "name": "gradeDefinition_id",
           "columns": [
             "id"
           ]
@@ -335,7 +372,47 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "lessonGroup_lessonId_lesson_id_fk": {
+          "name": "lessonGroup_lessonId_lesson_id_fk",
+          "tableFrom": "lessonGroup",
+          "tableTo": "lesson",
+          "columnsFrom": [
+            "lessonId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "lessonGroup_teacherId_teacher_id_fk": {
+          "name": "lessonGroup_teacherId_teacher_id_fk",
+          "tableFrom": "lessonGroup",
+          "tableTo": "teacher",
+          "columnsFrom": [
+            "teacherId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "lessonGroup_classId_class_id_fk": {
+          "name": "lessonGroup_classId_class_id_fk",
+          "tableFrom": "lessonGroup",
+          "tableTo": "class",
+          "columnsFrom": [
+            "classId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {
         "lessonGroup_id": {
           "name": "lessonGroup_id",
