@@ -6,7 +6,7 @@ import { getSelectedClass, isTeacher } from "~/util/authUtil";
 import { TeacherGradeView } from "./teacherView";
 import GradesView from "./view";
 
-export const runetime = "edge";
+export const runtime = "edge";
 
 export const metadata: Metadata = {
 	title: "Dziennik Vector | Oceny",
