@@ -8,7 +8,7 @@ export const POST = async (req: NextRequest) => {
 
 	const schema = z.object({
 		name: z.string().min(3),
-		lessonId: z.number().int().positive(),
+		lessonGroupId: z.number().int().positive(),
 		weight: z.number().int().positive(),
 	});
 
