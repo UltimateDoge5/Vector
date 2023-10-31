@@ -82,7 +82,7 @@ export function TeacherGradeView({
 				<div className="flex items-end justify-between py-4">
 					<div className="flex flex-col gap-1">
 						<h2 className={`border-l-4 border-accent pl-2 text-2xl font-bold ${lessons.length > 1 ? "mb-1" : "mb-3"}`}>
-							Oceny klasy {className}
+							Oceny klasy {className} {lessons.length === 1 && `z przedmiotu ${selectedLessonName}`}
 						</h2>
 						{lessons.length > 1 && <p className="mb-2 text-text/80">Wybierz przedmiot z listy, aby zobaczyć oceny uczniów.</p>}
 					</div>
@@ -520,7 +520,6 @@ export function TeacherGradeView({
 					/>
 				</div>
 			</ActionModal>
-			<ToastContainer />
 		</>
 	);
 }

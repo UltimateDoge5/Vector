@@ -16,7 +16,7 @@ export const Announcements = mysqlTable("announcement", {
 	date: timestamp("date", { mode: "date" }).notNull(),
 	name: varchar("name", { length: 255 }).notNull(),
 	description: varchar("description", { length: 255 }),
-	recipients: json("recipients").$type<{teachers: boolean, classes: number[]}>(),
+	recipients: json("recipients").$type<{ teachers: boolean; classes: number[] }>(),
 });
 
 export const Exemptions = mysqlTable("exemption", {
@@ -62,7 +62,7 @@ export const LessonGroup = mysqlTable("lessonGroup", {
 // Group teachers and lessons by class
 export const GradeDefinition = mysqlTable("gradeDefinition", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
-	lessonId: bigint("lessonId", { mode: "number" }).notNull(),
+	lessonGroupId: bigint("lessonGroupId", { mode: "number" }).notNull(),
 	name: varchar("name", { length: 255 }).notNull(),
 	weight: int("weight").notNull(),
 });
@@ -136,10 +136,11 @@ export const classRelations = relations(Class, ({ many, one }) => ({
 	}),
 }));
 
-export const lessonGroupRelations = relations(LessonGroup, ({ many }) => ({
+export const lessonGroupRelations = relations(LessonGroup, ({ many, one }) => ({
 	lesson: many(Lesson),
 	class: many(Class),
 	teacher: many(Teacher),
+	gradeDefinitions: many(GradeDefinition),
 }));
 
 export const studentRelations = relations(Student, ({ many, one }) => ({
@@ -177,7 +178,6 @@ export const lessonRelations = relations(Lesson, ({ many, one }) => ({
 		fields: [Lesson.id],
 		references: [LessonGroup.lessonId],
 	}),
-	gradeDefinitions: many(GradeDefinition),
 }));
 
 export const gradeRelations = relations(Grade, ({ one }) => ({
@@ -193,10 +193,14 @@ export const gradeRelations = relations(Grade, ({ one }) => ({
 
 export const gradeDefinitionRelations = relations(GradeDefinition, ({ one, many }) => ({
 	lesson: one(Lesson, {
-		fields: [GradeDefinition.lessonId],
+		fields: [GradeDefinition.lessonGroupId],
 		references: [Lesson.id],
 	}),
 	grades: many(Grade),
+	lessonGroup: one(LessonGroup, {
+		fields: [GradeDefinition.lessonGroupId],
+		references: [LessonGroup.id],
+	}),
 }));
 
 export const presenceRelations = relations(Presence, ({ one }) => ({

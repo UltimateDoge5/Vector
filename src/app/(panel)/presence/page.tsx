@@ -8,7 +8,7 @@ import { type ClassPresence, TeacherPresenceView } from "./teacherView";
 import { type IPresence, type ISchedule, mapWithExceptions, mapWithPresence } from "~/util/scheduleUtil";
 import { schoolHours } from "~/util/scheduleUtil";
 import { type SQL, inArray } from "drizzle-orm";
-import { Presence } from "~/server/db/schema";
+import { Exemptions, Presence } from "~/server/db/schema";
 import { isTeacher as isTeacherCheck } from "~/util/authUtil";
 
 export default async function Schedule({ searchParams }: { searchParams: { week: string } }) {
@@ -134,8 +134,8 @@ const getAttendenceForClass = async (classId: number, week: { from: Date; to: Da
 	if (schedule.length > 0)
 		exemptionsConditions.push(
 			inArray(
-				Presence.tableId,
-				schedule.map((lesson) => lesson.id),
+				Exemptions.scheduleId,
+				schedule.map((s) => s.id),
 			),
 		);
 
