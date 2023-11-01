@@ -1,6 +1,15 @@
 import { relations } from "drizzle-orm";
 import { bigint, boolean, int, mysqlEnum, json, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
 
+export const Submission = mysqlTable("submission", {
+	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
+	assignmentId: bigint("assignmentId", { mode: "number" }).notNull(),
+	studentId: bigint("studentId", { mode: "number" }).notNull(),
+	sentAt: timestamp("sent_at", { mode: "date" }).defaultNow(),
+	content: varchar("content", { length: 255 }),
+	attachment: varchar("attachment", { length: 255 }),
+});
+
 export const Assignment = mysqlTable("assignment", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
 	classId: bigint("classId", { mode: "number" }).notNull(),
@@ -9,6 +18,8 @@ export const Assignment = mysqlTable("assignment", {
 	description: varchar("description", { length: 255 }),
 	dueDate: timestamp("due_date", { mode: "date" }).notNull(),
 	creationDate: timestamp("creation_date", { mode: "date" }).defaultNow(),
+	allowLate: boolean("allow_late").default(false),
+	fileRequired: boolean("file_required").default(false),
 });
 
 export const Announcements = mysqlTable("announcement", {
@@ -150,6 +161,7 @@ export const studentRelations = relations(Student, ({ many, one }) => ({
 	}),
 	grades: many(Grade),
 	presences: many(Presence),
+	submissions: many(Submission),
 }));
 
 export const scheduleRelations = relations(Schedule, ({ one, many }) => ({
@@ -214,7 +226,7 @@ export const presenceRelations = relations(Presence, ({ one }) => ({
 	}),
 }));
 
-export const assignmentsRelations = relations(Assignment, ({ one }) => ({
+export const assignmentsRelations = relations(Assignment, ({ one,many }) => ({
 	class: one(Class, {
 		fields: [Assignment.classId],
 		references: [Class.id],
@@ -223,6 +235,7 @@ export const assignmentsRelations = relations(Assignment, ({ one }) => ({
 		fields: [Assignment.teacherId],
 		references: [Teacher.id],
 	}),
+	sentAssignments: many(Submission)
 }));
 
 export const exemptionsRelations = relations(Exemptions, ({ one }) => ({
@@ -241,5 +254,16 @@ export const exemptionsRelations = relations(Exemptions, ({ one }) => ({
 	class: one(Class, {
 		fields: [Exemptions.classId],
 		references: [Class.id],
+	}),
+}));
+
+export const submissionRelations = relations(Submission, ({ one }) => ({
+	assignment: one(Assignment, {
+		fields: [Submission.assignmentId],
+		references: [Assignment.id],
+	}),
+	student: one(Student, {
+		fields: [Submission.studentId],
+		references: [Student.id],
 	}),
 }));

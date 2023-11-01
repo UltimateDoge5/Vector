@@ -1,7 +1,7 @@
 import { currentUser } from "@clerk/nextjs";
 import { isTeacher as isTeacherCheck } from "~/util/authUtil";
 import { db } from "~/server/db";
-import { AssignmentsView } from "~/app/(panel)/assignments/view";
+import { AssignmentsListView } from "~/app/(panel)/assignments/view";
 
 export const runtime = "edge";
 
@@ -24,5 +24,5 @@ export default async function AssignmentsPage() {
 		where: (c, { eq }) => eq(c.classId, student.classId),
 	});
 
-	return <AssignmentsView assignments={assignments} />;
+	return <AssignmentsListView assignments={assignments} />;
 }
