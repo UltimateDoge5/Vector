@@ -5,7 +5,7 @@ export const Submission = mysqlTable("submission", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
 	assignmentId: bigint("assignmentId", { mode: "number" }).notNull(),
 	studentId: bigint("studentId", { mode: "number" }).notNull(),
-	sentAt: timestamp("sent_at", { mode: "date" }).defaultNow(),
+	sentAt: timestamp("sent_at", { mode: "date" }).defaultNow().notNull(),
 	content: varchar("content", { length: 255 }),
 	attachment: varchar("attachment", { length: 255 }),
 });
