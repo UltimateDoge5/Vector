@@ -1,4 +1,5 @@
 import { currentUser } from "@clerk/nextjs";
+import { Suspense } from "react";
 import AnnouncementsDashboard from "~/components/announcementsDashboard";
 import { db } from "~/server/db";
 import { isTeacher as isTeacherCheck } from "~/util/authUtil";
@@ -14,7 +15,9 @@ export default async function HomePage() {
 
 		return (
 			<div className="grid grid-cols-2 p-10">
-				<AnnouncementsDashboard announcements={announcementsTeacher} />
+				<Suspense fallback={<p>Ładowanie...</p>}>
+					<AnnouncementsDashboard announcements={announcementsTeacher} />
+				</Suspense>
 			</div>
 		);
 	}
@@ -25,7 +28,9 @@ export default async function HomePage() {
 
 	return (
 		<div className="grid grid-cols-2 p-10">
-			<AnnouncementsDashboard announcements={announcementsClass} />
+			<Suspense fallback={<p>Ładowanie...</p>}>
+				<AnnouncementsDashboard announcements={announcementsClass} />
+			</Suspense>
 		</div>
 	);
 }
