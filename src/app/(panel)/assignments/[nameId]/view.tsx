@@ -1,6 +1,5 @@
 "use client";
-import { type IAssignment } from "~/app/(panel)/assignments/view";
-import { type Submission } from "~/server/db/schema";
+
 import { useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
@@ -8,6 +7,7 @@ import { Button } from "~/components/ui/button";
 import { ArrowDownTrayIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { uploadFiles } from "~/util/uploadHelpers";
 import dayjs from "dayjs";
+import type { AssignmentDto, SubmissionDto } from "~/types/dtos";
 
 const submittedAtFormat = new Intl.DateTimeFormat("pl-PL", {
 	year: "numeric",
@@ -22,8 +22,8 @@ export function AssignmentView({
 	submission,
 	studentId,
 }: {
-	assignment: IAssignment;
-	submission: ISubmission | undefined;
+	assignment: AssignmentDto;
+	submission: SubmissionDto | undefined;
 	studentId: number;
 }) {
 	const [answerFile, setAnswerFile] = useState<File | undefined>(undefined);
@@ -193,4 +193,4 @@ export function AssignmentView({
 	);
 }
 
-type ISubmission = typeof Submission.$inferSelect;
+

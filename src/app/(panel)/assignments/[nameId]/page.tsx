@@ -2,6 +2,22 @@ import { db } from "~/server/db";
 import { AssignmentView } from "~/app/(panel)/assignments/[nameId]/view";
 import { currentUser } from "@clerk/nextjs";
 import { isTeacher as isTeacherCheck } from "~/util/authUtil";
+import { type Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: { nameId: string } }):Promise<Metadata>{
+	const assignmentId = params.nameId.split("-").pop();
+	if (!assignmentId || isNaN(parseInt(assignmentId))) return {title: "Takie zadanie nie istnieje"};
+
+	const assignment = await db.query.Assignment.findFirst({
+		where: (c, { eq }) => eq(c.id, parseInt(assignmentId)),
+	});
+
+	if (!assignment) return {title: "Takie zadanie nie istnieje"};
+
+	return {
+		title: `${assignment.name} - Zadanie | Dziennik Vector`
+	}
+}
 
 export default async function AssignmentPage({ params }: { params: { nameId: string } }) {
 	const assignmentId = params.nameId.split("-").pop();

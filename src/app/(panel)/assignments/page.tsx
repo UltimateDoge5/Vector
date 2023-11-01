@@ -2,8 +2,12 @@ import { currentUser } from "@clerk/nextjs";
 import { isTeacher as isTeacherCheck } from "~/util/authUtil";
 import { db } from "~/server/db";
 import { AssignmentsListView } from "~/app/(panel)/assignments/view";
+import { type Metadata } from "next";
 
 export const runtime = "edge";
+export const metadata = {
+	title: "Zadania | Dziennik Vector",
+} satisfies Metadata;
 
 export default async function AssignmentsPage() {
 	const user = await currentUser();
@@ -15,6 +19,9 @@ export default async function AssignmentsPage() {
 
 	const student = (await db.query.Student.findFirst({
 		where: (c, { eq }) => eq(c.userId, user!.id),
+		with: {
+			submissions: true,
+		},
 		columns: {
 			name: false,
 		},
@@ -24,5 +31,5 @@ export default async function AssignmentsPage() {
 		where: (c, { eq }) => eq(c.classId, student.classId),
 	});
 
-	return <AssignmentsListView assignments={assignments} />;
+	return <AssignmentsListView assignments={assignments} submissions={student.submissions} />;
 }
