@@ -1,16 +1,16 @@
 "use client";
 import { Menu, Transition } from "@headlessui/react";
 import { EllipsisVerticalIcon, PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/20/solid";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { Fragment, useEffect, useReducer, useRef, useState } from "react";
+import { toast } from "react-toastify";
 import { twMerge } from "tailwind-merge";
 import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { ActionModal } from "~/components/ui/modal";
 import { type IColDef, type IGrade } from "./page";
 import { GradesColors } from "./view";
-import { ActionModal } from "~/components/ui/modal";
-import { Input } from "~/components/ui/input";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-import { ToastContainer, toast } from "react-toastify";
 
 export function TeacherGradeView({
 	lessons: lessonsInit,
@@ -82,7 +82,7 @@ export function TeacherGradeView({
 				<div className="flex items-end justify-between py-4">
 					<div className="flex flex-col gap-1">
 						<h2 className={`border-l-4 border-accent pl-2 text-2xl font-bold ${lessons.length > 1 ? "mb-1" : "mb-3"}`}>
-							Oceny klasy {className}
+							Oceny klasy {className} {lessons.length === 1 && `z przedmiotu ${selectedLessonName}`}
 						</h2>
 						{lessons.length > 1 && <p className="mb-2 text-text/80">Wybierz przedmiot z listy, aby zobaczyć oceny uczniów.</p>}
 					</div>
@@ -413,7 +413,7 @@ export function TeacherGradeView({
 					const res = await fetch("/grades/api/gradeDef", {
 						method: "POST",
 						body: JSON.stringify({
-							lessonId: lessons.find((l) => l.name === selectedLessonName)!.id,
+							lessonGroupId: lessons.find((l) => l.name === selectedLessonName)!.id,
 							name: modalData.name!,
 							weight: modalData.weight!,
 						}),
@@ -422,7 +422,7 @@ export function TeacherGradeView({
 					setIsLoading(false);
 
 					if (!res.ok) {
-						console.error(res);
+						toast("Wystąpił błąd podczas dodawania kolumny!", { type: "error" });
 						return;
 					}
 
@@ -520,7 +520,6 @@ export function TeacherGradeView({
 					/>
 				</div>
 			</ActionModal>
-			<ToastContainer />
 		</>
 	);
 }

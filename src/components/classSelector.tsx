@@ -1,8 +1,8 @@
 "use client";
 
 import { Combobox, Transition } from "@headlessui/react";
-import { ChevronUpDownIcon, CheckIcon } from "@heroicons/react/24/outline";
-import { usePathname, useRouter } from "next/navigation";
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/outline";
+import { usePathname } from "next/navigation";
 import { Fragment, useState } from "react";
 
 const urlsToRefresh = ["/grades", "/presence", "/schedule"];
@@ -10,7 +10,6 @@ const urlsToRefresh = ["/grades", "/presence", "/schedule"];
 export default function ClassSelector({ classes, selectedClassId }: { classes: { name: string; id: number }[]; selectedClassId: number }) {
 	const [selectedClass, setSelectedClass] = useState(classes.find((c) => c.id === selectedClassId)!);
 	const [query, setQuery] = useState("");
-	const router = useRouter();
 	const pathname = usePathname();
 
 	const filteredClasses =
@@ -20,7 +19,7 @@ export default function ClassSelector({ classes, selectedClassId }: { classes: {
 	const updateCookie = (id: number) => {
 		document.cookie = `selectedClassId=${id}; path=/; max-age=31536000`;
 		setSelectedClass(classes.find((c) => c.id === id)!);
-		if (urlsToRefresh.includes(pathname)) router.refresh();
+		if (urlsToRefresh.includes(pathname)) window.location.reload();
 	};
 
 	return (

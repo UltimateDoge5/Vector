@@ -107,18 +107,15 @@ const getDataForTeacher = async (userId: string) => {
 	const lessonGroups = await db.query.LessonGroup.findMany({
 		where: (lg, { eq, and }) => and(eq(lg.classId, selectedClass), eq(lg.teacherId, id)),
 		with: {
-			lesson: {
+			lesson: true,
+			gradeDefinitions: {
 				with: {
-					gradeDefinitions: {
-						with: {
-							grades: true,
-						},
-						columns: {
-							id: true,
-							name: true,
-							weight: true,
-						},
-					},
+					grades: true,
+				},
+				columns: {
+					id: true,
+					name: true,
+					weight: true,
 				},
 			},
 			class: {
@@ -129,7 +126,20 @@ const getDataForTeacher = async (userId: string) => {
 		},
 	});
 
-	return { lessons: lessonGroups.map((lg) => lg.lesson[0]!), students, className: lessonGroups?.[0]?.class[0]?.name ?? "Brak nazwy" };
+	return {
+		lessons: lessonGroups.map((lg) => ({
+			id: lg.id,
+			name: lg.lesson[0]!.name,
+			gradeDefinitions: lg.gradeDefinitions.map((gd) => ({
+				id: gd.id,
+				name: gd.name,
+				weight: gd.weight,
+				grades: gd.grades.map((g) => ({ ...g, studentId: g.studentId })),
+			})),
+		})),
+		className: lessonGroups?.[0]?.class[0]?.name ?? "Brak nazwy",
+		students,
+	};
 };
 
 const groupByStudent = (selectedLesson: ILesson) => {
