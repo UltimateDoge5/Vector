@@ -16,7 +16,6 @@ export async function Sidebar() {
 				<SidebarItem name="Frekwencja" icon={<CheckBadgeIcon className="h-5 w-5" />} link="/presence" />
 				<SidebarItem name="Plan zajęć" icon={<TableCellsIcon className="h-5 w-5" />} link="/schedule" />
 				<SidebarItem name="Zadania" icon={<PencilSquareIcon className="h-5 w-5" />} link="/assignments" />
-				{isAdmin(user) && <SidebarItem name="Przedmioty" icon={<BookOpenIcon className="h-5 w-5" />} link="/lessons" />}
 			</div>
 			{isAdmin(user) && (
 				<div className="mt-2 flex flex-col gap-y-1 border-t-2 pt-2">
@@ -28,7 +27,15 @@ export async function Sidebar() {
 							{ name: "Nauczyciele", link: "/teachers" },
 						]}
 					/>
-                    <SidebarItem name="Klasy" icon={<Squares2X2Icon className="h-5 w-5" />} link="/class" />
+					<DisclosureButton
+						name="Przedmioty"
+						icon={<BookOpenIcon className="h-5 w-5" />}
+						subNames={[
+							{ name: "Przedmioty", link: "/lessons" },
+							{ name: "Klasa - przedmioty", link: "/class/lessons" },
+						]}
+					/>
+					<SidebarItem name="Klasy" icon={<Squares2X2Icon className="h-5 w-5" />} link="/class" />
 				</div>
 			)}
 		</aside>

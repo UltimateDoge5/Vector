@@ -2,8 +2,8 @@
 
 import { Combobox, Dialog, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon } from '@heroicons/react/24/outline';
-import { FormEvent, Fragment, useMemo, useState } from 'react';
-import { ClassDto } from '~/types/dtos';
+import { type FormEvent, Fragment, useMemo, useState } from 'react';
+import { type ClassDto } from '~/types/dtos';
 
 interface Props {
     isOpen: boolean,
@@ -79,7 +79,7 @@ export default function AddStudentModal({ isOpen, setIsOpen, addStudent, classes
                                 </Dialog.Title>
 
                                 <form className="flex flex-col my-3" onSubmit={onSubmit}>
-									<span className="mt-4 font-medium">Imię i Nazwisko</span>
+                                    <span className="mt-4 font-medium">Imię i Nazwisko</span>
                                     <input
                                         type="text"
                                         className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
@@ -88,7 +88,7 @@ export default function AddStudentModal({ isOpen, setIsOpen, addStudent, classes
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     />
 
-									<span className="mt-4 font-medium">E-mail</span>
+                                    <span className="mt-4 font-medium">E-mail</span>
                                     <input
                                         type="email"
                                         className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
@@ -97,7 +97,7 @@ export default function AddStudentModal({ isOpen, setIsOpen, addStudent, classes
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     />
 
-									<span className="mt-4 font-medium">Klasa</span>
+                                    <span className="mt-4 font-medium">Klasa</span>
                                     <Combobox value={selectedClass} onChange={setSelectedClass}>
                                         <div className="relative mt-1">
                                             <Combobox.Input
