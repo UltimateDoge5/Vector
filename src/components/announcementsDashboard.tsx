@@ -8,8 +8,11 @@ const dateFormat = Intl.DateTimeFormat("pl", { day: "numeric", month: "long", ye
 export default function AnnouncementsDashboard({ announcements }: { announcements: IAnnouncements[] }) {
 	return (
 		<div className="w-full px-4">
-			<div className="flex w-full flex-col gap-2 rounded-2xl bg-white p-3">
+			<div className="flex w-full flex-col gap-2 rounded-2xl bg-white p-3 h-52">
 				<h1 className="pb border-b pl-3 text-lg font-medium">Ogłoszenia</h1>
+				
+				<div className="overflow-auto flex w-full flex-col gap-2 ">
+				
 				{announcements.map((annnouncementItem) => (
 					<Disclosure key={annnouncementItem.id}>
 						{({ open }) => (
@@ -37,6 +40,7 @@ export default function AnnouncementsDashboard({ announcements }: { announcement
 						)}
 					</Disclosure>
 				))}
+				</div>
 			</div>
 		</div>
 	);

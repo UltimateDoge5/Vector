@@ -1,5 +1,5 @@
 import { currentUser } from "@clerk/nextjs";
-import { AcademicCapIcon, CheckBadgeIcon, HomeIcon, PencilSquareIcon, Squares2X2Icon, TableCellsIcon, UsersIcon, BookOpenIcon } from "@heroicons/react/24/outline";
+import { AcademicCapIcon, CheckBadgeIcon, HomeIcon, PencilSquareIcon, Squares2X2Icon, TableCellsIcon, UsersIcon, BookOpenIcon, MegaphoneIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { type JSX } from "react";
 import { isAdmin } from "~/util/authUtil";
@@ -17,6 +17,7 @@ export async function Sidebar() {
 				<SidebarItem name="Plan zajęć" icon={<TableCellsIcon className="h-5 w-5" />} link="/schedule" />
 				<SidebarItem name="Zadania" icon={<PencilSquareIcon className="h-5 w-5" />} link="/assignments" />
 				{isAdmin(user) && <SidebarItem name="Przedmioty" icon={<BookOpenIcon className="h-5 w-5" />} link="/lessons" />}
+				{isAdmin(user) && <SidebarItem name="Ogłoszenia" icon={<MegaphoneIcon className="h-5 w-5" />} link="/announcements" />}
 			</div>
 			{isAdmin(user) && (
 				<div className="mt-2 flex flex-col gap-y-1 border-t-2 pt-2">
