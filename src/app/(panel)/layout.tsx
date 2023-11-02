@@ -27,9 +27,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 									<ClassSelectorWrapper />
 								</Suspense>
 							</>
-						):(
+						) : (
 							<Link href="/">
-								<Banner className="w-28"/>
+								<Banner className="h-10 w-28" />
 							</Link>
 						)}
 					</div>
