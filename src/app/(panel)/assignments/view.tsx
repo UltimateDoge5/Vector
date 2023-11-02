@@ -111,5 +111,5 @@ const getAccentHue = (creationDate: Date, dueDate: Date) => {
 	if (percent > 1) return 0;
 
 	// Calculate the hue of the color
-	return 120 - 120 * (percent * 10);
+	return 120 - 120 * percent;
 };

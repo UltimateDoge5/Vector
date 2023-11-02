@@ -9,7 +9,7 @@ import { uploadFiles } from "~/util/uploadHelpers";
 import dayjs from "dayjs";
 import type { AssignmentDto, SubmissionDto } from "~/types/dtos";
 
-const submittedAtFormat = new Intl.DateTimeFormat("pl-PL", {
+export const submittedAtFormat = new Intl.DateTimeFormat("pl-PL", {
 	year: "numeric",
 	month: "long",
 	day: "numeric",
@@ -19,15 +19,17 @@ const submittedAtFormat = new Intl.DateTimeFormat("pl-PL", {
 
 export function AssignmentView({
 	assignment,
-	submission,
+	submission: submissionInit,
 	studentId,
 }: {
 	assignment: AssignmentDto;
 	submission: SubmissionDto | undefined;
 	studentId: number;
 }) {
+	// I could just use the submission state, but I have more stuff to do now than refactor this
 	const [answerFile, setAnswerFile] = useState<File | undefined>(undefined);
 	const [answerText, setAnswerText] = useState("");
+	const [submission, setSubmission] = useState<SubmissionDto | undefined>(submissionInit);
 
 	const uploadRef = useRef<HTMLInputElement>(null);
 	const [isUploading, setIsUploading] = useState(false);
@@ -83,17 +85,34 @@ export function AssignmentView({
 		if (!answerFile) return setIsUploading(false);
 
 		ref = toast("Wysyłanie załącznika", { autoClose: false, isLoading: true, type: "info" });
+		let filename = "";
 
-		await uploadFiles({
-			files: [answerFile],
-			endpoint: "attachment",
-			input: {
-				submissionId: parseInt(id),
-			},
-		});
+		try {
+			const uploadRes = await uploadFiles({
+				files: [answerFile],
+				endpoint: "attachment",
+				input: {
+					submissionId: parseInt(id),
+				},
+			});
+
+			filename = uploadRes[0]!.key;
+		} catch (e) {
+			setIsUploading(false);
+			return toast.update(ref, { autoClose: 3000, type: "error", isLoading: false, render: "Nie udało się wysłać zadania." });
+		}
 
 		toast.update(ref, { autoClose: 3000, isLoading: false, type: "success", render: "Plik został wysłany" });
 		setIsUploading(false);
+		setSubmission({
+			id: parseInt(id),
+			attachment: filename,
+			content: answerText,
+			sentAt: new Date(),
+			graded: false,
+			assignmentId: assignment.id,
+			studentId: studentId,
+		});
 	};
 
 	return (
@@ -128,7 +147,7 @@ export function AssignmentView({
 						onClick={() => uploadRef.current?.click()}
 						onDragOver={(e) => e.preventDefault()}
 					>
-						{answerFile && (
+						{!submission && (
 							<button
 								onClick={(e) => {
 									e.stopPropagation();
@@ -192,5 +211,3 @@ export function AssignmentView({
 		</>
 	);
 }
-
-

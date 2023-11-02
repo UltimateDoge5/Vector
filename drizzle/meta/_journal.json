@@ -141,6 +141,13 @@
       "when": 1698864941030,
       "tag": "0019_serious_mariko_yashida",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1698936478908,
+      "tag": "0020_lethal_ogun",
+      "breakpoints": true
     }
   ]
 }

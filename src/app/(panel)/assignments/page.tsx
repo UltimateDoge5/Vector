@@ -16,7 +16,7 @@ export default async function AssignmentsPage() {
 	const user = await currentUser();
 	const isTeacher = isTeacherCheck(user);
 
-	if (true) {
+	if (isTeacher) {
 		const classId = getSelectedClass();
 		const { id: teacherId } = (await db.query.Teacher.findFirst({
 			where: (c, { eq }) => eq(c.userId, "user_2WtVEuDuEZ3mNPCRvGUs6jMogLx"),

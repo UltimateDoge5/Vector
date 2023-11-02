@@ -8,6 +8,7 @@ export const Submission = mysqlTable("submission", {
 	sentAt: timestamp("sent_at", { mode: "date" }).defaultNow().notNull(),
 	content: varchar("content", { length: 255 }),
 	attachment: varchar("attachment", { length: 255 }),
+	graded: boolean("graded").default(false),
 });
 
 export const Assignment = mysqlTable("assignment", {
