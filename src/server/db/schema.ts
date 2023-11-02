@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { bigint, boolean, int, mysqlEnum, json, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { bigint, boolean, int, mysqlEnum, json, mysqlTable, timestamp, varchar, date } from "drizzle-orm/mysql-core";
 
 export const Submission = mysqlTable("submission", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
@@ -34,7 +34,7 @@ export const Announcements = mysqlTable("announcement", {
 export const Exemptions = mysqlTable("exemption", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
 	scheduleId: bigint("scheduleId", { mode: "number" }),
-	date: timestamp("date", { mode: "date" }).notNull(),
+	date: date("date", { mode: "date" }).notNull(),
 	reason: varchar("reason", { length: 255 }),
 	teacherId: bigint("teacherId", { mode: "number" }).notNull(),
 	lessonId: bigint("lessonId", { mode: "number" }),
@@ -84,7 +84,7 @@ export const Presence = mysqlTable("presence", {
 	exemptionId: bigint("exemptionId", { mode: "number" }),
 	tableId: bigint("tableId", { mode: "number" }),
 	studentId: bigint("studentId", { mode: "number" }).notNull(),
-	date: timestamp("date", { mode: "date" }).notNull(),
+	date: date("date", { mode: "date" }).notNull(),
 	status: mysqlEnum("status", ["present", "absent", "late", "excused", "released", "releasedBySchool"]).notNull(),
 });
 

@@ -5,7 +5,7 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/outline";
 import { usePathname } from "next/navigation";
 import { Fragment, useState } from "react";
 
-const urlsToRefresh = ["/grades", "/presence", "/schedule"];
+const urlsToRefresh = ["/grades", "/presence", "/schedule", "/assignments"];
 
 export default function ClassSelector({ classes, selectedClassId }: { classes: { name: string; id: number }[]; selectedClassId: number }) {
 	const [selectedClass, setSelectedClass] = useState(classes.find((c) => c.id === selectedClassId)!);

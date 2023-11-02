@@ -5,6 +5,8 @@ import { isTeacher as isTeacherCheck } from "~/util/authUtil";
 import { type Metadata } from "next";
 import { TeacherAssignmentView } from "~/app/(panel)/assignments/[nameId]/teacherView";
 
+export const runtime = "edge";
+
 export async function generateMetadata({ params }: { params: { nameId: string } }): Promise<Metadata> {
 	const assignmentId = params.nameId.split("-").pop();
 	if (!assignmentId || isNaN(parseInt(assignmentId))) return { title: "Takie zadanie nie istnieje" };

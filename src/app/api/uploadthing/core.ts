@@ -2,7 +2,6 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { currentUser } from "@clerk/nextjs";
 import { isStudent } from "~/util/authUtil";
 import { z } from "zod";
-import { UTApi } from "uploadthing/server";
 import { db } from "~/server/db";
 import { Submission } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
@@ -32,15 +31,12 @@ export const vectorFileRouter = {
 			return { userId: user.id, submissionId: input.submissionId };
 		})
 		.onUploadComplete(async ({ metadata, file }) => {
-			console.log("Upload complete for userId:", metadata.userId);
 			await db
 				.update(Submission)
 				.set({
 					attachment: file.key,
 				})
 				.where(eq(Submission.id, metadata.submissionId));
-
-			console.log("Updated submission with id:", metadata.submissionId);
 		}),
 } satisfies FileRouter;
 

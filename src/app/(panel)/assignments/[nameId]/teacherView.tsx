@@ -9,11 +9,11 @@ import { ChevronRightIcon } from "@heroicons/react/20/solid";
 export function TeacherAssignmentView({ assignment, submissions }: { assignment: AssignmentDto; submissions: StudentSubmissions[] }) {
 	return (
 		<>
-			<div className="flex items-center gap-2 mb-1 text-sm">
+			<div className="mb-1 flex items-center gap-2 text-sm">
 				<Link href={`/assignments`} className="hover:underline">
 					Zadania
 				</Link>
-				<ChevronRightIcon className="inline w-5 h-5" />
+				<ChevronRightIcon className="inline h-5 w-5" />
 				<Link href={`/assignments/${linkify(assignment.name, assignment.id)}`} className="hover:underline">
 					{assignment.name}
 				</Link>
@@ -36,15 +36,12 @@ export function TeacherAssignmentView({ assignment, submissions }: { assignment:
 							submission.student.id,
 						)}`}
 					>
-
-							<h3 className="text-xl">{submission.student.name}</h3>
+						<h3 className="text-xl">{submission.student.name}</h3>
 
 						<div className="flex flex-col gap-2">
 							<div className="flex items-center gap-2">
 								Wysłano: <span className="text-lime-700">{submittedAtFormat.format(submission.sentAt)}</span>
-								{dayjs(submission.sentAt).isAfter(assignment.dueDate) && (
-									<span className="text-red-700">Spóźnione</span>
-								)}
+								{dayjs(submission.sentAt).isAfter(assignment.dueDate) && <span className="text-red-700">Spóźnione</span>}
 							</div>
 						</div>
 					</Link>
