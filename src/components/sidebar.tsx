@@ -1,5 +1,5 @@
 import { currentUser } from "@clerk/nextjs";
-import { AcademicCapIcon, CheckBadgeIcon, HomeIcon, PencilSquareIcon, Squares2X2Icon, TableCellsIcon, UsersIcon, BookOpenIcon } from "@heroicons/react/24/outline";
+import { AcademicCapIcon, CheckBadgeIcon, HomeIcon, PencilSquareIcon, Squares2X2Icon, TableCellsIcon, UsersIcon, BookOpenIcon, MegaphoneIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { type JSX } from "react";
 import { isAdmin } from "~/util/authUtil";
@@ -36,6 +36,7 @@ export async function Sidebar() {
 						]}
 					/>
 					<SidebarItem name="Klasy" icon={<Squares2X2Icon className="h-5 w-5" />} link="/class" />
+          <SidebarItem name="Ogłoszenia" icon={<MegaphoneIcon className="h-5 w-5" />} link="/announcements" />
 				</div>
 			)}
 		</aside>
