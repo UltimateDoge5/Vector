@@ -1,5 +1,15 @@
 import { relations } from "drizzle-orm";
-import { bigint, boolean, int, mysqlEnum, json, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { bigint, boolean, int, mysqlEnum, json, mysqlTable, timestamp, varchar, date } from "drizzle-orm/mysql-core";
+
+export const Submission = mysqlTable("submission", {
+	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
+	assignmentId: bigint("assignmentId", { mode: "number" }).notNull(),
+	studentId: bigint("studentId", { mode: "number" }).notNull(),
+	sentAt: timestamp("sent_at", { mode: "date" }).defaultNow().notNull(),
+	content: varchar("content", { length: 255 }),
+	attachment: varchar("attachment", { length: 255 }),
+	graded: boolean("graded").default(false).notNull(),
+});
 
 export const Assignment = mysqlTable("assignment", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
@@ -8,7 +18,9 @@ export const Assignment = mysqlTable("assignment", {
 	name: varchar("name", { length: 255 }).notNull(),
 	description: varchar("description", { length: 255 }),
 	dueDate: timestamp("due_date", { mode: "date" }).notNull(),
-	creationDate: timestamp("creation_date", { mode: "date" }).defaultNow(),
+	creationDate: timestamp("creation_date", { mode: "date" }).defaultNow().notNull(),
+	allowLate: boolean("allow_late").default(false).notNull(),
+	fileRequired: boolean("file_required").default(false).notNull(),
 });
 
 export const Announcements = mysqlTable("announcement", {
@@ -22,7 +34,7 @@ export const Announcements = mysqlTable("announcement", {
 export const Exemptions = mysqlTable("exemption", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
 	scheduleId: bigint("scheduleId", { mode: "number" }),
-	date: timestamp("date", { mode: "date" }).notNull(),
+	date: date("date", { mode: "date" }).notNull(),
 	reason: varchar("reason", { length: 255 }),
 	teacherId: bigint("teacherId", { mode: "number" }).notNull(),
 	lessonId: bigint("lessonId", { mode: "number" }),
@@ -72,7 +84,7 @@ export const Presence = mysqlTable("presence", {
 	exemptionId: bigint("exemptionId", { mode: "number" }),
 	tableId: bigint("tableId", { mode: "number" }),
 	studentId: bigint("studentId", { mode: "number" }).notNull(),
-	date: timestamp("date", { mode: "date" }).notNull(),
+	date: date("date", { mode: "date" }).notNull(),
 	status: mysqlEnum("status", ["present", "absent", "late", "excused", "released", "releasedBySchool"]).notNull(),
 });
 
@@ -150,6 +162,7 @@ export const studentRelations = relations(Student, ({ many, one }) => ({
 	}),
 	grades: many(Grade),
 	presences: many(Presence),
+	submissions: many(Submission),
 }));
 
 export const scheduleRelations = relations(Schedule, ({ one, many }) => ({
@@ -214,7 +227,7 @@ export const presenceRelations = relations(Presence, ({ one }) => ({
 	}),
 }));
 
-export const assignmentsRelations = relations(Assignment, ({ one }) => ({
+export const assignmentsRelations = relations(Assignment, ({ one,many }) => ({
 	class: one(Class, {
 		fields: [Assignment.classId],
 		references: [Class.id],
@@ -223,6 +236,7 @@ export const assignmentsRelations = relations(Assignment, ({ one }) => ({
 		fields: [Assignment.teacherId],
 		references: [Teacher.id],
 	}),
+	sentAssignments: many(Submission)
 }));
 
 export const exemptionsRelations = relations(Exemptions, ({ one }) => ({
@@ -241,5 +255,16 @@ export const exemptionsRelations = relations(Exemptions, ({ one }) => ({
 	class: one(Class, {
 		fields: [Exemptions.classId],
 		references: [Class.id],
+	}),
+}));
+
+export const submissionRelations = relations(Submission, ({ one }) => ({
+	assignment: one(Assignment, {
+		fields: [Submission.assignmentId],
+		references: [Assignment.id],
+	}),
+	student: one(Student, {
+		fields: [Submission.studentId],
+		references: [Student.id],
 	}),
 }));

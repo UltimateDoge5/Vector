@@ -73,6 +73,7 @@ export function TeacherPresenceView({
 	}, [changes]);
 
 	const saveChanges = async () => {
+		setIsUpdating(true)
 		if (isUpdating || changes.length === 0) return;
 
 		const res = await fetch("/presence/api/update", {
@@ -235,7 +236,6 @@ export function TeacherPresenceView({
 					);
 
 					if (snapshot && snapshot.students[statusChange.studentId]!.status === statusChange.status) {
-						console.log("same");
 						if (changeIndex !== -1) changesCopy.splice(changeIndex, 1);
 					} else {
 						if (changeIndex !== -1) {
@@ -245,16 +245,20 @@ export function TeacherPresenceView({
 						}
 					}
 
-					setChanges(changesCopy);
-					setPresence(
-						[...presence].map((lesson) => {
-							if (lesson.scheduleId === selectedPresence.scheduleId || lesson.exemptionId === selectedPresence.exemptionId) {
-								lesson.students[statusChange.studentId]!.status = statusChange.status;
-							}
-
-							return lesson;
-						}),
+					const presenceCopy = [...presence];
+					const presenceIndex = presenceCopy.findIndex(
+						(presence) =>
+							(presence.scheduleId === selectedPresence.scheduleId &&
+								presence.exemptionId === selectedPresence.exemptionId)
 					);
+
+					console.log(presenceIndex)
+					if (presenceIndex !== -1) {
+						presenceCopy[presenceIndex]!.students[statusChange.studentId]!.status = statusChange.status;
+					}
+
+					setPresence(presenceCopy);
+					setChanges(changesCopy);
 				}}
 			/>
 		</>

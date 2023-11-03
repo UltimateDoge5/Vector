@@ -3,9 +3,9 @@
 import { Combobox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/outline";
 import { usePathname } from "next/navigation";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
-const urlsToRefresh = ["/grades", "/presence", "/schedule", "/class/lessons"];
+const urlsToRefresh = ["/grades", "/presence", "/schedule", "/assignments", "/class/lessons"];
 
 export default function ClassSelector({ classes, selectedClassId }: { classes: { name: string; id: number }[]; selectedClassId: number }) {
 	const [selectedClass, setSelectedClass] = useState(classes.find((c) => c.id === selectedClassId)!);
@@ -21,6 +21,13 @@ export default function ClassSelector({ classes, selectedClassId }: { classes: {
 		setSelectedClass(classes.find((c) => c.id === id)!);
 		if (urlsToRefresh.includes(pathname)) window.location.reload();
 	};
+
+	useEffect(() => {
+		if (!classes.some((c) => c.id === selectedClassId)) {
+			setSelectedClass(classes[0]!);
+			updateCookie(classes[0]!.id);
+		}
+	}, []);
 
 	return (
 		<Combobox value={selectedClass} onChange={(v) => updateCookie(v.id)}>

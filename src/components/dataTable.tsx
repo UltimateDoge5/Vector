@@ -8,6 +8,7 @@ export const DataTable = <TData, TValue>({
 	title,
 	description,
 	primaryActionBtn,
+	noHeader,
 }: DataTableProps<TData, TValue>) => {
 	const table = useReactTable({
 		data,
@@ -17,14 +18,14 @@ export const DataTable = <TData, TValue>({
 
 	return (
 		<>
+			{!noHeader && (
 			<div className="flex items-end justify-between py-4">
 				<div className="flex flex-col gap-1">
 					<h2 className="border-l-4 border-accent pl-2 text-2xl font-bold">{title}</h2>
 					{description && <p className="font-light text-text/80">{description}</p>}
 				</div>
 				{primaryActionBtn && <>{primaryActionBtn}</>}
-			</div>
-
+			</div>)}
 			<div className="w-full rounded-lg">
 				<table className="w-full text-sm">
 					<thead>
@@ -76,4 +77,5 @@ interface DataTableProps<TData, TValue> {
 	title: string;
 	description?: string;
 	primaryActionBtn?: JSX.Element;
+	noHeader?: boolean;
 }

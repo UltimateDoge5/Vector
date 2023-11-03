@@ -17,4 +17,4 @@ export const isAdmin = (user: User | null): boolean => {
 	return (user.privateMetadata.role ?? "student") === "admin";
 };
 
-export const getSelectedClass = (): number => parseInt(cookies().get("selectedClassId")?.value ?? "-1");
+export const getSelectedClass = (): number => parseInt(cookies().get("selectedClassId")?.value ?? "1");
