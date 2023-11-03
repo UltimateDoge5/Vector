@@ -87,11 +87,11 @@ export function PresenceView({ presence: presenceInit, weekDate }: { presence: I
 				block.lesson.id === presence.lesson.id &&
 				block.with === presence.with &&
 				block.room === presence.room &&
-				block.exemption.cancelation === false &&
+				!block.exemption.cancelation &&
 				block.status === presence.status,
 		);
 
-		if (block && presence.exemption.cancelation === false && presence.status === block.status) {
+		if (block && !presence.exemption.cancelation && presence.status === block.status) {
 			block.from = Math.min(block.from, presence.index);
 			block.to = Math.max(block.to, presence.index);
 		} else {

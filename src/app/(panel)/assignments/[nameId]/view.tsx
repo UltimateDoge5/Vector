@@ -129,7 +129,7 @@ export function AssignmentView({
 			<div className="mt-4 grid h-[200px] grid-cols-[300px,2px,auto] gap-4 ">
 				<div>
 					<label className="font-medium" htmlFor="attachment">
-						Twoja praca{assignment.fileRequired ? " (wymagany)" : ""}
+						Twoja praca{assignment.fileRequired ? " (wymagana)" : ""}
 					</label>
 					<div
 						className="relative mt-2 flex h-[200px] w-[300px] flex-col items-center justify-center gap-2 rounded-lg border bg-secondary/10 p-2 text-center"
@@ -186,7 +186,7 @@ export function AssignmentView({
 					</label>
 					<textarea
 						className="mt-2 w-full resize-none overflow-auto rounded-lg border bg-secondary/10 p-2 text-text focus:border-blue-500 focus:ring-blue-500"
-						placeholder="Odpowiedź"
+						placeholder="Tu wpisz swoją odpowiedź"
 						id="answer"
 						rows={10}
 						value={submission?.content ?? answerText}
@@ -208,6 +208,6 @@ const AttachmentDisplay = ({ attachment }: { attachment: File | string | undefin
 	}
 
 	// File type
-	if (typeof attachment !== "undefined") return attachment.name;
+	if (typeof attachment !== "undefined") return <span className="truncate">{attachment.name}</span>;
 	return "Kliknij tutaj lub przeciągnij i upuść plik, aby go załączyć.";
 };
