@@ -161,7 +161,7 @@ export function TeacherView({
 	);
 }
 
-type ModalAssignment = Omit<AssignmentDto, "id" | "teacherId" | "classId" | "creationDate">;
+export type ModalAssignment = Omit<AssignmentDto, "id" | "teacherId" | "classId" | "creationDate">;
 
 function ProgressBar({ progress }: { progress: number }) {
 	return (

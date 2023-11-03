@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "~/server/db";
-import { Assignment } from "~/server/db/schema";
+import { Assignment, Submission } from "~/server/db/schema";
 import { isTeacher } from "~/util/authUtil";
 import { currentUser } from "@clerk/nextjs";
 import { eq } from "drizzle-orm";
@@ -73,7 +73,10 @@ export async function DELETE(req: NextRequest) {
 	const parsed = schema.safeParse(body);
 	if (!parsed.success) return NextResponse.json(parsed.error, { status: 400 });
 
-	await db.delete(Assignment).where(eq(Assignment.id, parsed.data.id));
+	await db.transaction(async (tx) => {
+		await tx.delete(Assignment).where(eq(Assignment.id, parsed.data.id));
+		await tx.delete(Submission).where(eq(Submission.assignmentId, parsed.data.id));
+	});
 
 	return NextResponse.json(null, { status: 200 });
 }

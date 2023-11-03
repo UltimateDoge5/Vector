@@ -36,7 +36,11 @@ export function AssignmentView({
 
 	const AssignmentStatus = () => {
 		const btn = (
-			<Button disabled={isUploading || !answerFile} loading={isUploading} onClick={handleSubmit}>
+			<Button
+				disabled={isUploading || ((assignment.fileRequired ? !answerFile : false) || !answerText)}
+				loading={isUploading}
+				onClick={handleSubmit}
+			>
 				Wyślij rozwiązanie
 			</Button>
 		);
@@ -125,7 +129,7 @@ export function AssignmentView({
 			<div className="mt-4 grid h-[200px] grid-cols-[300px,2px,auto] gap-4 ">
 				<div>
 					<label className="font-medium" htmlFor="attachment">
-						Twoja praca
+						Twoja praca{assignment.fileRequired ? " (wymagany)" : ""}
 					</label>
 					<div
 						className="relative mt-2 flex h-[200px] w-[300px] flex-col items-center justify-center gap-2 rounded-lg border bg-secondary/10 p-2 text-center"

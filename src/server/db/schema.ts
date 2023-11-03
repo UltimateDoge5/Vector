@@ -8,7 +8,7 @@ export const Submission = mysqlTable("submission", {
 	sentAt: timestamp("sent_at", { mode: "date" }).defaultNow().notNull(),
 	content: varchar("content", { length: 255 }),
 	attachment: varchar("attachment", { length: 255 }),
-	graded: boolean("graded").default(false),
+	graded: boolean("graded").default(false).notNull(),
 });
 
 export const Assignment = mysqlTable("assignment", {
@@ -18,9 +18,9 @@ export const Assignment = mysqlTable("assignment", {
 	name: varchar("name", { length: 255 }).notNull(),
 	description: varchar("description", { length: 255 }),
 	dueDate: timestamp("due_date", { mode: "date" }).notNull(),
-	creationDate: timestamp("creation_date", { mode: "date" }).defaultNow(),
-	allowLate: boolean("allow_late").default(false),
-	fileRequired: boolean("file_required").default(false),
+	creationDate: timestamp("creation_date", { mode: "date" }).defaultNow().notNull(),
+	allowLate: boolean("allow_late").default(false).notNull(),
+	fileRequired: boolean("file_required").default(false).notNull(),
 });
 
 export const Announcements = mysqlTable("announcement", {

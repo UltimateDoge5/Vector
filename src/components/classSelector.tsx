@@ -24,8 +24,8 @@ export default function ClassSelector({ classes, selectedClassId }: { classes: {
 
 	useEffect(() => {
 		if (!classes.some((c) => c.id === selectedClassId)) {
-			setSelectedClass(classes[0]);
-			updateCookie(classes[0].id);
+			setSelectedClass(classes[0]!);
+			updateCookie(classes[0]!.id);
 		}
 	}, []);
 
