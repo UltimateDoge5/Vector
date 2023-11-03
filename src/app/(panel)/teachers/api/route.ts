@@ -59,7 +59,7 @@ export async function PUT(request: Request) {
     await db.update(Teacher)
         .set({name: `${firstName} ${lastName}`})
         .where(eq(Teacher.userId, userId))
-        .catch(e => new NextResponse(null, { status: 500}));
+        .catch(() => new NextResponse(null, { status: 500}));
 
     return new NextResponse();
 }
@@ -74,7 +74,7 @@ export async function PATCH(request: Request) {
                 role: admin ? UserType.ADMIN : UserType.TEACHER
             }
         })
-        .catch(e => new NextResponse(null, { status: 500}));
+        .catch(() => new NextResponse(null, { status: 500}));
 
     await db.update(Teacher)
         .set({admin})

@@ -1,8 +1,8 @@
 "use client"
 
 import { Dialog, Transition } from '@headlessui/react';
-import { FormEvent, Fragment, useEffect, useState } from 'react';
-import { TeacherDto } from '~/types/dtos';
+import { type FormEvent, Fragment, useEffect, useState } from 'react';
+import { type TeacherDto } from '~/types/dtos';
 
 interface Props {
     teacher: TeacherDto | null

@@ -1,7 +1,7 @@
 "use client"
 
 import { Dialog, Transition } from '@headlessui/react';
-import { FormEvent, Fragment, useState } from 'react';
+import { type FormEvent, Fragment, useState } from 'react';
 
 interface Props {
     isOpen: boolean,

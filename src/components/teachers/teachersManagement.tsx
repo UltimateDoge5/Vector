@@ -2,20 +2,21 @@
 
 import { Menu, Transition } from "@headlessui/react";
 import { ArchiveBoxXMarkIcon, EllipsisVerticalIcon, PencilSquareIcon, UserMinusIcon, UserPlusIcon } from "@heroicons/react/24/outline";
-import { ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
-import { TeacherDto, TeacherWithPasswordDto } from "~/types/dtos";
+import { type TeacherDto, type TeacherWithPasswordDto } from "~/types/dtos";
 import { DataTable } from "../dataTable";
 import AddTeacherModal from "./addTeacherModal";
 import EditTeacherModal from "./editTeacherModal";
+import { Button } from "~/components/ui/button";
 
 interface EditModalState {
     teacher: TeacherDto | null,
     isOpen: boolean
 }
 
-export default function TeachersManagement({ teachers }: { teachers: TeacherDto[] }) {
-    const [teachersList, setTeachersList] = useState(teachers);
+export default function TeacherManagement({ teachers }: { teachers: TeacherDto[] }) {
+    const [teacherList, setTeacherList] = useState(teachers);
 
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [editModalState, setEditModalState] = useState<EditModalState>({ teacher: null, isOpen: false });
@@ -37,7 +38,7 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
 
             console.log(`Domyślne hasło: ${teacherWithPassword.password}`);
 
-            setTeachersList([...teachersList, teacherWithPassword]);
+            setTeacherList([...teacherList, teacherWithPassword]);
         }
     }
 
@@ -55,7 +56,7 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
 
         if (response.ok) {
             console.log(response);
-            setTeachersList(teachersList.map(teacher => teacher.userId === userId ? { ...teacher, name } : teacher))
+            setTeacherList(teacherList.map(teacher => teacher.userId === userId ? { ...teacher, name } : teacher))
         }
     }
 
@@ -67,7 +68,7 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
 
         if (response.ok) {
             console.log(response);
-            setTeachersList(teachersList.filter(teacher => teacher.userId != userId));
+            setTeacherList(teacherList.filter(teacher => teacher.userId != userId));
         }
     }
 
@@ -79,7 +80,7 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
 
         if (response.ok) {
             console.log(response);
-            setTeachersList(teachersList.map(teacher => teacher.userId === userId ? { ...teacher, admin } : teacher))
+            setTeacherList(teacherList.map(teacher => teacher.userId === userId ? { ...teacher, admin } : teacher))
         }
     }
 
@@ -193,10 +194,10 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
 
             <DataTable
                 columns={columns}
-                data={teachersList}
+                data={teacherList}
                 noDataText="Brak nauczycieli"
                 title="Nauczyciele"
-                primaryActionBtn={<button className="bg-primary hover:bg-primary/90 py-3 px-5 rounded-lg text-text font-bold " onClick={() => setIsAddModalOpen(true)}>Dodaj nauczyciela</button>}
+                primaryActionBtn={<Button onClick={() => setIsAddModalOpen(true)}>Dodaj nauczyciela</Button>}
             />
 
             <AddTeacherModal
