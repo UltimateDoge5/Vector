@@ -2,8 +2,8 @@
 
 import { Combobox, Dialog, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon } from '@heroicons/react/24/outline';
-import { FormEvent, Fragment, useEffect, useMemo, useState } from 'react';
-import { ClassDto, StudentWithClassDto } from '~/types/dtos';
+import { type FormEvent, Fragment, useEffect, useMemo, useState } from 'react';
+import { type ClassDto, type StudentWithClassDto } from '~/types/dtos';
 
 interface Props {
     student: StudentWithClassDto | null,

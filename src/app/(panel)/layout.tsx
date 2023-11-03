@@ -2,7 +2,7 @@ import { SignedIn, UserButton, currentUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { Suspense } from "react";
 import ClassSelector from "~/components/classSelector";
-import { Logo } from "~/components/logo";
+import { Banner, Logo } from "~/components/logo";
 import { Sidebar } from "~/components/sidebar";
 import { db } from "~/server/db";
 import { getSelectedClass, isTeacher } from "~/util/authUtil";
@@ -17,16 +17,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 			<header className="inset-x-0 top-0 col-span-2 flex h-24 w-full items-center justify-center border-b">
 				<div className="flex h-16 w-2/3 items-center justify-between">
 					<div className="flex items-center gap-2">
-						<Link href="/">
-							<Logo className="h-10 w-10" />
-						</Link>
-						{isTeacher(user) && (
+						{isTeacher(user) ? (
 							<>
+								<Link href="/">
+									<Logo className="h-10 w-10" />
+								</Link>
 								{"/"}
 								<Suspense fallback={<div className="bg-secndary/60 h-8 w-32 animate-pulse">Loading</div>}>
 									<ClassSelectorWrapper />
 								</Suspense>
 							</>
+						) : (
+							<Link href="/">
+								<Banner className="h-10 w-28" />
+							</Link>
 						)}
 					</div>
 					<div>

@@ -3,9 +3,9 @@
 import { Combobox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/outline";
 import { usePathname } from "next/navigation";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
-const urlsToRefresh = ["/grades", "/presence", "/schedule"];
+const urlsToRefresh = ["/grades", "/presence", "/schedule", "/assignments", "/class/lessons"];
 
 export default function ClassSelector({ classes, selectedClassId }: { classes: { name: string; id: number }[]; selectedClassId: number }) {
 	const [selectedClass, setSelectedClass] = useState(classes.find((c) => c.id === selectedClassId)!);
@@ -21,6 +21,13 @@ export default function ClassSelector({ classes, selectedClassId }: { classes: {
 		setSelectedClass(classes.find((c) => c.id === id)!);
 		if (urlsToRefresh.includes(pathname)) window.location.reload();
 	};
+
+	useEffect(() => {
+		if (!classes.some((c) => c.id === selectedClassId)) {
+			setSelectedClass(classes[0]!);
+			updateCookie(classes[0]!.id);
+		}
+	}, []);
 
 	return (
 		<Combobox value={selectedClass} onChange={(v) => updateCookie(v.id)}>
@@ -50,8 +57,7 @@ export default function ClassSelector({ classes, selectedClassId }: { classes: {
 								<Combobox.Option
 									key={classObj.id}
 									className={({ active }) =>
-										`relative cursor-default select-none py-2 pl-10 pr-4 ${
-											active ? "bg-primary/60 text-text" : "text-gray-900"
+										`relative cursor-default select-none py-2 pl-10 pr-4 ${active ? "bg-primary/60 text-text" : "text-gray-900"
 										}`
 									}
 									value={classObj}
@@ -63,9 +69,8 @@ export default function ClassSelector({ classes, selectedClassId }: { classes: {
 											</span>
 											{selected ? (
 												<span
-													className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
-														active ? "text-text" : "text-primary"
-													}`}
+													className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active ? "text-text" : "text-primary"
+														}`}
 												>
 													<CheckIcon className="h-5 w-5" aria-hidden="true" />
 												</span>

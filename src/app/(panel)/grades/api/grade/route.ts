@@ -18,7 +18,6 @@ export const PUT = async (req: NextRequest) => {
 	);
 
 	const parsed = schema.safeParse(body);
-
 	if (!parsed.success) return NextResponse.json(parsed.error, { status: 400 });
 
 	await Promise.allSettled(
