@@ -2,8 +2,8 @@ import { authMiddleware, clerkClient, redirectToSignIn } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
 import { UserType } from "./enums/UserType";
 
-const adminPaths = ["/teachers*", "/students*", "/lessons*"];
-
+const adminPaths = ["/teachers*", "/students*", "/lessons*", "/class/lessons*"];
+ 
 const isAdminPath = (path: string) => {
 	return adminPaths.find((x) => path.match(new RegExp(`^${x}$`.replace("*$", "($|/)"))));
 };
