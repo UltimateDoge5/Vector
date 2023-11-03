@@ -25,7 +25,7 @@ export function TeacherAssignmentView({ assignment, submissions }: { assignment:
 				</div>
 			</div>
 
-			<h2 className="mt-2 text-2xl font-medium">Zwrócone zadania</h2>
+			<h2 className="mt-2 text-xl font-medium">Zwrócone zadania</h2>
 			<div className="w-3/4">
 				{submissions.map((submission) => (
 					<Link
@@ -33,7 +33,7 @@ export function TeacherAssignmentView({ assignment, submissions }: { assignment:
 						className="flex w-full flex-col gap-2 rounded-md bg-slate-100/70 p-2 transition-colors hover:bg-slate-200/70"
 						href={`/assignments/${linkify(assignment.name, assignment.id)}/submission/${linkify(
 							submission.student.name,
-							submission.student.id,
+							submission.id,
 						)}`}
 					>
 						<h3 className="text-xl">{submission.student.name}</h3>

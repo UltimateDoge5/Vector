@@ -46,6 +46,7 @@ export default async function AssignmentPage({ params }: { params: { nameId: str
 
 		const submissions = await db.query.Submission.findMany({
 			where: (s, { eq }) => eq(s.assignmentId, parseInt(assignmentId)),
+			orderBy: (s, { asc }) => asc(s.sentAt),
 			with: {
 				student: {
 					columns: {
@@ -83,5 +84,5 @@ export default async function AssignmentPage({ params }: { params: { nameId: str
 		where: (s, { eq, and }) => and(eq(s.studentId, studentId), eq(s.assignmentId, parseInt(assignmentId))),
 	});
 
-	return <AssignmentView assignment={assignment} submission={submission} studentId={studentId}  />;
+	return <AssignmentView assignment={assignment} submission={submission} studentId={studentId} />;
 }

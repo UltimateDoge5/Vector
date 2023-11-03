@@ -7,6 +7,7 @@ import { ActionModal } from "~/components/ui/modal";
 import { Input } from "~/components/ui/input";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
+import { type Assignment } from "~/server/db/schema";
 
 const dateFormat = Intl.DateTimeFormat("pl-PL", {
 	day: "numeric",
@@ -17,7 +18,8 @@ const dateFormat = Intl.DateTimeFormat("pl-PL", {
 
 export function TeacherView({
 	assignments: assignmentsInit,
-	classSize,
+	classData,
+	teacherId,
 	submissionCount,
 }: {
 	assignments: AssignmentDto[];
@@ -25,7 +27,12 @@ export function TeacherView({
 		count: number;
 		assignmentId: number;
 	}[];
-	classSize: number;
+	classData: {
+		size: number;
+		name:string;
+		id: number;
+	};
+	teacherId: number;
 }) {
 	const [assignments, setAssignments] = useState<AssignmentDto[]>(assignmentsInit);
 	const [assignmentData, setAssignmentData] = useReducer(
@@ -44,17 +51,22 @@ export function TeacherView({
 		const ref = toast.loading("Dodawanie zadania...");
 		fetch("/api/assignments", {
 			method: "POST",
-			body: JSON.stringify(assignmentData),
+			body: JSON.stringify({
+				...assignmentData,
+				teacherId,
+				classId: classData.id,
+			} satisfies typeof Assignment.$inferInsert),
 			headers: {
 				"Content-Type": "application/json",
 			},
 		})
 			.then((res) => res.json())
 			.then((assignment) => {
-				setAssignments([...assignments, assignment]);
+				setAssignments([...assignments, { ...assignmentData, ...assignment }]);
 				toast.update(ref, { type: "success", render: "Dodano zadanie", isLoading: false, autoClose: 2000 });
 			})
 			.catch((err) => {
+				console.error(err);
 				toast.update(ref, { type: "error", render: "Nie udało się dodać zadania", isLoading: false, autoClose: 2000 });
 			});
 	};
@@ -62,12 +74,13 @@ export function TeacherView({
 	return (
 		<>
 			<div className="flex w-full flex-col rounded-lg">
-				<div className="flex items-center justify-between">
-					<h2 className="mb-3 border-l-4 border-accent pl-2 text-2xl font-bold">Zadania</h2>
+				<div className="flex items-center justify-between pb-2 mb-3 border-b ">
+					<h2 className=" border-l-4 border-accent pl-2 text-2xl font-bold">Zadania klasy {classData.name}</h2>
 					<Button onClick={() => setModalOpen(true)}>Dodaj zadanie</Button>
 				</div>
 
 				<div className="flex flex-col gap-2">
+					{assignments.length === 0 && <h3 className="text-center text-xl font-medium">Brak zadań dla tej klasy</h3>}
 					{assignments.map((assignment) => {
 						const nameId = assignment.name.replace(/\s/g, "-").toLowerCase();
 						const submissions = submissionCount.find((s) => s.assignmentId === assignment.id)?.count ?? 0;
@@ -86,8 +99,8 @@ export function TeacherView({
 									Termin oddania: {dateFormat.format(assignment.dueDate)}
 								</span>
 								<span className="absolute bottom-2 right-4 flex w-1/5 items-center gap-2 rounded-lg px-2 py-1">
-									<ProgressBar progress={(submissions / classSize) * 100} />
-									{submissions}/{classSize}
+									<ProgressBar progress={(submissions / classData.size) * 100} />
+									{submissions}/{classData.size}
 								</span>
 							</Link>
 						);

@@ -44,16 +44,17 @@ export function StudentsSubmissionView({
 					href={`/assignments/${linkify(assignment.name, assignment.id)}/submission/${linkify(studentName, submission.id)}`}
 					className="hover:underline"
 				>
-					{assignment.name}
+					Praca {capitalizeName(studentName)}
 				</Link>
 			</div>
 			<div className="flex items-end justify-between border-b py-4">
 				<div className="flex flex-col gap-1">
-					<h2 className="border-l-4 border-accent pl-2 text-2xl font-bold">Zadanie - {studentName}</h2>
+					<h2 className="border-l-4 border-accent pl-2 text-2xl font-bold">Praca - {capitalizeName(studentName)}</h2>
 					<p className="max-w-3xl font-light text-text/80">{assignment.description}</p>
 				</div>
 				<div>
 					<input
+						id="graded"
 						type="checkbox"
 						checked={graded}
 						onChange={async (e) => {
@@ -112,3 +113,5 @@ export function StudentsSubmissionView({
 		</>
 	);
 }
+
+const capitalizeName = (name: string) => name.split(" ").map((s) => s[0]!.toUpperCase() + s.slice(1)).join(" ");

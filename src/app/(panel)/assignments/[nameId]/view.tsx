@@ -34,9 +34,6 @@ export function AssignmentView({
 	const uploadRef = useRef<HTMLInputElement>(null);
 	const [isUploading, setIsUploading] = useState(false);
 
-	const isAttachmentImage =
-		submission?.attachment?.endsWith(".png") || submission?.attachment?.endsWith(".jpg") || submission?.attachment?.endsWith(".jpeg");
-
 	const AssignmentStatus = () => {
 		const btn = (
 			<Button disabled={isUploading || !answerFile} loading={isUploading} onClick={handleSubmit}>
@@ -159,21 +156,7 @@ export function AssignmentView({
 						)}
 
 						{!submission && <ArrowUpTrayIcon className="h-10 w-10" />}
-						{!!submission ? (
-							isAttachmentImage ? (
-								<img
-									src={`https://utfs.io/f/${submission.attachment}`}
-									className="h-full w-full object-contain"
-									alt="Załącznik ucznia"
-								/>
-							) : (
-								submission.attachment
-							)
-						) : !answerFile ? (
-							"Kliknij tutaj lub przeciągnij i upuść plik, aby go załączyć."
-						) : (
-							answerFile.name
-						)}
+						<AttachmentDisplay attachment={submission?.attachment ?? answerFile} />
 					</div>
 					<input
 						disabled={isUploading || !!submission}
@@ -211,3 +194,16 @@ export function AssignmentView({
 		</>
 	);
 }
+
+const AttachmentDisplay = ({ attachment }: { attachment: File | string | undefined }) => {
+	if (typeof attachment === "string") {
+		const isAttachmentImage = attachment.endsWith(".png") || attachment.endsWith(".jpg") || attachment.endsWith(".jpeg");
+
+		if (isAttachmentImage) return <img src={`https://utfs.io/f/${attachment}`} className="h-full w-full rounded-lg object-cover" />;
+		return `Plik typu .${attachment.split(".").pop()}`;
+	}
+
+	// File type
+	if (typeof attachment !== "undefined") return attachment.name;
+	return "Kliknij tutaj lub przeciągnij i upuść plik, aby go załączyć.";
+};

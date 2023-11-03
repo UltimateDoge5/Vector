@@ -18,8 +18,8 @@ export function AssignmentsListView({ assignments, submissions }: { assignments:
 	return (
 		<div className="flex w-full flex-col rounded-lg">
 			<h2 className="mb-3 border-l-4 border-accent pl-2 text-2xl font-bold">Zadania</h2>
-
 			<div className="flex flex-col gap-2">
+				{assignments.length === 0 && <h3 className="text-center text-xl font-medium">Nie masz (jeszcze) żadnych zadań</h3>}
 				{assignments.map((assignment) => {
 					const nameId = assignment.name.replace(/\s/g, "-").toLowerCase();
 					const submission = submissions.find((s) => s.assignmentId === assignment.id);

@@ -14,14 +14,14 @@ export default async function Page({ params }: { params: { nameId: string; submi
 	const submissionId = params.submissionId.split("-").pop()!;
 
 	const { id: teacherId } = (await db.query.Teacher.findFirst({
-		where: (c, { eq }) => eq(c.userId, "user_2WtVEuDuEZ3mNPCRvGUs6jMogLx"),
+		where: (c, { eq }) => eq(c.userId, user!.id),
 		columns: {
 			id: true,
 		},
 	}))!;
 
 	const assignment = await db.query.Assignment.findFirst({
-		where: (c, { eq, and }) => and(eq(c.id, parseInt(assignmentId)), eq(c.teacherId, teacherId)),
+		where: (a, { eq, and }) => and(eq(a.id, parseInt(assignmentId)), eq(a.teacherId, teacherId)),
 	});
 
 	if (!assignment) return <h1>Takie zadanie nie istnieje</h1>;
