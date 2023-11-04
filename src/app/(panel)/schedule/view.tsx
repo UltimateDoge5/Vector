@@ -104,14 +104,18 @@ export function ScheduleView({
 						)}
 					</div>
 					<div className="flex items-center gap-2">
-						<Link className="flex items-center rounded-lg bg-primary px-4 py-2" href={`/schedule?week=${prev}`}>
-							<ChevronLeftIcon className="h-5 w-5" />
-							Poprzedni tydzień
+						<Link href={`/schedule?week=${prev}`}>
+							<Button>
+								<ChevronLeftIcon className="h-5 w-5" />
+								Poprzedni tydzień
+							</Button>
 						</Link>
 
-						<Link className="flex items-center rounded-lg bg-primary px-4 py-2" href={`/schedule?week=${next}`}>
-							Następny tydzień
-							<ChevronRightIcon className="h-5 w-5" />
+						<Link href={`/schedule?week=${next}`}>
+							<Button>
+								Następny tydzień
+								<ChevronRightIcon className="h-5 w-5" />
+							</Button>
 						</Link>
 					</div>
 				</div>

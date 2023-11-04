@@ -43,6 +43,8 @@ export function TeacherPresenceView({
 	const maxIndex = Math.max(...schedule.map((lesson) => lesson.index));
 	const { prev, next, dates, week } = calculateWeekDates(weekDate);
 
+	console.log(presence)
+
 	useEffect(() => {
 		presenceSnapshot.current = structuredClone(presenceInit);
 

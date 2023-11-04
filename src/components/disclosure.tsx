@@ -1,5 +1,5 @@
 "use client";
-import { Disclosure } from "@headlessui/react";
+import { Disclosure, Transition } from "@headlessui/react";
 import { ChevronUpIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useState } from "react";
@@ -15,22 +15,34 @@ export default function DisclosureButton({ icon, name, subNames }: DisclosureInt
 		<Disclosure>
 			<Disclosure.Button
 				as="div"
-				className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-secondary/20"
+				className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 transition-colors hover:bg-secondary/20"
 				onClick={openChange}
 			>
-				{icon}
-				<span className="text-base">{name}</span>
-				<ChevronUpIcon className={`${open ? "rotate-180 transform" : ""} h-5 w-5 text-purple-500`} />
+				<div className="flex items-center gap-2">
+					{icon}
+					<span className="text-base">{name}</span>
+				</div>
+				<ChevronUpIcon className={`transition-transform ${open ? "rotate-180 transform " : ""} h-5 w-5 text-accent`} />
 			</Disclosure.Button>
 			{subNames.map((item) => (
 				<Link href={item.link} key={item.name}>
-					<Disclosure.Panel
-						as="div"
-						className="ml-5 flex cursor-pointer items-center gap-3 rounded-br-lg rounded-tr-lg border-l-2 bg-secondary/10 px-3 py-2 transition-colors hover:border-purple-500"
-						key={item.name}
+					<Transition
+						enter="transition duration-100 ease-out"
+						enterFrom="transform scale-95 opacity-0"
+						enterTo="transform scale-100 opacity-100"
+						leave="transition duration-75 ease-out"
+						leaveFrom="transform scale-100 opacity-100"
+						leaveTo="transform scale-95 opacity-0"
 					>
-						<span>{item.name}</span>
-					</Disclosure.Panel>
+						<Disclosure.Panel
+							unmount
+							as="div"
+							className="ml-5 rounded-br-lg rounded-tr-lg border-l-2 bg-secondary/10 px-3 py-2 transition-colors hover:border-accent"
+							key={item.name}
+						>
+							<span>{item.name}</span>
+						</Disclosure.Panel>
+					</Transition>
 				</Link>
 			))}
 		</Disclosure>

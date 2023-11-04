@@ -9,14 +9,15 @@ import { type TeacherDto, type TeacherWithPasswordDto } from "~/types/dtos";
 import { DataTable } from "../dataTable";
 import AddTeacherModal from "./addTeacherModal";
 import EditTeacherModal from "./editTeacherModal";
+import { Button } from "~/components/ui/button";
 
 interface EditModalState {
     teacher: TeacherDto | null,
     isOpen: boolean
 }
 
-export default function TeachersManagement({ teachers }: { teachers: TeacherDto[] }) {
-    const [teachersList, setTeachersList] = useState(teachers);
+export default function TeacherManagement({ teachers }: { teachers: TeacherDto[] }) {
+    const [teacherList, setTeacherList] = useState(teachers);
 
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [editModalState, setEditModalState] = useState<EditModalState>({ teacher: null, isOpen: false });
@@ -40,7 +41,7 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
             const teacherWithPassword: TeacherWithPasswordDto = await response.json() as TeacherWithPasswordDto;
 
             ref = toast(`Domyślne hasło: ${teacherWithPassword.password}`, { autoClose: false, position: "top-center", closeOnClick: false, draggable: false, type: "info" });
-
+          
             setTeachersList([...teachersList, teacherWithPassword]);
         } else {
             toast.update(ref, { autoClose: 3000, type: "error", isLoading: false, render: "Nie udało się dodać nauczyciela." });
@@ -211,10 +212,10 @@ export default function TeachersManagement({ teachers }: { teachers: TeacherDto[
 
             <DataTable
                 columns={columns}
-                data={teachersList}
+                data={teacherList}
                 noDataText="Brak nauczycieli"
                 title="Nauczyciele"
-                primaryActionBtn={<button className="bg-primary hover:bg-primary/90 py-3 px-5 rounded-lg text-text font-bold " onClick={() => setIsAddModalOpen(true)}>Dodaj nauczyciela</button>}
+                primaryActionBtn={<Button onClick={() => setIsAddModalOpen(true)}>Dodaj nauczyciela</Button>}
             />
 
             <AddTeacherModal

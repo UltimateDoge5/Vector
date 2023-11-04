@@ -9,6 +9,7 @@ import { type ClassDto, type StudentWithClassDto, type StudentWithPasswordDto } 
 import { DataTable } from "../dataTable";
 import AddStudentModal from "./addStudentModal";
 import EditStudentModal from "./editStudentModal";
+import { Button } from "~/components/ui/button";
 
 interface Props {
     students: StudentWithClassDto[],
@@ -164,7 +165,6 @@ export default function StudentsManagement({ students, classes }: Props) {
         }
     ];
 
-
     return (
         <div className="px-10">
 
@@ -173,7 +173,7 @@ export default function StudentsManagement({ students, classes }: Props) {
                 data={studentsList}
                 noDataText="Brak uczniów"
                 title="Uczniowie"
-                primaryActionBtn={<button className="bg-primary hover:bg-primary/90 py-3 px-5 rounded-lg text-text font-bold " onClick={() => setIsAddModalOpen(true)}>Dodaj ucznia</button>}
+                primaryActionBtn={<Button onClick={() => setIsAddModalOpen(true)}>Dodaj ucznia</Button>}
             />
 
             <AddStudentModal

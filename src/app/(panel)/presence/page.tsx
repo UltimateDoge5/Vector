@@ -19,7 +19,7 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 	const week = getWeekDates(searchParams.week);
 
 	if (isTeacher) {
-		const { schedule, presence, exemptions, studentsList } = await getAttendenceForClass(selectedClass, week);
+		const { schedule, presence, exemptions, studentList } = await getAttendanceForClass(selectedClass, week);
 
 		if (schedule.length === 0) return <h2 className="m-auto w-fit text-3xl">Brak planu dla tej klasy</h2>;
 
@@ -47,8 +47,8 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 		const classPresence: ClassPresence[] = [];
 		const students: ClassPresence["students"] = {};
 
-		// Assign defualut status to all students
-		studentsList.forEach((student) => (students[student.id] = { status: "none", name: student.name }));
+		// Assign default status to all students
+		studentList.forEach((student) => (students[student.id] = { status: "none", name: student.name }));
 
 		mappedSchedule.forEach((lesson) => {
 			classPresence.push({
@@ -64,7 +64,7 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 		// Assign presence to students
 		presence.forEach((presence) => {
 			const lesson = classPresence.find(
-				(lesson) => lesson.scheduleId === presence.tableId || lesson.exemptionId === presence.exemptionId,
+				(lesson) => lesson.scheduleId === presence.tableId && lesson.exemptionId === presence.exemptionId,
 			)!;
 
 			if (lesson) lesson.students[presence.studentId]!.status = presence.status;
@@ -110,7 +110,7 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 	return <PresenceView presence={mappedSchedule} weekDate={searchParams.week} />;
 }
 
-const getAttendenceForClass = async (classId: number, week: { from: Date; to: Date }) => {
+const getAttendanceForClass = async (classId: number, week: { from: Date; to: Date }) => {
 	const schedule = await db.query.Schedule.findMany({
 		where: (schedule, { eq }) => eq(schedule.classId, classId),
 		with: {
@@ -186,7 +186,7 @@ const getAttendenceForClass = async (classId: number, week: { from: Date; to: Da
 		},
 	});
 
-	return { schedule, presence, exemptions, studentsList: students };
+	return { schedule, presence, exemptions, studentList: students };
 };
 
 const getPresenceForStudent = async (userId: string, week: { from: Date; to: Date }) => {

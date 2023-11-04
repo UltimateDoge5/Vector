@@ -1,12 +1,12 @@
 import { relations } from "drizzle-orm";
-import { bigint, boolean, int, mysqlEnum, json, mysqlTable, timestamp, varchar, date } from "drizzle-orm/mysql-core";
+import { bigint, boolean, int, mysqlEnum, json, mysqlTable, timestamp, varchar, date, text } from "drizzle-orm/mysql-core";
 
 export const Submission = mysqlTable("submission", {
 	id: bigint("id", { mode: "number" }).notNull().primaryKey().autoincrement(),
 	assignmentId: bigint("assignmentId", { mode: "number" }).notNull(),
 	studentId: bigint("studentId", { mode: "number" }).notNull(),
 	sentAt: timestamp("sent_at", { mode: "date" }).defaultNow().notNull(),
-	content: varchar("content", { length: 255 }),
+	content: text("content"),
 	attachment: varchar("attachment", { length: 255 }),
 	graded: boolean("graded").default(false).notNull(),
 });
@@ -16,7 +16,7 @@ export const Assignment = mysqlTable("assignment", {
 	classId: bigint("classId", { mode: "number" }).notNull(),
 	teacherId: bigint("teacherId", { mode: "number" }).notNull(),
 	name: varchar("name", { length: 255 }).notNull(),
-	description: varchar("description", { length: 255 }),
+	description: text("description"),
 	dueDate: timestamp("due_date", { mode: "date" }).notNull(),
 	creationDate: timestamp("creation_date", { mode: "date" }).defaultNow().notNull(),
 	allowLate: boolean("allow_late").default(false).notNull(),

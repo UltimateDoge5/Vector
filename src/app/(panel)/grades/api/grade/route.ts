@@ -21,29 +21,28 @@ export const PUT = async (req: NextRequest) => {
 	if (!parsed.success) return NextResponse.json(parsed.error, { status: 400 });
 
 	await Promise.allSettled(
-		parsed.data.map(async (grade) => {
+		parsed.data.map((grade) => {
 			switch (grade.type) {
 				case "insert":
-					await db.insert(Grade).values({
+					return db.insert(Grade).values({
 						grade: grade.value!,
 						studentId: grade.studentId,
 						definitionId: grade.definitionId,
 						description: grade.description,
-						timestamp: new Date(),
+						timestamp: new Date()
 					});
-					break;
+
 				case "update":
-					await db
+					return db
 						.update(Grade)
 						.set({
 							description: grade.description,
-							grade: grade.value,
+							grade: grade.value
 						})
 						.where(and(eq(Grade.studentId, grade.studentId), eq(Grade.definitionId, grade.definitionId)));
-					break;
+
 				case "delete":
-					await db.delete(Grade).where(and(eq(Grade.studentId, grade.studentId), eq(Grade.definitionId, grade.definitionId)));
-					break;
+					return db.delete(Grade).where(and(eq(Grade.studentId, grade.studentId), eq(Grade.definitionId, grade.definitionId)));
 			}
 		}),
 	);

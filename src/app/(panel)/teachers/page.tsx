@@ -1,4 +1,4 @@
-import TeachersManagement from "~/components/teachers/teachersManagement";
+import TeacherManagement from "~/components/teachers/teachersManagement";
 import { db } from "~/server/db";
 import { TeacherDto } from "~/types/dtos";
 
@@ -14,6 +14,6 @@ export default async function Page() {
   })
 
   return (
-    <TeachersManagement teachers={teachers} />
+    <TeacherManagement teachers={teachers} />
   );
 }

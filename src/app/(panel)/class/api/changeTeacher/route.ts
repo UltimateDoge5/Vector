@@ -8,9 +8,9 @@ export async function POST(request: Request) {
 
 	const oldTeacher = await db.query.Class.findFirst({ where: (classObject) => eq(classObject.id, classId) });
 
-	await db.update(Class).set({ teacherId }).where(eq(Class.id, classId));
-	await db.update(Teacher).set({ classId }).where(eq(Teacher.id, teacherId));
 	await db.update(Teacher).set({ classId: null }).where(eq(Teacher.id, oldTeacher!.teacherId));
+	await db.update(Teacher).set({ classId }).where(eq(Teacher.id, teacherId));
+	await db.update(Class).set({ teacherId }).where(eq(Class.id, classId));
 
 	return new NextResponse(null, { status: 201 });
 }
