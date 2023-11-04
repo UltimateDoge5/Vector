@@ -515,6 +515,7 @@ export function TeacherGradeView({
 						className="h-32 w-full resize-none rounded border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-primary/50"
 						name="desc"
 						id="desc"
+						maxLength={255}
 						value={modalData.description}
 						onChange={(e) => setModalData({ description: e.target.value })}
 					/>

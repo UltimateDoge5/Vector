@@ -20,8 +20,8 @@ export async function PUT(req: NextRequest) {
 			studentId: z.number(),
 			status: z.enum(["present", "absent", "late", "excused", "releasedBySchool"]),
 			exemptionId: z.number().nullable(),
-			date: z.coerce.date(),
-		}),
+			date: z.coerce.date()
+		})
 	);
 
 	const parsedData = schema.safeParse(jsonData);
@@ -33,29 +33,27 @@ export async function PUT(req: NextRequest) {
 	const changes = parsedData.data;
 
 	// TODO: Maybe make this into a transaction? That would make error handling easier
-	await Promise.allSettled(
-		changes.map(async (change) => {
-			// Either scheduleId or exemptionId will be null
-			const idClause =
-				change.scheduleId !== null ? eq(Presence.tableId, change.scheduleId) : eq(Presence.exemptionId, change.exemptionId!);
+	// TODO: In the future redo this like in the grades api
+	changes.map(async (change) => {
+		// Either scheduleId or exemptionId will be null
+		const idClause =
+			change.scheduleId !== null ? eq(Presence.tableId, change.scheduleId) : eq(Presence.exemptionId, change.exemptionId!);
 
-			const updateResult = await db
-				.update(Presence)
-				.set({ status: change.status })
-				.where(and(eq(Presence.studentId, change.studentId), eq(Presence.date, change.date), idClause));
+		const updateResult = await db
+			.update(Presence)
+			.set({ status: change.status })
+			.where(and(eq(Presence.studentId, change.studentId), eq(Presence.date, change.date), idClause));
 
-			if (updateResult.rowsAffected === 0) {
-				console.log("inserting");
-				await db.insert(Presence).values({
-					studentId: change.studentId,
-					status: change.status,
-					date: change.date,
-					tableId: change.scheduleId,
-					exemptionId: change.exemptionId,
-				});
-			}
-		}),
-	);
+		if (updateResult.rowsAffected === 0) {
+			await db.insert(Presence).values({
+				studentId: change.studentId,
+				status: change.status,
+				date: change.date,
+				tableId: change.scheduleId,
+				exemptionId: change.exemptionId
+			});
+		}
+	});
 
 	return new NextResponse(null, { status: 200 });
 }

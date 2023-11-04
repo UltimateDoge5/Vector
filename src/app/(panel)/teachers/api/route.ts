@@ -69,7 +69,7 @@ export async function PUT(request: Request) {
         .catch(() => error = true);
     
     if(error) return new NextResponse(null, { status: 500 });
-
+  
     return new NextResponse();
 }
 

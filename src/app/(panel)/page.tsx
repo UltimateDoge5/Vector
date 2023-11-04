@@ -9,36 +9,43 @@ export default async function HomePage() {
 	const user = await currentUser();
 
 	const isTeacher = isTeacherCheck(user);
-	const { announcements, student } = await GetAnnouncements(user!.id);
+	const { announcements, student } = await getAnnouncements(user!.id);
 
 	if (isTeacher) {
 		const announcementsTeacher = announcements.map((ads) => ads).filter((ads) => ads.recipients?.teachers === true);
 
 		return (
-			<div className="grid grid-cols-2 p-10">
+			<>
+				<h2 className="mb-3 border-l-4 border-accent pl-2 text-2xl font-bold">Podsumowanie</h2>
+				<div className="grid grid-cols-2 p-10">
 				<Suspense fallback={<p>Ładowanie...</p>}>
 					<AnnouncementsDashboard announcements={announcementsTeacher} />
 				</Suspense>
 			</div>
+			</>
 		);
 	}
-	const { grades } = await GetGrades(user!.id);
+	const grades = await getGrades(user!.id);
 
-	const announcementsClass = announcements
+	const filteredAnnouncements = announcements
 		.map((ads) => ads)
-		.filter((ads, index) => index <= 2 && ads.recipients?.classes.includes(student!.classId));
+		.filter((ads) => ads.recipients!.classes.includes(student!.classId))
+		.slice(0, 3)
 
 	return (
-		<div className="grid grid-cols-2 p-10">
-			<Suspense fallback={<p>Ładowanie...</p>}>
-				<AnnouncementsDashboard announcements={announcementsClass} />
-				<GradesDashboard grades={grades} />
-			</Suspense>
-		</div>
+		<>
+			<h2 className="mb-3 border-l-4 border-accent pl-2 text-2xl font-bold">Podsumowanie</h2>
+			<div className="grid grid-cols-2 p-10">
+				<Suspense fallback={<p>Ładowanie...</p>}>
+					<AnnouncementsDashboard announcements={filteredAnnouncements} />
+					<GradesDashboard grades={grades} />
+				</Suspense>
+			</div>
+		</>
 	);
 }
 
-const GetAnnouncements = async (userId: string) => {
+const getAnnouncements = async (userId: string) => {
 	const announcements = await db.query.Announcements.findMany({
 		orderBy: (announcement, { desc }) => desc(announcement.id),
 	});
@@ -53,12 +60,13 @@ const GetAnnouncements = async (userId: string) => {
 	return { announcements, student };
 };
 
-const GetGrades = async (userId: string) => {
+const getGrades = async (userId: string) => {
 	const student = await db.query.Student.findFirst({
 		where: (student, { eq }) => eq(student.userId, userId),
 	});
 	const date = new Date();
-	const grades = (
+
+	return (
 		await db.query.Grade.findMany({
 			where: (g, { eq, and, gte }) =>
 				and(
@@ -96,6 +104,4 @@ const GetGrades = async (userId: string) => {
 		lesson: grade.gradeDefinition.lesson.name,
 		timestamp: grade.timestamp,
 	}));
-
-	return { grades };
 };
