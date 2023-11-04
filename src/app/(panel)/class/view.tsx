@@ -9,6 +9,7 @@ import { ChevronUpDownIcon } from "@heroicons/react/24/outline";
 import { DataTable } from "~/components/dataTable";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { Button } from "~/components/ui/button";
 
 export default function ClassView({
 	teachers: teachersInit,
@@ -90,7 +91,7 @@ export default function ClassView({
 
 	return (
 		<>
-			<DataTable columns={columns} data={classes} noDataText="No data" title="Zarządzanie klasami" primaryActionBtn={<button className="rounded-lg bg-primary px-4 py-2 font-medium mx-10" onClick={() => setIsOpenModal(true)}>Dodaj nową klasę</button>} />
+			<DataTable columns={columns} data={classes} noDataText="No data" title="Zarządzanie klasami" primaryActionBtn={<Button onClick={() => setIsOpenModal(true)}>Dodaj nową klasę</Button>} />
 			<AddClassModal teachers={teachers} isOpen={isOpenModal} setIsOpen={setIsOpenModal} />
 		</>
 	);

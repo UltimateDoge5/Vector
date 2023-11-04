@@ -73,6 +73,7 @@ export default function EditModal({ open, setOpen, lessons, teachers, teacher, l
                 accent: "bg-accent/20 text-accent",
                 button: "bg-primary text-text hover:bg-primary/90"
             }}
+            titleClassName="text-2xl"
         >
             <form>
                 <span className="mt-4 font-medium">Przedmiot</span>

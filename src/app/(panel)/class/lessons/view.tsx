@@ -6,6 +6,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
 import { toast } from "react-toastify";
 import { DataTable } from "~/components/dataTable";
+import { Button } from "~/components/ui/button";
 import { type ClassDto, type LessonDto, type LessonGroupDto, type TeacherDto } from "~/types/dtos";
 import AddModal from "./addModal";
 import EditModal from "./editModal";
@@ -180,7 +181,7 @@ export default function LessonGroupsView({ lessonGroups, selectedClass, lessons,
                 data={lessonGroupsList}
                 noDataText="Brak przedmiotów dla tej klasy"
                 title={`Przedmioty dla klasy ${selectedClass.name}`}
-                primaryActionBtn={<button className="bg-primary hover:bg-primary/90 py-3 px-5 rounded-lg text-text font-bold " onClick={() => setIsAddModalOpen(true)}>Dodaj przedmiot</button>}
+                primaryActionBtn={<Button onClick={() => setIsAddModalOpen(true)}>Dodaj przedmiot</Button>}
             />
 
             <AddModal

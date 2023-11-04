@@ -6,6 +6,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
 import { toast } from "react-toastify";
 import { DataTable } from "~/components/dataTable";
+import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { ActionModal } from "~/components/ui/modal";
 import { type LessonDto } from "~/types/dtos";
@@ -159,7 +160,7 @@ export default function LessonsView({ lessons }: Props) {
                 data={lessonsList}
                 noDataText="Brak przedmiotów"
                 title="Przedmioty"
-                primaryActionBtn={<button className="bg-primary hover:bg-primary/90 py-3 px-5 rounded-lg text-text font-bold " onClick={() => setIsAddModalOpen(true)}>Dodaj przedmiot</button>}
+                primaryActionBtn={<Button onClick={() => setIsAddModalOpen(true)}>Dodaj przedmiot</Button>}
             />
 
             <ActionModal
@@ -174,6 +175,7 @@ export default function LessonsView({ lessons }: Props) {
                     accent: "bg-accent/20 text-accent",
                     button: "bg-primary text-text hover:bg-primary/90"
                 }}
+                titleClassName="text-2xl"
             >
                 <form>
                     <span className="mt-4 font-medium">Nazwa przedmiotu</span>
@@ -199,6 +201,7 @@ export default function LessonsView({ lessons }: Props) {
                         accent: "bg-accent/20 text-accent",
                         button: "bg-primary text-text hover:bg-primary/90"
                     }}
+                    titleClassName="text-2xl"
                 >
                     <form>
                         <Input

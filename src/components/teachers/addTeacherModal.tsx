@@ -39,6 +39,7 @@ export default function AddTeacherModal({ isOpen, setIsOpen, addTeacher }: Props
                 accent: "bg-accent/20 text-accent",
                 button: "bg-primary text-text hover:bg-primary/90"
             }}
+            titleClassName="text-2xl"
         >
             <form className="flex flex-col my-3">
                 <span className="mt-4 font-medium">Imię i Nazwisko</span>
