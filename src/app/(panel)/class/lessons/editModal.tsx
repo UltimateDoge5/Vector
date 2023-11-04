@@ -64,6 +64,7 @@ export default function EditModal({ open, setOpen, lessons, teachers, teacher, l
         <ActionModal
             open={open}
             setOpen={setOpen}
+            dismissible={true}
             title={"Edytuj przedmiot"}
             actionText={"Edytuj"}
             icon={false}
@@ -76,9 +77,9 @@ export default function EditModal({ open, setOpen, lessons, teachers, teacher, l
             <form>
                 <span className="mt-4 font-medium">Przedmiot</span>
                 <Combobox value={selectedLesson} onChange={setSelectedLesson}>
-                    <div className="relative mt-1 z-10">
+                    <div className="relative mt-1">
                         <Combobox.Input
-                            className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
+                            className="w-full bg-secondary/60 rounded-lg outline-none text-text flex-1 px-4 py-2"
                             displayValue={(lesson: LessonDto | null) => lesson ? lesson.name : ""}
                             onChange={(event) => setLessonQuery(event.target.value)}
                         />
@@ -95,7 +96,7 @@ export default function EditModal({ open, setOpen, lessons, teachers, teacher, l
                             leaveTo="opacity-0"
                             afterLeave={() => setLessonQuery('')}
                         >
-                            <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                            <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-20">
                                 {filteredLessons.length === 0 && lessonQuery !== '' ? (
                                     <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
                                         Nie znaleziono przedmiotu
@@ -130,9 +131,9 @@ export default function EditModal({ open, setOpen, lessons, teachers, teacher, l
 
                 <span className="mt-4 font-medium">Nauczyciel</span>
                 <Combobox value={selectedTeacher} onChange={setSelectedTeacher}>
-                    <div className="relative mt-1 z-10">
+                    <div className="relative mt-1">
                         <Combobox.Input
-                            className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
+                            className="w-full bg-secondary/60 rounded-lg outline-none text-text flex-1 px-4 py-2"
                             displayValue={(teacher: TeacherDto | null) => teacher ? teacher.name : ""}
                             onChange={(event) => setTeacherQuery(event.target.value)}
                         />
@@ -149,7 +150,7 @@ export default function EditModal({ open, setOpen, lessons, teachers, teacher, l
                             leaveTo="opacity-0"
                             afterLeave={() => setTeacherQuery('')}
                         >
-                            <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                            <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-20">
                                 {filteredTeachers.length === 0 && teacherQuery !== '' ? (
                                     <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
                                         Nie znaleziono nauczyciela

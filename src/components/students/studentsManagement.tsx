@@ -4,6 +4,7 @@ import { Menu, Transition } from "@headlessui/react";
 import { ArchiveBoxXMarkIcon, EllipsisVerticalIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
+import { toast } from "react-toastify";
 import { type ClassDto, type StudentWithClassDto, type StudentWithPasswordDto } from "~/types/dtos";
 import { DataTable } from "../dataTable";
 import AddStudentModal from "./addStudentModal";
@@ -33,17 +34,22 @@ export default function StudentsManagement({ students, classes }: Props) {
             classId: classId
         };
 
+        let ref = toast("Dodawanie ucznia", { autoClose: false, isLoading: true });
         const response = await fetch("/students/api", {
             method: "POST",
             body: JSON.stringify(payload)
         });
 
         if (response.ok) {
+            toast.update(ref, { render: "Sukces", isLoading: false, type: "success", autoClose: 3000 });
+
             const studentWithPassword: StudentWithPasswordDto = await response.json() as StudentWithPasswordDto;
 
-            console.log(`Domyślne hasło: ${studentWithPassword.password}`);
+            ref = toast(`Domyślne hasło: ${studentWithPassword.password}`, { autoClose: false, position: "top-center", closeOnClick: false, draggable: false, type: "info" });
 
             setStudentsList([...studentsList, studentWithPassword]);
+        } else {
+            toast.update(ref, { autoClose: 3000, type: "error", isLoading: false, render: "Nie udało się dodać ucznia." });
         }
     }
 
@@ -55,29 +61,36 @@ export default function StudentsManagement({ students, classes }: Props) {
             classId
         };
 
+        const ref = toast("Edytowanie ucznia", { autoClose: false, isLoading: true });
         const response = await fetch("/students/api", {
             method: "PUT",
             body: JSON.stringify(payload)
         });
 
         if (response.ok) {
-            console.log(response);
+            toast.update(ref, { render: "Sukces", isLoading: false, type: "success", autoClose: 3000 });
 
             const updatedClass = classes.find(clas => clas.id === classId);
 
             setStudentsList(studentsList.map(student => student.userId === userId ? { ...student, name, class: updatedClass } as StudentWithClassDto : student))
+        } else {
+            toast.update(ref, { autoClose: 3000, type: "error", isLoading: false, render: "Nie udało się edytować ucznia." });
         }
     }
 
     const deleteStudent = async (userId: string) => {
+        const ref = toast("Usuwanie ucznia", { autoClose: false, isLoading: true });
         const response = await fetch("/students/api", {
             method: "DELETE",
             body: JSON.stringify({ userId })
         });
 
         if (response.ok) {
-            console.log(response);
+            toast.update(ref, { render: "Sukces", isLoading: false, type: "success", autoClose: 3000 });
+
             setStudentsList(studentsList.filter(student => student.userId != userId));
+        } else {
+            toast.update(ref, { autoClose: 3000, type: "error", isLoading: false, render: "Nie udało się usunąć ucznia." });
         }
     }
 
@@ -115,7 +128,7 @@ export default function StudentsManagement({ students, classes }: Props) {
                                     {({ active }) => (
                                         <button
                                             className={`${active ? 'bg-accent/50 text-white' : 'text-text'
-                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm font-bold`}
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                                         >
                                             <PencilSquareIcon
                                                 className="mr-2 h-5 w-5"
@@ -132,7 +145,7 @@ export default function StudentsManagement({ students, classes }: Props) {
                                     {({ active }) => (
                                         <button
                                             className={`${active ? 'bg-red-700 text-white' : 'text-red-700'
-                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm font-bold`}
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                                         >
                                             <ArchiveBoxXMarkIcon
                                                 className="mr-2 h-5 w-5"

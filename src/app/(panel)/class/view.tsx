@@ -55,7 +55,7 @@ export default function ClassView({
 					<Combobox value={row.original.teacher} onChange={(v) => changeTeacher(v, row.original.id)}>
 						<div className="relative max-w-xs  ">
 							<div className="relative cursor-pointer overflow-hidden rounded-lg bg-white pl-2 text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
-								<Combobox.Input displayValue={(v: classesInterface["teacher"]) => v.name}  className={'pl-1 outline-none'}/>
+								<Combobox.Input displayValue={(v: classesInterface["teacher"]) => v.name} className={'pl-1 outline-none'} />
 								<Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
 									<ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
 								</Combobox.Button>
@@ -85,7 +85,7 @@ export default function ClassView({
 
 	return (
 		<>
-			<DataTable columns={columns} data={classes} noDataText="No data" title="Zarządzanie klasami" primaryActionBtn={<button className="rounded-lg bg-primary px-4 py-2 font-medium mx-10" onClick={() => setIsOpenModal(true)}>Dodaj nową klasę</button>}/>
+			<DataTable columns={columns} data={classes} noDataText="No data" title="Zarządzanie klasami" primaryActionBtn={<button className="rounded-lg bg-primary px-4 py-2 font-medium mx-10" onClick={() => setIsOpenModal(true)}>Dodaj nową klasę</button>} />
 			<AddClassModal teachers={teachers} isOpen={isOpenModal} setIsOpen={setIsOpenModal} />
 		</>
 	);
