@@ -30,7 +30,6 @@ export default function AddClassModal({ teachers, isOpen, setIsOpen }: Props) {
 	const router = useRouter();
 	const onSubmit = async (e: FormEvent) => {
 		e.preventDefault();
-		console.log('halo')
 		if (!formData.className) {
 			alert("Wypełnij poprawnie formularz");
 			return;
