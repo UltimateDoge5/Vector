@@ -41,8 +41,8 @@ export default function TeacherManagement({ teachers }: { teachers: TeacherDto[]
             const teacherWithPassword: TeacherWithPasswordDto = await response.json() as TeacherWithPasswordDto;
 
             ref = toast(`Domyślne hasło: ${teacherWithPassword.password}`, { autoClose: false, position: "top-center", closeOnClick: false, draggable: false, type: "info" });
-          
-            setTeachersList([...teachersList, teacherWithPassword]);
+
+            setTeacherList([...teacherList, teacherWithPassword]);
         } else {
             toast.update(ref, { autoClose: 3000, type: "error", isLoading: false, render: "Nie udało się dodać nauczyciela." });
         }
@@ -64,7 +64,7 @@ export default function TeacherManagement({ teachers }: { teachers: TeacherDto[]
         if (response.ok) {
             toast.update(ref, { render: "Sukces", isLoading: false, type: "success", autoClose: 3000 });
 
-            setTeachersList(teachersList.map(teacher => teacher.userId === userId ? { ...teacher, name } : teacher))
+            setTeacherList(teacherList.map(teacher => teacher.userId === userId ? { ...teacher, name } : teacher))
         } else {
             toast.update(ref, { autoClose: 3000, type: "error", isLoading: false, render: "Nie udało się edytować nauczyciela." });
         }
@@ -80,7 +80,7 @@ export default function TeacherManagement({ teachers }: { teachers: TeacherDto[]
         if (response.ok) {
             toast.update(ref, { render: "Sukces", isLoading: false, type: "success", autoClose: 3000 });
 
-            setTeachersList(teachersList.filter(teacher => teacher.userId != userId));
+            setTeacherList(teacherList.filter(teacher => teacher.userId != userId));
         } else {
             toast.update(ref, { autoClose: 3000, type: "error", isLoading: false, render: "Nie udało się usunąć nauczyciela." });
         }
@@ -96,7 +96,7 @@ export default function TeacherManagement({ teachers }: { teachers: TeacherDto[]
         if (response.ok) {
             toast.update(ref, { render: "Sukces", isLoading: false, type: "success", autoClose: 3000 });
 
-            setTeachersList(teachersList.map(teacher => teacher.userId === userId ? { ...teacher, admin } : teacher))
+            setTeacherList(teacherList.map(teacher => teacher.userId === userId ? { ...teacher, admin } : teacher))
         } else {
             toast.update(ref, { autoClose: 3000, type: "error", isLoading: false, render: "Nie udało się edytować nauczyciela." });
         }
