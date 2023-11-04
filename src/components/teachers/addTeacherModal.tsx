@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 import { Input } from '../ui/input';
 import { ActionModal } from '../ui/modal';
 
@@ -15,8 +16,7 @@ export default function AddTeacherModal({ isOpen, setIsOpen, addTeacher }: Props
 
     const onSubmit = () => {
         if (!formData.email || !formData.name) {
-            alert("Wypełnij poprawnie formularz")
-            return;
+            return toast("Wypełnij poprawnie formularz", { autoClose: 3000, position: "bottom-center", type: "error" });
         }
 
         addTeacher(formData);

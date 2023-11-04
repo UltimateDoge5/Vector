@@ -3,6 +3,7 @@
 import { Combobox, Transition } from "@headlessui/react"
 import { ChevronUpDownIcon } from "@heroicons/react/24/outline"
 import { Fragment, useMemo, useState } from "react"
+import { toast } from "react-toastify"
 import { ActionModal } from "~/components/ui/modal"
 import { type LessonDto, type TeacherDto } from "~/types/dtos"
 
@@ -43,8 +44,7 @@ export default function AddModal({ open, setOpen, lessons, teachers, add }: Prop
 
     const onConfirm = () => {
         if (!selectedLesson || !selectedTeacher) {
-            alert("Wypełnij poprawnie formularz");
-            return;
+            return toast("Wypełnij poprawnie formularz", { autoClose: 3000, position: "bottom-center", type: "error" });
         }
 
         add(selectedTeacher.id, selectedLesson.id);

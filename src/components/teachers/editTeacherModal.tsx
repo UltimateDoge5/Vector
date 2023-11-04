@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import { type TeacherDto } from '~/types/dtos';
 import { Input } from '../ui/input';
 import { ActionModal } from '../ui/modal';
@@ -21,8 +22,7 @@ export default function EditTeacherModal({ teacher, isOpen, setIsOpen, editTeach
 
     const onSubmit = () => {
         if (!name) {
-            alert("Wypełnij poprawnie formularz");
-            return;
+            return toast("Wypełnij poprawnie formularz", { autoClose: 3000, position: "bottom-center", type: "error" });
         }
 
         editTeacher(teacher!.userId, name);

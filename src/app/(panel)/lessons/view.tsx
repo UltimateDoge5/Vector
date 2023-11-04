@@ -30,6 +30,8 @@ export default function LessonsView({ lessons }: Props) {
     const setEditModalLessonName = (name: string) => setEditModalState({ ...editModalState, lesson: { id: editModalState.lesson!.id, name } })
 
     const addLesson = async () => {
+        if (!lessonName) return toast("Wypełnij poprawnie formularz", { autoClose: 3000, position: "bottom-center", type: "error" });
+
         const ref = toast("Dodawanie przemiotu", { autoClose: false, isLoading: true });
         const response = await fetch("/lessons/api", {
             method: "POST",
@@ -48,6 +50,8 @@ export default function LessonsView({ lessons }: Props) {
     }
 
     const editLesson = async () => {
+        if (!editModalState.lesson?.name) return toast("Wypełnij poprawnie formularz", { autoClose: 3000, position: "bottom-center", type: "error" });
+
         const ref = toast("Edytowanie przedmiotu", { autoClose: false, isLoading: true });
         const response = await fetch("/lessons/api", {
             method: "PUT",
@@ -57,7 +61,7 @@ export default function LessonsView({ lessons }: Props) {
         if (response.ok) {
             toast.update(ref, { render: "Sukces", isLoading: false, type: "success", autoClose: 3000 });
 
-            const { name, id } = editModalState.lesson!;
+            const { name, id } = editModalState.lesson;
 
             setLessonsList(lessonsList.map(lesson => lesson.id === id ? { ...lesson, name } : lesson));
         } else {

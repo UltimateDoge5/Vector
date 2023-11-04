@@ -3,6 +3,7 @@
 import { Combobox, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon } from '@heroicons/react/24/outline';
 import { Fragment, useMemo, useState } from 'react';
+import { toast } from 'react-toastify';
 import { type ClassDto } from '~/types/dtos';
 import { Input } from '../ui/input';
 import { ActionModal } from '../ui/modal';
@@ -33,8 +34,7 @@ export default function AddStudentModal({ isOpen, setIsOpen, addStudent, classes
 
     const onSubmit = () => {
         if (!formData.name || !formData.email || !selectedClass) {
-            alert("Wypełnij poprawnie formularz");
-            return;
+            return toast("Wypełnij poprawnie formularz", { autoClose: 3000, position: "bottom-center", type: "error" });
         }
 
         addStudent(formData, selectedClass.id);
