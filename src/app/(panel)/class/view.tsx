@@ -7,6 +7,8 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { Combobox } from "@headlessui/react";
 import { ChevronUpDownIcon } from "@heroicons/react/24/outline";
 import { DataTable } from "~/components/dataTable";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export default function ClassView({
 	teachers: teachersInit,
@@ -19,17 +21,20 @@ export default function ClassView({
 	const [classes, setClasses] = useState(classesInit);
 
 	const [teachers, setTeachers] = useState(teachersInit);
+	const router = useRouter();
 
 	const changeTeacher = async (teacher: classesInterface["teacher"], classId: number) => {
+		const ref = toast.loading("Edytowanie wychowawcy...");
 		const response = await fetch("/class/api/changeTeacher", {
 			method: "POST",
 			body: JSON.stringify({ classId, teacherId: teacher.id }),
 		});
 
-		if (!response.ok) {
-			alert(`error | ${response.status}`);
-			return;
-		}
+		if (!response.ok)
+			return toast.update(ref, { type: "error", isLoading: false, render: "Nie udało się edytować wychowawcy", autoClose: 2000 });
+
+		toast.update(ref, { type: "success", isLoading: false, render: "Wychowawca został edytowany", autoClose: 2000 });
+		setTimeout(() => router.refresh(), 1250);
 
 		const newClasses = [...classes];
 		const classIndex = newClasses.findIndex((e) => e.id == classId);
