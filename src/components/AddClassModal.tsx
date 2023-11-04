@@ -3,6 +3,8 @@ import { Dialog, Listbox, Transition } from "@headlessui/react";
 import { ChevronUpDownIcon } from "@heroicons/react/24/outline";
 import { type FormEvent, Fragment, useReducer, useState, useRef } from "react";
 import { type teachersInterface } from "~/app/(panel)/class/page";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 type Props = {
 	isOpen: boolean;
@@ -25,10 +27,9 @@ export default function AddClassModal({ teachers, isOpen, setIsOpen }: Props) {
 		teacherName: string;
 		teacherId: number;
 	}
-
+	const router = useRouter();
 	const onSubmit = async (e: FormEvent) => {
 		e.preventDefault();
-
 		if (!formData.className) {
 			alert("Wypełnij poprawnie formularz");
 			return;
@@ -38,16 +39,18 @@ export default function AddClassModal({ teachers, isOpen, setIsOpen }: Props) {
 			className: formData.className,
 			teacherId: formData.teacherId,
 		};
+		const ref = toast.loading("Dodawanie klasy...");
 
 		const response = await fetch("/class/api", {
 			method: "POST",
 			body: JSON.stringify(payload),
 		});
 
-		if (!response.ok) {
-			alert(`error | ${response.status}`);
-			return;
-		}
+		if (!response.ok)
+			return toast.update(ref, { type: "error", isLoading: false, render: "Nie udało się dodać klasy", autoClose: 2000 });
+
+		toast.update(ref, { type: "success", isLoading: false, render: "Klasa została dodana", autoClose: 2000 });
+		setTimeout(() => router.replace("/class"), 1000);
 
 		setIsOpen(false);
 		setSelectedTeachers([...selectedTeachers, formData.teacherId]);
@@ -134,27 +137,28 @@ export default function AddClassModal({ teachers, isOpen, setIsOpen }: Props) {
 														</Transition>
 													</div>
 												</Listbox>
+												<div className="px-4  mt-5 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+													<button
+														type="submit"
+														className="inline-flex w-full justify-center rounded-md bg-primary px-3 py-2 text-sm font-semibold shadow-sm sm:ml-3 sm:w-auto"
+														onClick={() => setIsOpen(false)}
+													>
+														Dodaj
+													</button>
+													<button
+														type="button"
+														className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+														onClick={() => setIsOpen(false)}
+														ref={cancelButtonRef}
+													>
+														Anuluj
+													</button>
+												</div>
 											</form>
 										</div>
 									</div>
 								</div>
-								<div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-									<button
-										type="submit"
-										className="inline-flex w-full justify-center rounded-md bg-primary px-3 py-2 text-sm font-semibold shadow-sm sm:ml-3 sm:w-auto"
-										onClick={() => setIsOpen(false)}
-									>
-										Dodaj
-									</button>
-									<button
-										type="button"
-										className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-										onClick={() => setIsOpen(false)}
-										ref={cancelButtonRef}
-									>
-										Anuluj
-									</button>
-								</div>
+								
 							</Dialog.Panel>
 						</Transition.Child>
 					</div>
