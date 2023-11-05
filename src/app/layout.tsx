@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import "../styles/globals.css";
 
 export const metadata: Metadata = {
+	metadataBase: new URL("https://vector.pkozak.org"),
 	title: "Dziennik Vector",
 	description: "Dziennik elektroniczny Vector",
 	icons: {

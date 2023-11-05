@@ -489,7 +489,6 @@ export function TeacherGradeView({
 						});
 						// Grade always exists, so we don't need to check for it
 						setGrades((grades) => {
-							console.log(grades[selectedLessonName]![modalData.studentId]);
 							grades[selectedLessonName]![modalData.studentId]!.find((g) => g.name === modalData.name)!.description =
 								modalData.description!;
 							return { ...grades };

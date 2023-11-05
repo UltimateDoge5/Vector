@@ -5,7 +5,7 @@ import { db } from "~/server/db";
 import { PresenceView } from "./view";
 import { getWeekDates } from "~/util/weekDates";
 import { type ClassPresence, TeacherPresenceView } from "./teacherView";
-import { type IPresence, type ISchedule, mapWithExceptions, mapWithPresence } from "~/util/scheduleUtil";
+import { type IPresence, type ISchedule, mapWithExemptions, mapWithPresence } from "~/util/scheduleUtil";
 import { schoolHours } from "~/util/scheduleUtil";
 import { type SQL, inArray } from "drizzle-orm";
 import { Exemptions, Presence } from "~/server/db/schema";
@@ -13,8 +13,8 @@ import { isTeacher as isTeacherCheck } from "~/util/authUtil";
 import { type Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: 'Frekwencja | Vector',
-}
+	title: "Frekwencja | Vector",
+};
 
 export default async function Schedule({ searchParams }: { searchParams: { week: string } }) {
 	const selectedClass = parseInt(cookies().get("selectedClassId")?.value ?? "1") ?? 1;
@@ -30,24 +30,24 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 
 		let mappedSchedule: ISchedule[] = schedule.map(
 			(schedule) =>
-			({
-				id: schedule.id,
-				dayOfWeek: schedule.dayOfWeek,
-				index: schedule.index,
-				room: schedule.room,
-				lesson: schedule.lesson,
-				with: schedule.teacher!.name,
-				exemption: {
-					id: null,
-					isExemption: false,
-					cancelation: false,
-					reason: "",
-				},
-				status: "none",
-			}) satisfies IPresence,
+				({
+					id: schedule.id,
+					dayOfWeek: schedule.dayOfWeek,
+					index: schedule.index,
+					room: schedule.room,
+					lesson: schedule.lesson,
+					with: schedule.teacher!.name,
+					exemption: {
+						id: null,
+						isExemption: false,
+						cancelation: false,
+						reason: "",
+					},
+					status: "none",
+				}) satisfies IPresence,
 		);
 
-		mappedSchedule = mapWithExceptions(mappedSchedule, exemptions, false);
+		mappedSchedule = mapWithExemptions(mappedSchedule, exemptions, false);
 
 		const classPresence: ClassPresence[] = [];
 		const students: ClassPresence["students"] = {};
@@ -92,21 +92,21 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 
 	let mappedSchedule: IPresence[] = schedule.map(
 		(schedule) =>
-		({
-			id: schedule.id,
-			dayOfWeek: schedule.dayOfWeek,
-			index: schedule.index,
-			room: schedule.room,
-			lesson: schedule.lesson,
-			with: isTeacher ? "Klasa " + schedule.class!.name : schedule.teacher!.name,
-			exemption: {
-				id: null,
-				isExemption: false,
-				cancelation: false,
-				reason: "",
-			},
-			status: "none",
-		}) satisfies IPresence,
+			({
+				id: schedule.id,
+				dayOfWeek: schedule.dayOfWeek,
+				index: schedule.index,
+				room: schedule.room,
+				lesson: schedule.lesson,
+				with: isTeacher ? "Klasa " + schedule.class!.name : schedule.teacher!.name,
+				exemption: {
+					id: null,
+					isExemption: false,
+					cancelation: false,
+					reason: "",
+				},
+				status: "none",
+			}) satisfies IPresence,
 	);
 
 	// Remap with presence and exemptions
@@ -135,9 +135,9 @@ const getAttendanceForClass = async (classId: number, week: { from: Date; to: Da
 		},
 	});
 
-	const exemptionsConditions: SQL<unknown>[] = [];
+	const exemptionConditions: SQL<unknown>[] = [];
 	if (schedule.length > 0)
-		exemptionsConditions.push(
+		exemptionConditions.push(
 			inArray(
 				Exemptions.scheduleId,
 				schedule.map((s) => s.id),
@@ -146,11 +146,7 @@ const getAttendanceForClass = async (classId: number, week: { from: Date; to: Da
 
 	const exemptions = await db.query.Exemptions.findMany({
 		where: (exemption, { and, lte, gte, eq, or }) =>
-			and(
-				gte(exemption.date, week.from),
-				lte(exemption.date, week.to),
-				or(eq(exemption.scheduleId, classId), ...exemptionsConditions),
-			),
+			and(gte(exemption.date, week.from), lte(exemption.date, week.to), or(eq(exemption.classId, classId), ...exemptionConditions)),
 		with: {
 			class: true,
 			lesson: true,
@@ -195,21 +191,21 @@ const getAttendanceForClass = async (classId: number, week: { from: Date; to: Da
 };
 
 const getPresenceForStudent = async (userId: string, week: { from: Date; to: Date }) => {
-	const student = await db.query.Student.findFirst({
+	const student = (await db.query.Student.findFirst({
 		where: (student, { eq }) => eq(student.userId, userId),
 		columns: {
 			id: true,
 			classId: true,
 		},
-	});
+	}))!
 
 	const presence = await db.query.Presence.findMany({
 		where: (presence, { eq, and, gte, lte }) =>
-			and(eq(presence.studentId, student!.id), gte(presence.date, week.from), lte(presence.date, week.to)),
+			and(eq(presence.studentId, student.id), gte(presence.date, week.from), lte(presence.date, week.to)),
 	});
 
 	const schedule = await db.query.Schedule.findMany({
-		where: (schedule, { eq }) => eq(schedule.classId, student!.classId),
+		where: (schedule, { eq }) => eq(schedule.classId, student.classId),
 		with: {
 			lesson: true,
 			teacher: {
@@ -228,7 +224,18 @@ const getPresenceForStudent = async (userId: string, week: { from: Date; to: Dat
 	});
 
 	const exemptions = await db.query.Exemptions.findMany({
-		where: (exemption, { and, lte, gte }) => and(gte(exemption.date, week.from), lte(exemption.date, week.to)),
+		where: (exemption, { and, lte, gte, or, inArray,eq }) =>
+			and(
+				gte(exemption.date, week.from),
+				lte(exemption.date, week.to),
+				or(
+					eq(exemption.classId, student.classId),
+					inArray(
+						exemption.scheduleId,
+						schedule.map((s) => s.id),
+					),
+				),
+			),
 		with: {
 			class: true,
 			lesson: true,

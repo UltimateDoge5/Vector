@@ -43,7 +43,7 @@ export function mapWithPresence(schedule: IPresence[], exemptions: IExemption[],
 				});
 				break;
 			case "change":
-				const index = schedule.findIndex((lesson) => lesson.id == exemption.scheduleId);
+				const index = schedule.findIndex((lesson) => lesson.id === exemption.scheduleId);
 
 				schedule[index] = {
 					id: schedule[index]!.id,
@@ -62,7 +62,8 @@ export function mapWithPresence(schedule: IPresence[], exemptions: IExemption[],
 				};
 				break;
 			case "cancelation": {
-				const index = schedule.findIndex((lesson) => lesson.id == exemption.scheduleId);
+				console.log(exemption);
+				const index = schedule.findIndex((scheduleItem) => scheduleItem.id === exemption.scheduleId);
 				schedule[index]!.exemption.cancelation = true;
 				schedule[index]!.exemption.isExemption = true;
 				schedule[index]!.exemption.reason = exemption.reason;
@@ -85,7 +86,7 @@ export function mapWithPresence(schedule: IPresence[], exemptions: IExemption[],
 	return schedule;
 }
 
-export function mapWithExceptions(schedule: ISchedule[], exemptions: IExemption[], isTeacher: boolean): ISchedule[] {
+export function mapWithExemptions(schedule: ISchedule[], exemptions: IExemption[], isTeacher: boolean): ISchedule[] {
 	exemptions.forEach((exemption) => {
 		switch (exemption.type) {
 			case "addition":

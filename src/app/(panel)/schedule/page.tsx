@@ -2,14 +2,14 @@ import { currentUser } from "@clerk/nextjs";
 import { type Metadata } from "next";
 import { ScheduleView } from "~/app/(panel)/schedule/view";
 import { db } from "~/server/db";
-import { type ISchedule, mapWithExceptions } from "~/util/scheduleUtil";
+import { type ISchedule, mapWithExemptions } from "~/util/scheduleUtil";
 import { getWeekDates } from "~/util/weekDates";
 
 export const runtime = "edge";
 
 export const metadata: Metadata = {
-	title: 'Plan zajęć | Vector',
-}
+	title: "Plan zajęć | Vector",
+};
 
 export default async function SchedulePage({ searchParams }: { searchParams: { week: string } }) {
 	const user = await currentUser();
@@ -21,24 +21,24 @@ export default async function SchedulePage({ searchParams }: { searchParams: { w
 
 	let mappedSchedule: ISchedule[] = schedule.map(
 		(schedule) =>
-		({
-			id: schedule.id,
-			dayOfWeek: schedule.dayOfWeek,
-			index: schedule.index,
-			room: schedule.room,
-			lesson: schedule.lesson,
-			with: isTeacher ? "Klasa " + schedule.class!.name : schedule.teacher!.name,
-			exemption: {
-				id: -1,
-				isExemption: false,
-				cancelation: false,
-				reason: "",
-			},
-		}) satisfies ISchedule,
+			({
+				id: schedule.id,
+				dayOfWeek: schedule.dayOfWeek,
+				index: schedule.index,
+				room: schedule.room,
+				lesson: schedule.lesson,
+				with: isTeacher ? "Klasa " + schedule.class!.name : schedule.teacher!.name,
+				exemption: {
+					id: -1,
+					isExemption: false,
+					cancelation: false,
+					reason: "",
+				},
+			}) satisfies ISchedule,
 	);
 
 	// Remap with exemptions
-	mappedSchedule = mapWithExceptions(mappedSchedule, exemptions, isTeacher);
+	mappedSchedule = mapWithExemptions(mappedSchedule, exemptions, isTeacher);
 
 	return (
 		<ScheduleView
@@ -83,7 +83,18 @@ const getDataForStudent = async (userId: string, week: { from: Date; to: Date })
 	});
 
 	const exemptions = await db.query.Exemptions.findMany({
-		where: (exemption, { and, lte, gte }) => and(gte(exemption.date, week.from), lte(exemption.date, week.to)),
+		where: (exemption, { and, lte, gte, or, eq, inArray }) =>
+			and(
+				gte(exemption.date, week.from),
+				lte(exemption.date, week.to),
+				or(
+					eq(exemption.classId, student.classId),
+					inArray(
+						exemption.scheduleId,
+						schedule.map((s) => s.id),
+					),
+				),
+			),
 		with: {
 			class: true,
 			lesson: true,
@@ -117,12 +128,12 @@ const getDataForStudent = async (userId: string, week: { from: Date; to: Date })
 	// Transform dismissions to exemptions
 	presence.forEach((p) => {
 		exemptions.push({
-			id: p.exemptionId!, //Either id or -1
+			id: p.exemptionId!, //Either id or null
 			class: null,
 			lesson: null,
 			classId: null,
 			lessonId: null,
-			scheduleId: p.tableId!, //Either id or -1
+			scheduleId: p.tableId!, //Either id or null
 			teacherId: p.table!.teacherId,
 			teacher: {
 				name: "",

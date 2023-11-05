@@ -21,7 +21,7 @@ export function ScheduleView({
 }) {
 	const maxIndex = Math.max(...schedule.map((lesson) => lesson.index));
 
-	const [dissmisedLessons, setDissmisedLessons] = useState<Dismissal[]>([]);
+	const [dismissedLessons, setDismissedLessons] = useState<Dismissal[]>([]);
 	const [isDismissionMode, setIsDismissionMode] = useState(false);
 	const [loading, setLoading] = useState(false);
 
@@ -30,8 +30,8 @@ export function ScheduleView({
 		const res = await fetch("/api/dismissals", {
 			method: "POST",
 			body: JSON.stringify({
-				dismissals: dissmisedLessons,
-				date: dayjs(weekDate).day(1).set("hour", 0).set("minute", 0).set("second", 0).format("YYYY-MM-DD"),
+				dismissals: dismissedLessons,
+				date: dayjs(weekDate).day(1).set("minute", 0).set("second", 0).format("YYYY-MM-DD"),
 			}),
 		});
 
@@ -48,7 +48,7 @@ export function ScheduleView({
 			type: "success",
 		});
 		setIsDismissionMode(false);
-		setDissmisedLessons([]);
+		setDismissedLessons([]);
 	};
 
 	const blocks: Block[] = [];
@@ -60,10 +60,10 @@ export function ScheduleView({
 				block.lesson.id === lesson.lesson.id &&
 				block.with === lesson.with &&
 				block.room === lesson.room &&
-				block.exemption.cancelation === false,
+				!block.exemption.cancelation,
 		);
 
-		if (block && lesson.exemption.cancelation === false && !isDismissionMode) {
+		if (block && !lesson.exemption.cancelation && !isDismissionMode) {
 			block.from = Math.min(block.from, lesson.index);
 			block.to = Math.max(block.to, lesson.index);
 		} else {
@@ -80,7 +80,14 @@ export function ScheduleView({
 	return (
 		<>
 			<div className="flex w-full flex-col rounded-lg">
-				<h2 className="mb-3 border-l-4 border-accent pl-2 text-2xl font-bold">{title}</h2>
+				<div className="mb-3 flex flex-col gap-1">
+					<h2 className="border-l-4 border-accent pl-2 text-2xl font-bold">{title}</h2>
+					{isTeacher && (
+						<p className="mb-2 text-text/80">
+							Plan lekcji na tydzień od {dates[0]} do {dates[4]}
+						</p>
+					)}
+				</div>
 				<div className="mb-2 flex w-full justify-between border-b pb-2">
 					<div className="flex items-center gap-2">
 						{!isTeacher && (
@@ -89,7 +96,7 @@ export function ScheduleView({
 									loading={loading}
 									disabled={loading}
 									onClick={async () => {
-										if (isDismissionMode && dissmisedLessons.length > 0) {
+										if (isDismissionMode && dismissedLessons.length > 0) {
 											await sendDismissals();
 										} else {
 											setIsDismissionMode((prev) => !prev);
@@ -97,9 +104,9 @@ export function ScheduleView({
 									}}
 									icon={<PencilSquareIcon className="h-5 w-5" />}
 								>
-									{dissmisedLessons.length > 0 ? "Wyślij zwolnienia" : isDismissionMode ? "Anuluj" : "Edytuj zwolnienia"}
+									{dismissedLessons.length > 0 ? "Wyślij zwolnienia" : isDismissionMode ? "Anuluj" : "Edytuj zwolnienia"}
 								</Button>
-								{dissmisedLessons.length > 0 && <span>{dissmisedLessons.length} zastępstw do wysłania</span>}
+								{dismissedLessons.length > 0 && <span>{dismissedLessons.length} zastępstw do wysłania</span>}
 							</>
 						)}
 					</div>
@@ -146,7 +153,7 @@ export function ScheduleView({
 
 									if (!block) return <td key={day} />;
 
-									const isDissmised = dissmisedLessons.some(
+									const isDissmised = dismissedLessons.some(
 										(dissmisal) => dissmisal.scheduleId === block.id && dissmisal.exceptionId === block.exemption.id,
 									);
 
@@ -166,20 +173,20 @@ export function ScheduleView({
 
 														// If block is 1 in height
 														if (block.from === block.to) {
-															const dissmisal = dissmisedLessons.find(
+															const dissmisal = dismissedLessons.find(
 																(dissmisal) => dissmisal.scheduleId === block.id,
 															);
 
 															// TODO: check if its already past the lesson time
 															if (dissmisal) {
-																setDissmisedLessons(
-																	dissmisedLessons.filter(
+																setDismissedLessons(
+																	dismissedLessons.filter(
 																		(dissmisal) => dissmisal.scheduleId !== block.id,
 																	),
 																);
 															} else {
-																setDissmisedLessons([
-																	...dissmisedLessons,
+																setDismissedLessons([
+																	...dismissedLessons,
 																	{ scheduleId: block.id, exceptionId: block.exemption.id },
 																]);
 															}

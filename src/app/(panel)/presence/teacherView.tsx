@@ -5,9 +5,10 @@ import Link from "next/link";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { Button } from "~/components/ui/button";
-import { calculateWeekDates, days, schoolHours, stringToHslColor, type ISchedule } from "~/util/scheduleUtil";
+import { calculateWeekDates, days, type ISchedule, schoolHours, stringToHslColor } from "~/util/scheduleUtil";
 import { PresenceDrawer } from "./drawer";
 import { type PresenceStatus } from "./view";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 
 export function TeacherPresenceView({
 	schedule,
@@ -43,8 +44,6 @@ export function TeacherPresenceView({
 	const maxIndex = Math.max(...schedule.map((lesson) => lesson.index));
 	const { prev, next, dates, week } = calculateWeekDates(weekDate);
 
-	console.log(presence)
-
 	useEffect(() => {
 		presenceSnapshot.current = structuredClone(presenceInit);
 
@@ -75,7 +74,7 @@ export function TeacherPresenceView({
 	}, [changes]);
 
 	const saveChanges = async () => {
-		setIsUpdating(true)
+		setIsUpdating(true);
 		if (isUpdating || changes.length === 0) return;
 
 		const res = await fetch("/presence/api/update", {
@@ -116,17 +115,28 @@ export function TeacherPresenceView({
 
 	return (
 		<>
-			<div className="flex w-full flex-col items-center justify-center rounded-lg">
-				<div className="mb-2 flex w-full justify-evenly">
-					<Link className="rounded bg-primary px-4 py-2" href={`/presence?week=${prev}`}>
-						Poprzedni tydzień
-					</Link>
-					<h2 className="text-2xl">Obecności dla klasy {className}</h2>
-					<Link className="rounded bg-primary px-4 py-2" href={`/presence?week=${next}`}>
-						Następny tydzień
-					</Link>
-				</div>
+			<div className="flex w-full flex-col rounded-lg">
+				<div className="flex items-end justify-between py-4">
+					<div className="flex flex-col gap-1">
+						<h2 className={`mb-1" border-l-4 border-accent pl-2 text-2xl font-bold`}>Obecności dla klasy {className}</h2>
+						<p className="mb-2 text-text/80">Obecności na tydzień od {dates[0]} do {dates[4]}</p>
+					</div>
+					<div className="flex items-center gap-2">
+						<Link href={`/presence?week=${prev}`}>
+							<Button>
+								<ChevronLeftIcon className="h-5 w-5" />
+								Poprzedni tydzień
+							</Button>
+						</Link>
 
+						<Link href={`/presence?week=${next}`}>
+							<Button>
+								Następny tydzień
+								<ChevronRightIcon className="h-5 w-5" />
+							</Button>
+						</Link>
+					</div>
+				</div>
 				<table className="h-[1px] w-full table-fixed">
 					<colgroup>
 						<col className="w-36" />
@@ -250,11 +260,9 @@ export function TeacherPresenceView({
 					const presenceCopy = [...presence];
 					const presenceIndex = presenceCopy.findIndex(
 						(presence) =>
-							(presence.scheduleId === selectedPresence.scheduleId &&
-								presence.exemptionId === selectedPresence.exemptionId)
+							presence.scheduleId === selectedPresence.scheduleId && presence.exemptionId === selectedPresence.exemptionId,
 					);
 
-					console.log(presenceIndex)
 					if (presenceIndex !== -1) {
 						presenceCopy[presenceIndex]!.students[statusChange.studentId]!.status = statusChange.status;
 					}

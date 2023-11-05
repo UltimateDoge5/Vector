@@ -148,8 +148,11 @@ export const classRelations = relations(Class, ({ many, one }) => ({
 	}),
 }));
 
-export const lessonGroupRelations = relations(LessonGroup, ({ many, one }) => ({
-	lesson: many(Lesson),
+export const lessonGroupRelations = relations(LessonGroup, ({ many,one }) => ({
+	lesson: one(Lesson,{
+		fields: [LessonGroup.lessonId],
+		references: [Lesson.id],
+	}),
 	class: many(Class),
 	teacher: many(Teacher),
 	gradeDefinitions: many(GradeDefinition),
@@ -185,12 +188,9 @@ export const scheduleRelations = relations(Schedule, ({ one, many }) => ({
 	exemptions: many(Exemptions),
 }));
 
-export const lessonRelations = relations(Lesson, ({ many, one }) => ({
+export const lessonRelations = relations(Lesson, ({ many }) => ({
 	schedule: many(Schedule),
-	lessonGroup: one(LessonGroup, {
-		fields: [Lesson.id],
-		references: [LessonGroup.lessonId],
-	}),
+	lessonGroup: many(LessonGroup),
 }));
 
 export const gradeRelations = relations(Grade, ({ one }) => ({
@@ -205,12 +205,8 @@ export const gradeRelations = relations(Grade, ({ one }) => ({
 }));
 
 export const gradeDefinitionRelations = relations(GradeDefinition, ({ one, many }) => ({
-	lesson: one(Lesson, {
-		fields: [GradeDefinition.lessonGroupId],
-		references: [Lesson.id],
-	}),
 	grades: many(Grade),
-	lessonGroup: one(LessonGroup, {
+	lessonGroup: one(LessonGroup,{
 		fields: [GradeDefinition.lessonGroupId],
 		references: [LessonGroup.id],
 	}),
@@ -227,7 +223,7 @@ export const presenceRelations = relations(Presence, ({ one }) => ({
 	}),
 }));
 
-export const assignmentsRelations = relations(Assignment, ({ one,many }) => ({
+export const assignmentRelations = relations(Assignment, ({ one,many }) => ({
 	class: one(Class, {
 		fields: [Assignment.classId],
 		references: [Class.id],

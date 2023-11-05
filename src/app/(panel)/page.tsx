@@ -17,7 +17,7 @@ export default async function HomePage() {
 	const { announcements, student } = await getAnnouncements(user!.id);
 
 	if (isTeacher) {
-		const announcementsTeacher = announcements.map((ads) => ads).filter((ads) => ads.recipients?.teachers === true);
+		const announcementsTeacher = announcements.map((a) => a).filter((ads) => ads.recipients?.teachers === true);
 
 		return (
 			<>
@@ -33,9 +33,9 @@ export default async function HomePage() {
 	const grades = await getGrades(user!.id);
 
 	const filteredAnnouncements = announcements
-		.map((ads) => ads)
-		.filter((ads) => ads.recipients!.classes.includes(student!.classId))
-		.slice(0, 3)
+		.map((a) => a)
+		.filter((a) => a.recipients!.classes.includes(student!.classId))
+		.slice(0, 3);
 
 	return (
 		<>
@@ -69,6 +69,7 @@ const getGrades = async (userId: string) => {
 	const student = await db.query.Student.findFirst({
 		where: (student, { eq }) => eq(student.userId, userId),
 	});
+
 	const date = new Date();
 
 	return (
@@ -81,10 +82,15 @@ const getGrades = async (userId: string) => {
 			with: {
 				gradeDefinition: {
 					with: {
-						lesson: {
-							columns: {
-								name: true,
+						lessonGroup: {
+							with: {
+								lesson: {
+									columns: {
+										name: true,
+									},
+								},
 							},
+							columns: {},
 						},
 					},
 					columns: {
@@ -106,7 +112,7 @@ const getGrades = async (userId: string) => {
 		value: grade.grade,
 		description: grade.description,
 		weight: grade.gradeDefinition.weight,
-		lesson: grade.gradeDefinition.lesson.name,
+		lesson: grade.gradeDefinition!.lessonGroup!.lesson!.name,
 		timestamp: grade.timestamp,
 	}));
 };
