@@ -16,15 +16,16 @@ export default function ClassView({
 	classes: classesInit,
 }: {
 	teachers: teachersInterface[];
-	classes: classesInterface[];
+	classes: classInterface[];
 }) {
 	const [isOpenModal, setIsOpenModal] = useState(false);
 	const [classes, setClasses] = useState(classesInit);
 
 	const [teachers, setTeachers] = useState(teachersInit);
+	const classlessTeachers = teachers.filter((t) => !classes.some((c) => c.teacher.id === t.id));
 	const router = useRouter();
 
-	const changeTeacher = async (teacher: classesInterface["teacher"], classId: number) => {
+	const changeTeacher = async (teacher: classInterface["teacher"], classId: number) => {
 		const ref = toast.loading("Edytowanie wychowawcy...");
 		const response = await fetch("/class/api/changeTeacher", {
 			method: "POST",
@@ -48,7 +49,7 @@ export default function ClassView({
 		setTeachers(newTeachers);
 	};
 
-	const columns: ColumnDef<classesInterface>[] = [
+	const columns: ColumnDef<classInterface>[] = [
 		{
 			header: "Klasa",
 			accessorKey: "name",
@@ -60,9 +61,9 @@ export default function ClassView({
 				return (
 					<Listbox value={row.original.teacher} onChange={(v) => changeTeacher(v, row.original.id)}>
 						<div className="relative max-w-xs">
-							<Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
+							<Listbox.Button className="cursor-pointer relative w-full rounded-lg bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
 								<span className="block truncate">{row.original.teacher.name}</span>
-								<span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+								<span className="absolute inset-y-0 right-0 flex items-center pr-2">
 									<ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
 								</span>
 							</Listbox.Button>
@@ -72,7 +73,8 @@ export default function ClassView({
 									"absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
 								}
 							>
-								{teachers.map((teacher) => (
+								{classlessTeachers.map((teacher) => (
+									<Listbox.Option
 										key={teacher.id}
 										value={teacher}
 										className={({ active }) =>
@@ -106,7 +108,7 @@ export default function ClassView({
 	);
 }
 
-interface classesInterface {
+interface classInterface {
 	teacherId: number;
 	id: number;
 	name: string;
