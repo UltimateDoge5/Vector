@@ -4,6 +4,7 @@ import { Menu, Transition } from "@headlessui/react";
 import { ArchiveBoxXMarkIcon, EllipsisVerticalIcon, PencilSquareIcon, UserMinusIcon, UserPlusIcon } from "@heroicons/react/24/outline";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
+import { toast } from "react-toastify";
 import { type TeacherDto, type TeacherWithPasswordDto } from "~/types/dtos";
 import { DataTable } from "../dataTable";
 import AddTeacherModal from "./addTeacherModal";
@@ -28,17 +29,22 @@ export default function TeacherManagement({ teachers }: { teachers: TeacherDto[]
             email: formData.email
         };
 
+        let ref = toast("Dodawanie nauczyciela", { autoClose: false, isLoading: true });
         const response = await fetch("/teachers/api", {
             method: "POST",
             body: JSON.stringify(payload)
         });
 
         if (response.ok) {
+            toast.update(ref, { render: "Sukces", isLoading: false, type: "success", autoClose: 3000 });
+
             const teacherWithPassword: TeacherWithPasswordDto = await response.json() as TeacherWithPasswordDto;
 
-            console.log(`Domyślne hasło: ${teacherWithPassword.password}`);
+            ref = toast(`Domyślne hasło: ${teacherWithPassword.password}`, { autoClose: false, position: "top-center", closeOnClick: false, draggable: false, type: "info" });
 
             setTeacherList([...teacherList, teacherWithPassword]);
+        } else {
+            toast.update(ref, { autoClose: 3000, type: "error", isLoading: false, render: "Nie udało się dodać nauczyciela." });
         }
     }
 
@@ -49,38 +55,50 @@ export default function TeacherManagement({ teachers }: { teachers: TeacherDto[]
             lastName: name.split(" ")[1],
         };
 
+        const ref = toast("Edytowanie nauczyciela", { autoClose: false, isLoading: true });
         const response = await fetch("/teachers/api", {
             method: "PUT",
             body: JSON.stringify(payload)
         });
 
         if (response.ok) {
-            console.log(response);
+            toast.update(ref, { render: "Sukces", isLoading: false, type: "success", autoClose: 3000 });
+
             setTeacherList(teacherList.map(teacher => teacher.userId === userId ? { ...teacher, name } : teacher))
+        } else {
+            toast.update(ref, { autoClose: 3000, type: "error", isLoading: false, render: "Nie udało się edytować nauczyciela." });
         }
     }
 
     const deleteTeacher = async (userId: string) => {
+        const ref = toast("Usuwanie nauczyciela", { autoClose: false, isLoading: true });
         const response = await fetch("/teachers/api", {
             method: "DELETE",
             body: JSON.stringify({ userId })
         });
 
         if (response.ok) {
-            console.log(response);
+            toast.update(ref, { render: "Sukces", isLoading: false, type: "success", autoClose: 3000 });
+
             setTeacherList(teacherList.filter(teacher => teacher.userId != userId));
+        } else {
+            toast.update(ref, { autoClose: 3000, type: "error", isLoading: false, render: "Nie udało się usunąć nauczyciela." });
         }
     }
 
     const toggleAdmin = async (userId: string, admin: boolean) => {
+        const ref = toast("Edytowanie nauczyciela", { autoClose: false, isLoading: true });
         const response = await fetch("/teachers/api", {
             method: "PATCH",
             body: JSON.stringify({ userId, admin })
         });
 
         if (response.ok) {
-            console.log(response);
+            toast.update(ref, { render: "Sukces", isLoading: false, type: "success", autoClose: 3000 });
+
             setTeacherList(teacherList.map(teacher => teacher.userId === userId ? { ...teacher, admin } : teacher))
+        } else {
+            toast.update(ref, { autoClose: 3000, type: "error", isLoading: false, render: "Nie udało się edytować nauczyciela." });
         }
     }
 
@@ -122,7 +140,7 @@ export default function TeacherManagement({ teachers }: { teachers: TeacherDto[]
                                     {({ active }) => (
                                         <button
                                             className={`${active ? 'bg-accent/50 text-white' : 'text-text'
-                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm font-bold`}
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                                         >
                                             <PencilSquareIcon
                                                 className="mr-2 h-5 w-5"
@@ -134,29 +152,12 @@ export default function TeacherManagement({ teachers }: { teachers: TeacherDto[]
                                 </Menu.Item>
                             </div>
 
-                            <div className="px-1 py-1 " onClick={() => deleteTeacher(row.original.userId)}>
-                                <Menu.Item>
-                                    {({ active }) => (
-                                        <button
-                                            className={`${active ? 'bg-red-700 text-white' : 'text-red-700'
-                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm font-bold`}
-                                        >
-                                            <ArchiveBoxXMarkIcon
-                                                className="mr-2 h-5 w-5"
-                                                aria-hidden="true"
-                                            />
-                                            Usuń
-                                        </button>
-                                    )}
-                                </Menu.Item>
-                            </div>
-
                             <div className="px-1 py-1 " onClick={() => toggleAdmin(row.original.userId, !row.original.admin)}>
                                 <Menu.Item>
                                     {({ active }) => (
                                         <button
                                             className={`${active ? 'bg-accent/50 text-white' : 'text-text'
-                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm font-bold`}
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                                         >
                                             {!row.original.admin ? (
                                                 <>
@@ -176,6 +177,23 @@ export default function TeacherManagement({ teachers }: { teachers: TeacherDto[]
                                                     Odbierz admina
                                                 </>
                                             )}
+                                        </button>
+                                    )}
+                                </Menu.Item>
+                            </div>
+
+                            <div className="px-1 py-1 " onClick={() => deleteTeacher(row.original.userId)}>
+                                <Menu.Item>
+                                    {({ active }) => (
+                                        <button
+                                            className={`${active ? 'bg-red-700 text-white' : 'text-red-700'
+                                                } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                                        >
+                                            <ArchiveBoxXMarkIcon
+                                                className="mr-2 h-5 w-5"
+                                                aria-hidden="true"
+                                            />
+                                            Usuń
                                         </button>
                                     )}
                                 </Menu.Item>

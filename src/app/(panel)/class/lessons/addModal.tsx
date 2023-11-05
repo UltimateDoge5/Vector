@@ -3,6 +3,7 @@
 import { Combobox, Transition } from "@headlessui/react"
 import { ChevronUpDownIcon } from "@heroicons/react/24/outline"
 import { Fragment, useMemo, useState } from "react"
+import { toast } from "react-toastify"
 import { ActionModal } from "~/components/ui/modal"
 import { type LessonDto, type TeacherDto } from "~/types/dtos"
 
@@ -43,8 +44,7 @@ export default function AddModal({ open, setOpen, lessons, teachers, add }: Prop
 
     const onConfirm = () => {
         if (!selectedLesson || !selectedTeacher) {
-            alert("Wypełnij poprawnie formularz");
-            return;
+            return toast("Wypełnij poprawnie formularz", { autoClose: 3000, position: "bottom-center", type: "error" });
         }
 
         add(selectedTeacher.id, selectedLesson.id);
@@ -57,6 +57,7 @@ export default function AddModal({ open, setOpen, lessons, teachers, add }: Prop
         <ActionModal
             open={open}
             setOpen={setOpen}
+            dismissible={true}
             title={"Dodaj przedmiot"}
             actionText={"Dodaj"}
             icon={false}
@@ -65,13 +66,14 @@ export default function AddModal({ open, setOpen, lessons, teachers, add }: Prop
                 accent: "bg-accent/20 text-accent",
                 button: "bg-primary text-text hover:bg-primary/90"
             }}
+            titleClassName="text-2xl"
         >
             <form>
                 <span className="mt-4 font-medium">Przedmiot</span>
                 <Combobox value={selectedLesson} onChange={setSelectedLesson}>
-                    <div className="relative mt-1 z-10">
+                    <div className="relative mt-1">
                         <Combobox.Input
-                            className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
+                            className="w-full bg-secondary/60 rounded-lg outline-none text-text flex-1 px-4 py-2"
                             displayValue={(lesson: LessonDto | null) => lesson ? lesson.name : ""}
                             onChange={(event) => setLessonQuery(event.target.value)}
                         />
@@ -88,7 +90,7 @@ export default function AddModal({ open, setOpen, lessons, teachers, add }: Prop
                             leaveTo="opacity-0"
                             afterLeave={() => setLessonQuery('')}
                         >
-                            <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                            <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-20">
                                 {filteredLessons.length === 0 && lessonQuery !== '' ? (
                                     <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
                                         Nie znaleziono przedmiotu
@@ -123,9 +125,9 @@ export default function AddModal({ open, setOpen, lessons, teachers, add }: Prop
 
                 <span className="mt-4 font-medium">Nauczyciel</span>
                 <Combobox value={selectedTeacher} onChange={setSelectedTeacher}>
-                    <div className="relative mt-1 z-10">
+                    <div className="relative mt-1">
                         <Combobox.Input
-                            className="w-full p-3 bg-secondary/30 rounded-lg outline-none text-text flex-1 my-2"
+                            className="w-full bg-secondary/60 rounded-lg outline-none text-text flex-1 px-4 py-2"
                             displayValue={(teacher: TeacherDto | null) => teacher ? teacher.name : ""}
                             onChange={(event) => setTeacherQuery(event.target.value)}
                         />
@@ -142,7 +144,7 @@ export default function AddModal({ open, setOpen, lessons, teachers, add }: Prop
                             leaveTo="opacity-0"
                             afterLeave={() => setTeacherQuery('')}
                         >
-                            <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                            <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-20">
                                 {filteredTeachers.length === 0 && teacherQuery !== '' ? (
                                     <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
                                         Nie znaleziono nauczyciela

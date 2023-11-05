@@ -18,3 +18,11 @@ export const isAdmin = (user: User | null): boolean => {
 };
 
 export const getSelectedClass = (): number => parseInt(cookies().get("selectedClassId")?.value ?? "1");
+
+export const generateDefaultPassword = (firstname: string, lastname: string): string => {
+	let defaultPassword = `${firstname}_${lastname}_`;
+
+	for(let i = 0; i < 4; i++) defaultPassword += Math.floor(Math.random() * 10);
+	
+	return defaultPassword;
+}
