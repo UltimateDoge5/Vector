@@ -28,7 +28,7 @@ export async function Sidebar() {
 				<SidebarItem name="Zadania" icon={<PencilSquareIcon className="h-5 w-5" />} link="/assignments" />
 			</div>
 			{isAdmin(user) && (
-				<div className="mt-2 flex flex-col gap-y-1 border-t-2 pt-2">
+				<div className="flex flex-col border-t mt-1">
 					<DisclosureButton
 						name="Użytkownicy"
 						icon={<UsersIcon className="h-5 w-5" />}

@@ -12,6 +12,10 @@ export const metadata: Metadata = {
 		icon: "/favicon.ico",
 	},
 	manifest: "/manifest.json",
+	openGraph: {
+		type: "website",
+		images: ["/banner.png"],
+	},
 };
 
 const inter = Inter({
