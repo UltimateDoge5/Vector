@@ -9,7 +9,7 @@ import GradesView from "./view";
 export const runtime = "edge";
 
 export const metadata: Metadata = {
-	title: "Dziennik Vector | Oceny",
+	title: "Oceny | Vector",
 	description: "Oceny uczniów",
 };
 

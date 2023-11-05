@@ -1,10 +1,15 @@
 import { currentUser } from "@clerk/nextjs";
+import { type Metadata } from "next";
 import { ScheduleView } from "~/app/(panel)/schedule/view";
 import { db } from "~/server/db";
 import { type ISchedule, mapWithExceptions } from "~/util/scheduleUtil";
 import { getWeekDates } from "~/util/weekDates";
 
 export const runtime = "edge";
+
+export const metadata: Metadata = {
+	title: 'Plan zajęć | Vector',
+}
 
 export default async function SchedulePage({ searchParams }: { searchParams: { week: string } }) {
 	const user = await currentUser();
@@ -16,20 +21,20 @@ export default async function SchedulePage({ searchParams }: { searchParams: { w
 
 	let mappedSchedule: ISchedule[] = schedule.map(
 		(schedule) =>
-			({
-				id: schedule.id,
-				dayOfWeek: schedule.dayOfWeek,
-				index: schedule.index,
-				room: schedule.room,
-				lesson: schedule.lesson,
-				with: isTeacher ? "Klasa " + schedule.class!.name : schedule.teacher!.name,
-				exemption: {
-					id: -1,
-					isExemption: false,
-					cancelation: false,
-					reason: "",
-				},
-			}) satisfies ISchedule,
+		({
+			id: schedule.id,
+			dayOfWeek: schedule.dayOfWeek,
+			index: schedule.index,
+			room: schedule.room,
+			lesson: schedule.lesson,
+			with: isTeacher ? "Klasa " + schedule.class!.name : schedule.teacher!.name,
+			exemption: {
+				id: -1,
+				isExemption: false,
+				cancelation: false,
+				reason: "",
+			},
+		}) satisfies ISchedule,
 	);
 
 	// Remap with exemptions

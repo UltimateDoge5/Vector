@@ -1,6 +1,11 @@
+import { type Metadata } from "next";
 import { db } from "~/server/db";
 import ClassView from "./view";
 export const runtime = "edge";
+
+export const metadata: Metadata = {
+	title: "Klasy | Vector",
+};
 
 export default async function SchedulePage() {
 	const { teachers, classes } = await getDataForTeachers();

@@ -1,9 +1,14 @@
 import { currentUser } from "@clerk/nextjs";
+import { type Metadata } from "next";
 import { Suspense } from "react";
 import AnnouncementsDashboard from "~/components/announcementsDashboard";
 import GradesDashboard from "~/components/gradesDashboard";
 import { db } from "~/server/db";
 import { isTeacher as isTeacherCheck } from "~/util/authUtil";
+
+export const metadata: Metadata = {
+	title: "Home | Vector",
+};
 
 export default async function HomePage() {
 	const user = await currentUser();
@@ -18,10 +23,10 @@ export default async function HomePage() {
 			<>
 				<h2 className="mb-3 border-l-4 border-accent pl-2 text-2xl font-bold">Podsumowanie</h2>
 				<div className="grid grid-cols-2 p-10">
-				<Suspense fallback={<p>Ładowanie...</p>}>
-					<AnnouncementsDashboard announcements={announcementsTeacher} />
-				</Suspense>
-			</div>
+					<Suspense fallback={<p>Ładowanie...</p>}>
+						<AnnouncementsDashboard announcements={announcementsTeacher} />
+					</Suspense>
+				</div>
 			</>
 		);
 	}

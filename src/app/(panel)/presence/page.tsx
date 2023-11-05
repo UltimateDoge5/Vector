@@ -10,6 +10,11 @@ import { schoolHours } from "~/util/scheduleUtil";
 import { type SQL, inArray } from "drizzle-orm";
 import { Exemptions, Presence } from "~/server/db/schema";
 import { isTeacher as isTeacherCheck } from "~/util/authUtil";
+import { type Metadata } from "next";
+
+export const metadata: Metadata = {
+	title: 'Frekwencja | Vector',
+}
 
 export default async function Schedule({ searchParams }: { searchParams: { week: string } }) {
 	const selectedClass = parseInt(cookies().get("selectedClassId")?.value ?? "1") ?? 1;
@@ -25,21 +30,21 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 
 		let mappedSchedule: ISchedule[] = schedule.map(
 			(schedule) =>
-				({
-					id: schedule.id,
-					dayOfWeek: schedule.dayOfWeek,
-					index: schedule.index,
-					room: schedule.room,
-					lesson: schedule.lesson,
-					with: schedule.teacher!.name,
-					exemption: {
-						id: null,
-						isExemption: false,
-						cancelation: false,
-						reason: "",
-					},
-					status: "none",
-				}) satisfies IPresence,
+			({
+				id: schedule.id,
+				dayOfWeek: schedule.dayOfWeek,
+				index: schedule.index,
+				room: schedule.room,
+				lesson: schedule.lesson,
+				with: schedule.teacher!.name,
+				exemption: {
+					id: null,
+					isExemption: false,
+					cancelation: false,
+					reason: "",
+				},
+				status: "none",
+			}) satisfies IPresence,
 		);
 
 		mappedSchedule = mapWithExceptions(mappedSchedule, exemptions, false);
@@ -87,21 +92,21 @@ export default async function Schedule({ searchParams }: { searchParams: { week:
 
 	let mappedSchedule: IPresence[] = schedule.map(
 		(schedule) =>
-			({
-				id: schedule.id,
-				dayOfWeek: schedule.dayOfWeek,
-				index: schedule.index,
-				room: schedule.room,
-				lesson: schedule.lesson,
-				with: isTeacher ? "Klasa " + schedule.class!.name : schedule.teacher!.name,
-				exemption: {
-					id: null,
-					isExemption: false,
-					cancelation: false,
-					reason: "",
-				},
-				status: "none",
-			}) satisfies IPresence,
+		({
+			id: schedule.id,
+			dayOfWeek: schedule.dayOfWeek,
+			index: schedule.index,
+			room: schedule.room,
+			lesson: schedule.lesson,
+			with: isTeacher ? "Klasa " + schedule.class!.name : schedule.teacher!.name,
+			exemption: {
+				id: null,
+				isExemption: false,
+				cancelation: false,
+				reason: "",
+			},
+			status: "none",
+		}) satisfies IPresence,
 	);
 
 	// Remap with presence and exemptions

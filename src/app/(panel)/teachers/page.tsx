@@ -1,6 +1,12 @@
+import { type Metadata } from "next";
 import TeacherManagement from "~/components/teachers/teachersManagement";
 import { db } from "~/server/db";
-import { TeacherDto } from "~/types/dtos";
+import { type TeacherDto } from "~/types/dtos";
+
+export const metadata: Metadata = {
+  title: 'Nauczyciele | Vector',
+  description: 'Panel do zarządzania nauczycielami',
+}
 
 export default async function Page() {
   const teachers: TeacherDto[] = await db.query.Teacher.findMany({

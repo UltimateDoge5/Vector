@@ -38,11 +38,11 @@ export async function Sidebar() {
 						]}
 					/>
 					<DisclosureButton
-						name="Przedmioty"
+						name="Lekcje"
 						icon={<BookOpenIcon className="h-5 w-5" />}
 						subNames={[
 							{ name: "Przedmioty", link: "/lessons" },
-							{ name: "Klasa - przedmioty", link: "/class/lessons" },
+							{ name: "Zajęcia", link: "/class/lessons" },
 						]}
 					/>
 					<SidebarItem name="Klasy" icon={<Squares2X2Icon className="h-5 w-5" />} link="/class" />

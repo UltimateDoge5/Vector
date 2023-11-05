@@ -2,7 +2,7 @@ import { SignIn } from "@clerk/nextjs";
 import "~/styles/globals.css";
 
 export const metadata = {
-	title: "Sign in | miniature-pancake",
+	title: "Zaloguj się | Vector",
 };
 
 // This page really likes to avoid tailwind styles, so I have to use inline styles.
