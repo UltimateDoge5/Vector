@@ -7,8 +7,8 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 
 export async function PUT(req: NextRequest) {
-	// const user = await currentUser();
-	// if (!isTeacher(user)) return new Response(null, { status: 403 })
+	const user = await currentUser();
+	if (!isTeacher(user)) return new Response(null, { status: 403 })
 
 	const body = await req.json() as unknown;
 

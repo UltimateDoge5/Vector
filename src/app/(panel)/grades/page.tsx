@@ -146,7 +146,7 @@ const getDataForTeacher = async (userId: string) => {
 				grades: gd.grades.map((g) => ({ ...g, studentId: g.studentId })),
 			})),
 		})),
-		className: lessonGroups?.[0]?.class[0]?.name ?? "Brak nazwy",
+		className: lessonGroups?.[0]?.class.name ?? "Brak nazwy",
 		students,
 	};
 };

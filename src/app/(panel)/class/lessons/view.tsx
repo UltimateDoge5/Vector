@@ -39,7 +39,7 @@ export default function LessonGroupsView({ lessonGroups, selectedClass, lessons,
             lessonId
         }
 
-        const ref = toast("Dodawanie przemiotu do klasy", { autoClose: false, isLoading: true });
+        const ref = toast("Dodawanie przedmiotu do klasy", { autoClose: false, isLoading: true });
         const response = await fetch("/class/lessons/api", {
             method: "POST",
             body: JSON.stringify(payload)
@@ -63,7 +63,7 @@ export default function LessonGroupsView({ lessonGroups, selectedClass, lessons,
             lessonId
         }
 
-        const ref = toast("Edytowanie przemiotu w klasie", { autoClose: false, isLoading: true });
+        const ref = toast("Edytowanie przedmiotu w klasie", { autoClose: false, isLoading: true });
         const response = await fetch("/class//lessons/api", {
             method: "PUT",
             body: JSON.stringify(payload)
@@ -75,14 +75,14 @@ export default function LessonGroupsView({ lessonGroups, selectedClass, lessons,
             const searchedTeacher = teachers.find(teacher => teacher.id === teacherId)!;
             const searchedLesson = lessons.find(lesson => lesson.id === lessonId)!;
 
-            setLessonGroupsList(lessonGroupsList.map(lessonGroup => lessonGroup.id === editModalState.lessonGroupId ? { ...lessonGroup, teacher: [searchedTeacher], lesson: [searchedLesson] } : lessonGroup));
+            setLessonGroupsList(lessonGroupsList.map(lessonGroup => lessonGroup.id === editModalState.lessonGroupId ? { ...lessonGroup, teacher: searchedTeacher, lesson: searchedLesson } : lessonGroup));
         } else {
             toast.update(ref, { autoClose: 3000, type: "error", isLoading: false, render: "Nie udało się edytować przedmiotu w klasie." });
         }
     }
 
     const deleteLessonGroup = async (lessonGroupId: number) => {
-        const ref = toast("Usuwanie przemiotu z klasy", { autoClose: false, isLoading: true });
+        const ref = toast("Usuwanie przedmiotu z klasy", { autoClose: false, isLoading: true });
         const response = await fetch("/class/lessons/api", {
             method: "DELETE",
             body: JSON.stringify({ id: lessonGroupId })
@@ -101,17 +101,17 @@ export default function LessonGroupsView({ lessonGroups, selectedClass, lessons,
         {
             header: "Klasa",
             accessorKey: "",
-            cell: ({ row }) => <>{row.original.class[0]?.name}</>
+            cell: ({ row }) => <>{row.original.class?.name}</>
         },
         {
             header: "Przedmiot",
             accessorKey: "",
-            cell: ({ row }) => <>{row.original.lesson[0]?.name}</>
+            cell: ({ row }) => <>{row.original.lesson?.name}</>
         },
         {
             header: "Nauczyciel",
             accessorKey: "",
-            cell: ({ row }) => <>{row.original.teacher[0]?.name}</>
+            cell: ({ row }) => <>{row.original.teacher?.name}</>
         },
         {
             header: " ",
@@ -133,7 +133,7 @@ export default function LessonGroupsView({ lessonGroups, selectedClass, lessons,
                         leaveTo="transform opacity-0 scale-95"
                     >
                         <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y z-10 divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                            <div className="px-1 py-1" onClick={() => setEditModalState({ lessonGroupId: row.original.id, lesson: row.original.lesson[0], teacher: row.original.teacher[0], isOpen: true })}>
+                            <div className="px-1 py-1" onClick={() => setEditModalState({ lessonGroupId: row.original.id, lesson: row.original.lesson, teacher: row.original.teacher, isOpen: true })}>
                                 <Menu.Item>
                                     {({ active }) => (
                                         <button
