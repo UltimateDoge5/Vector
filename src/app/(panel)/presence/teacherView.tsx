@@ -119,7 +119,9 @@ export function TeacherPresenceView({
 				<div className="flex items-end justify-between py-4">
 					<div className="flex flex-col gap-1">
 						<h2 className={`mb-1" border-l-4 border-accent pl-2 text-2xl font-bold`}>Obecności dla klasy {className}</h2>
-						<p className="mb-2 text-text/80">Obecności na tydzień od {dates[0]} do {dates[4]}</p>
+						<p className="mb-2 text-text/80">
+							Obecności na tydzień od {dates[0]} do {dates[4]}
+						</p>
 					</div>
 					<div className="flex items-center gap-2">
 						<Link href={`/presence?week=${prev}`}>
@@ -164,7 +166,10 @@ export function TeacherPresenceView({
 										return (
 											<td className="p-1.5 px-1 align-middle" key={day}>
 												<button
-													className={`relative h-full w-full rounded-lg p-2 text-left transition-all`}
+													className={`relative h-full w-full rounded-lg p-2 text-left transition-all ${
+														lesson.exemption.cancelation ? "line-through grayscale" : "hover:saturate-150"
+													}`}
+													disabled={lesson.exemption.cancelation}
 													style={{
 														background: stringToHslColor(lesson.lesson.name!, 80, 80),
 													}}
