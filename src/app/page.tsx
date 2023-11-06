@@ -16,7 +16,7 @@ const poppins = Poppins({
 export default function landingPage() {
 	return (
 		<>
-			<header className="flex h-24 items-center justify-between px-12 py-2">
+			<header className="flex h-24 items-center justify-between px-2 py-2 md:px-12">
 				<Banner className="h-full w-32" />
 
 				<Link href="/dashboard">
@@ -26,23 +26,20 @@ export default function landingPage() {
 					</Button>
 				</Link>
 			</header>
-			<main className="pb-2">
-				<div className="relative ml-12 pb-2">
-					<div className="mt-16 w-3/5">
-						<h1 className={`text-6xl ${poppins.className}`}>
-							Twoja cała szkoła w<br />
-							<span className="gradientText bg-gradient-to-br from-primary to-accent bg-clip-text leading-snug">
-								jednym
-							</span>{" "}
-							miejscu
+			<main className="overflow-x-clip">
+				<div className="relative pb-2 flex px-2 flex-col lg:flex-row gap-6 lg:gap-0">
+					<div className="mx-3 mt-16 w-full md:ml-12 md:w-4/5 lg:w-3/5">
+						<h1 className={`text-5xl md:text-6xl ${poppins.className}`}>
+							Twoja cała szkoła w{" "}
+							<span className="gradientText bg-gradient-to-br from-primary to-accent bg-clip-text ">jednym</span> miejscu
 						</h1>
 
-						<p className="mt-4 w-4/5 text-xl">
+						<p className="mt-4 text-lg md:w-full lg:w-4/5 md:text-xl">
 							Vector to innowacyjny dziennik elektroniczny, który pozwala na zarządzanie szkołą w jednym miejscu. Wszystko,
 							czego potrzebujesz, aby być zorganizowanym w szkole.
 						</p>
 
-						<div className="mt-6 flex items-center gap-2">
+						<div className="mt-6 flex flex-col gap-2 md:flex-row md:items-center">
 							<Link href="/dashboard">
 								<Button className="px-6 py-3 hover:shadow-2xl hover:shadow-primary">
 									<SignedIn>Przejdź do dziennika</SignedIn>
@@ -62,11 +59,10 @@ export default function landingPage() {
 						src={HeroImage}
 						alt="Tabela z planem lekcji"
 						height="500"
-						className="absolute -right-[30%] -top-10 rounded-2xl border shadow-xl"
+						className="rounded-2xl object-left object-cover border shadow-lg transition-all lg:hover:shadow-xl lg:hover:shadow-accent/40 lg:w-3/5 xl:w-4/5"
 					/>
 				</div>
 			</main>
-			<section></section>
 		</>
 	);
 }

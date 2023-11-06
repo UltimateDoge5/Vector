@@ -37,7 +37,7 @@ export function AssignmentView({
 	const AssignmentStatus = () => {
 		const btn = (
 			<Button
-				disabled={isUploading || ((assignment.fileRequired ? !answerFile : false) || !answerText)}
+				disabled={isUploading || (assignment.fileRequired ? !answerFile : false) || (!answerFile && !answerText) }
 				loading={isUploading}
 				onClick={handleSubmit}
 			>
@@ -64,14 +64,36 @@ export function AssignmentView({
 
 	const handleSubmit = async () => {
 		setIsUploading(true);
+		let ref;
+		let fileKey: string | null = null;
 
-		let ref = toast("Wysyłanie zadania", { autoClose: false, isLoading: true });
+		if (answerFile) {
+			try {
+				ref = toast("Wysyłanie załącznika", { autoClose: false, isLoading: true, type: "info" });
+				const uploadRes = await uploadFiles({
+					files: [answerFile],
+					endpoint: "attachment",
+				});
+
+				fileKey = uploadRes[0]!.key;
+			} catch (e) {
+				setIsUploading(false);
+				//eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+				return toast.update(ref!, { autoClose: 3000, type: "error", isLoading: false, render: "Nie udało się wysłać zadania." });
+			}
+
+			toast.update(ref, { autoClose: 3000, isLoading: false, type: "success", render: "Plik został wysłany" });
+		}
+
+		ref = toast("Wysyłanie zadania", { autoClose: false, isLoading: true });
+
 		const res = await fetch(`/assignments/submit`, {
 			method: "POST",
 			body: JSON.stringify({
 				assignmentId: assignment.id,
 				studentId: studentId,
 				content: answerText,
+				attachment: fileKey,
 			}),
 		});
 
@@ -83,31 +105,11 @@ export function AssignmentView({
 		const { id } = (await res.json()) as { id: string };
 
 		toast.update(ref, { render: "Zadanie wysłane", isLoading: false, type: "success", autoClose: 3000 });
-		if (!answerFile) return setIsUploading(false);
 
-		ref = toast("Wysyłanie załącznika", { autoClose: false, isLoading: true, type: "info" });
-		let filename = "";
-
-		try {
-			const uploadRes = await uploadFiles({
-				files: [answerFile],
-				endpoint: "attachment",
-				input: {
-					submissionId: parseInt(id),
-				},
-			});
-
-			filename = uploadRes[0]!.key;
-		} catch (e) {
-			setIsUploading(false);
-			return toast.update(ref, { autoClose: 3000, type: "error", isLoading: false, render: "Nie udało się wysłać zadania." });
-		}
-
-		toast.update(ref, { autoClose: 3000, isLoading: false, type: "success", render: "Plik został wysłany" });
 		setIsUploading(false);
 		setSubmission({
 			id: parseInt(id),
-			attachment: filename,
+			attachment: fileKey,
 			content: answerText,
 			sentAt: new Date(),
 			graded: false,

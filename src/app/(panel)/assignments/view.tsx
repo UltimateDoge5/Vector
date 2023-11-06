@@ -49,7 +49,7 @@ export function AssignmentsListView({ assignments, submissions }: { assignments:
 									<span className="font-light">{assignment.dueDate.getFullYear()}</span>
 								</div>
 							</div>
-							<div className="w-3/5">
+							<div className="w-5/6">
 								<h3 className="text-xl font-medium">{assignment.name}</h3>
 								<p className="text-ellipsis text-text/80">{assignment.description}</p>
 							</div>

@@ -22,7 +22,7 @@ export const DataTable = <TData, TValue>({
 			<div className="flex items-end justify-between py-4">
 				<div className="flex flex-col gap-1">
 					<h2 className="border-l-4 border-accent pl-2 text-2xl font-bold">{title}</h2>
-					{description && <p className="font-light text-text/80">{description}</p>}
+					{description && <p className="font-light text-text/80 w-3/4">{description}</p>}
 				</div>
 				{primaryActionBtn && <>{primaryActionBtn}</>}
 			</div>)}

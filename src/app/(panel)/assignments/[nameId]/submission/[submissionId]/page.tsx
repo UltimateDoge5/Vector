@@ -32,7 +32,7 @@ export default async function Page({ params }: { params: { nameId: string; submi
 
 	if (!submission) return <h1>Takie zadanie ucznia nie istnieje</h1>;
 
-	const studentName = params.submissionId.replaceAll("-", " ").slice(0, -1 * submissionId.length - 1);
+	const studentName = decodeURI(params.submissionId.replaceAll("-", " ").slice(0, -1 * submissionId.length - 1));
 
 	return <StudentsSubmissionView assignment={assignment} submission={submission} studentName={studentName} />;
 }

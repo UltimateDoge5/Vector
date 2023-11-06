@@ -19,6 +19,7 @@
     "@planetscale/database": "^1.11.0",
     "@t3-oss/env-nextjs": "^0.7.1",
     "@tanstack/react-table": "^8.10.7",
+    "@uploadthing/mime-types": "^0.2.2",
     "@uploadthing/react": "^5.7.0",
     "dayjs": "^1.11.10",
     "drizzle-orm": "^0.28.6",
