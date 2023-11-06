@@ -21,7 +21,7 @@ export async function Sidebar() {
 	return (
 		<aside className="w-60 px-5">
 			<div className="flex flex-col gap-y-1">
-				<SidebarItem name="Home" icon={<HomeIcon className="h-5 w-5" />} link="/" />
+				<SidebarItem name="Home" icon={<HomeIcon className="h-5 w-5" />} link="/dashboard" />
 				<SidebarItem name="Oceny" icon={<AcademicCapIcon className="h-5 w-5" />} link="/grades" />
 				<SidebarItem name="Frekwencja" icon={<CheckBadgeIcon className="h-5 w-5" />} link="/presence" />
 				<SidebarItem name="Plan zajęć" icon={<TableCellsIcon className="h-5 w-5" />} link="/schedule" />

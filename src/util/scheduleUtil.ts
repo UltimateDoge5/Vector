@@ -62,7 +62,6 @@ export function mapWithPresence(schedule: IPresence[], exemptions: IExemption[],
 				};
 				break;
 			case "cancelation": {
-				console.log(exemption);
 				const index = schedule.findIndex((scheduleItem) => scheduleItem.id === exemption.scheduleId);
 				schedule[index]!.exemption.cancelation = true;
 				schedule[index]!.exemption.isExemption = true;

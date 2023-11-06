@@ -19,7 +19,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 					<div className="flex items-center gap-2">
 						{isTeacher(user) ? (
 							<>
-								<Link href="/">
+								<Link href="/dashboard">
 									<Logo className="h-10 w-10" />
 								</Link>
 								{"/"}
@@ -28,7 +28,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 								</Suspense>
 							</>
 						) : (
-							<Link href="/">
+							<Link href="/dashboard">
 								<Banner className="h-10 w-28" />
 							</Link>
 						)}

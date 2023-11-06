@@ -17,6 +17,9 @@ export const metadata: Metadata = {
 		type: "website",
 		images: ["/banner.png"],
 	},
+	robots: {
+		index: false,
+	},
 };
 
 const inter = Inter({
@@ -28,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 	return (
 		<ClerkProvider
 			localization={plPL}
+			afterSignInUrl="/dashboard"
 			appearance={{
 				variables: {
 					colorPrimary: "#91cfed",
