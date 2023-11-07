@@ -18,7 +18,6 @@ export default function landingPage() {
 		<>
 			<header className="flex h-24 items-center justify-between px-2 py-2 md:px-12">
 				<Banner className="h-full w-32" />
-
 				<Link href="/dashboard">
 					<Button>
 						<SignedIn>Przejdź do dziennika</SignedIn>
@@ -27,7 +26,7 @@ export default function landingPage() {
 				</Link>
 			</header>
 			<main className="overflow-x-clip">
-				<div className="relative pb-2 flex px-2 flex-col lg:flex-row gap-6 lg:gap-0">
+				<div className="flex px-2 md:pr-0 flex-col lg:flex-row gap-6 lg:gap-0">
 					<div className="mx-3 mt-16 w-full md:ml-12 md:w-4/5 lg:w-3/5">
 						<h1 className={`text-5xl md:text-6xl ${poppins.className}`}>
 							Twoja cała szkoła w{" "}
@@ -59,7 +58,7 @@ export default function landingPage() {
 						src={HeroImage}
 						alt="Tabela z planem lekcji"
 						height="500"
-						className="rounded-2xl object-left object-cover border shadow-lg transition-all lg:hover:shadow-xl lg:hover:shadow-accent/40 lg:w-3/5 xl:w-4/5"
+						className="translate-y-8 rounded-2xl md:rounded-r-none object-left object-cover border shadow-lg transition-all lg:hover:shadow-xl lg:hover:shadow-accent/40 lg:w-3/5 xl:w-4/5"
 					/>
 				</div>
 			</main>

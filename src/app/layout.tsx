@@ -2,7 +2,9 @@ import { plPL } from "@clerk/localizations";
 import { ClerkProvider } from "@clerk/nextjs";
 import { type Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Analytics } from '@vercel/analytics/react';
 import "../styles/globals.css";
+import React from "react";
 
 export const metadata: Metadata = {
 	metadataBase: new URL("https://vector.pkozak.org"),
@@ -42,6 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 			<html lang="pl">
 				<body className={`font-sans ${inter.variable} h-[100svh]`}>{children}</body>
 			</html>
+			 <Analytics />
 		</ClerkProvider>
 	);
 }

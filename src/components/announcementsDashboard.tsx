@@ -13,14 +13,14 @@ export default function AnnouncementsDashboard({ announcements }: { announcement
 				
 				<div className="overflow-auto flex w-full flex-col gap-2 ">
 				
-				{announcements.map((annnouncementItem) => (
-					<Disclosure key={annnouncementItem.id}>
+				{announcements.map((announcementItem) => (
+					<Disclosure key={announcementItem.id}>
 						{({ open }) => (
 							<>
 								<Disclosure.Button className="flex w-full justify-between rounded-lg bg-secondary/80 px-4 py-2 text-left text-sm font-medium hover:bg-secondary focus:outline-none">
 									<div className="flex w-full flex-row justify-between pr-7">
-										<span className="text-ellipsis">{annnouncementItem.name}</span>
-										<span className="font-light">{dateFormat.format(annnouncementItem.date)}</span>
+										<span className="text-ellipsis">{announcementItem.name}</span>
+										<span className="font-light">{dateFormat.format(announcementItem.date)}</span>
 									</div>
 									<ChevronUpIcon className={`${open ? "rotate-180 transform" : ""} h-5 w-5 font-extrabold text-accent`} />
 								</Disclosure.Button>
@@ -33,7 +33,7 @@ export default function AnnouncementsDashboard({ announcements }: { announcement
 									leaveTo="opacity-0"
 								>
 									<Disclosure.Panel className="px-4 py-2 text-sm text-text">
-										{annnouncementItem.description}
+										{announcementItem.description}
 									</Disclosure.Panel>
 								</Transition>
 							</>
