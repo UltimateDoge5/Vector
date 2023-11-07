@@ -88,7 +88,7 @@ export default function AddClassModal({ teachers, isOpen, setIsOpen }: Props) {
 					}}
 				>
 					<div className="relative m-auto mt-2 w-full">
-						<Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-accent/10 p-4 text-left focus:outline-none sm:text-base">
+						<Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-accent/10 p-2 text-left focus:outline-none sm:text-base">
 							<span className="block truncate">{formData.teacherName}</span>
 							<span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
 								<ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
