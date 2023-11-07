@@ -173,12 +173,12 @@ export function ScheduleView({
 
 														// If block is 1 in height
 														if (block.from === block.to) {
-															const dissmisal = dismissedLessons.find(
+															const dismissal = dismissedLessons.find(
 																(dissmisal) => dissmisal.scheduleId === block.id,
 															);
 
 															// TODO: check if its already past the lesson time
-															if (dissmisal) {
+															if (dismissal) {
 																setDismissedLessons(
 																	dismissedLessons.filter(
 																		(dissmisal) => dissmisal.scheduleId !== block.id,

@@ -29,7 +29,7 @@ export default async function SchedulePage({ searchParams }: { searchParams: { w
 				lesson: schedule.lesson,
 				with: isTeacher ? "Klasa " + schedule.class!.name : schedule.teacher!.name,
 				exemption: {
-					id: -1,
+					id: null,
 					isExemption: false,
 					cancelation: false,
 					reason: "",

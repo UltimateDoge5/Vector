@@ -41,7 +41,6 @@ export async function POST(req: NextRequest) {
 	}
 
 	// TODO: Send request to the teacher
-	// TODO: Sent the exact date
 	await Promise.allSettled(
 		data.dismissals.map(async (dismission) => {
 			await db.insert(Presence).values({
