@@ -9,8 +9,8 @@ const isAdminPath = (path: string) => {
 };
 
 export default authMiddleware({
-	publicRoutes: ["/api/uploadthing"],
-	afterAuth(auth, req, evt) {
+	publicRoutes: ["/","/api/uploadthing"],
+	afterAuth(auth, req) {
 		if (!auth.userId && !auth.isPublicRoute) {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return redirectToSignIn({ returnBackUrl: req.url });

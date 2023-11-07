@@ -1,9 +1,14 @@
 import { currentUser } from "@clerk/nextjs";
+import { type Metadata } from "next";
 import { Suspense } from "react";
 import AnnouncementsDashboard from "~/components/announcementsDashboard";
 import GradesDashboard from "~/components/gradesDashboard";
 import { db } from "~/server/db";
 import { isTeacher as isTeacherCheck } from "~/util/authUtil";
+
+export const metadata: Metadata = {
+	title: "Home | Vector",
+};
 
 export default async function HomePage() {
 	const user = await currentUser();
@@ -12,25 +17,25 @@ export default async function HomePage() {
 	const { announcements, student } = await getAnnouncements(user!.id);
 
 	if (isTeacher) {
-		const announcementsTeacher = announcements.map((ads) => ads).filter((ads) => ads.recipients?.teachers === true);
+		const announcementsTeacher = announcements.map((a) => a).filter((ads) => ads.recipients?.teachers === true);
 
 		return (
 			<>
 				<h2 className="mb-3 border-l-4 border-accent pl-2 text-2xl font-bold">Podsumowanie</h2>
 				<div className="grid grid-cols-2 p-10">
-				<Suspense fallback={<p>Ładowanie...</p>}>
-					<AnnouncementsDashboard announcements={announcementsTeacher} />
-				</Suspense>
-			</div>
+					<Suspense fallback={<p>Ładowanie...</p>}>
+						<AnnouncementsDashboard announcements={announcementsTeacher} />
+					</Suspense>
+				</div>
 			</>
 		);
 	}
 	const grades = await getGrades(user!.id);
 
 	const filteredAnnouncements = announcements
-		.map((ads) => ads)
-		.filter((ads) => ads.recipients!.classes.includes(student!.classId))
-		.slice(0, 3)
+		.map((a) => a)
+		.filter((a) => a.recipients!.classes.includes(student!.classId))
+		.slice(0, 3);
 
 	return (
 		<>
@@ -64,6 +69,7 @@ const getGrades = async (userId: string) => {
 	const student = await db.query.Student.findFirst({
 		where: (student, { eq }) => eq(student.userId, userId),
 	});
+
 	const date = new Date();
 
 	return (
@@ -76,10 +82,15 @@ const getGrades = async (userId: string) => {
 			with: {
 				gradeDefinition: {
 					with: {
-						lesson: {
-							columns: {
-								name: true,
+						lessonGroup: {
+							with: {
+								lesson: {
+									columns: {
+										name: true,
+									},
+								},
 							},
+							columns: {},
 						},
 					},
 					columns: {
@@ -101,7 +112,7 @@ const getGrades = async (userId: string) => {
 		value: grade.grade,
 		description: grade.description,
 		weight: grade.gradeDefinition.weight,
-		lesson: grade.gradeDefinition.lesson.name,
+		lesson: grade.gradeDefinition!.lessonGroup!.lesson!.name,
 		timestamp: grade.timestamp,
 	}));
 };

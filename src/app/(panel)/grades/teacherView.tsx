@@ -32,7 +32,7 @@ export function TeacherGradeView({
 	const [editedCell, setEditedCell] = useState<[number, number] | null>(null); // [defId, studentId]
 	const [modalMode, setModalMode] = useState<"def" | "desc" | "">("");
 	const [changes, setChanges] = useState<IChange[]>([]);
-	const [isLoading, setIsLoading] = useState(false);
+	const [isLoading, setIsLoading] = useState<"" | "column" | "grades">("");
 
 	const [modalData, setModalData] = useReducer((state: ModalData, newState: Partial<ModalData>) => ({ ...state, ...newState }), {
 		name: "",
@@ -53,13 +53,13 @@ export function TeacherGradeView({
 	}, [selectedLessonName]);
 
 	const saveChanges = async () => {
-		setIsLoading(true);
+		setIsLoading("grades");
 		const res = await fetch("/grades/api/grade", {
 			method: "PUT",
 			body: JSON.stringify(changes),
 		});
 
-		setIsLoading(false);
+		setIsLoading("");
 
 		if (!res.ok) {
 			toast("Wystąpił błąd podczas zapisywania zmian!", { type: "error" });
@@ -88,6 +88,8 @@ export function TeacherGradeView({
 					</div>
 					<Button
 						icon={<PlusIcon className="h-5 w-5" />}
+						loading={isLoading === "column"}
+						disabled={isLoading === "column"}
 						onClick={() => {
 							setModalData({ name: "", weight: 1 });
 							setModalMode("def");
@@ -125,7 +127,7 @@ export function TeacherGradeView({
 				)}
 				<table>
 					<colgroup>
-						<col className="min-w-[96px] max-w-[192px]" />
+						<col className="w-[240px]" />
 						{selectedLesson.gradeDefinitions.map((g) => (
 							<col key={g.name} className="min-w-[144px] max-w-xs" />
 						))}
@@ -163,7 +165,11 @@ export function TeacherGradeView({
 													<input
 														autoFocus
 														type="number"
+														name="ColumnName"
 														defaultValue={grade?.value}
+														max={6}
+														min={1}
+														autoComplete="off"
 														className="h-full w-24 rounded p-1 text-center"
 														onKeyDown={(e) => {
 															if (e.key === "Escape") setEditedCell(null);
@@ -275,7 +281,7 @@ export function TeacherGradeView({
 															leaveFrom="transform opacity-100 scale-100"
 															leaveTo="transform opacity-0 scale-95"
 														>
-															<Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+															<Menu.Items className="absolute z-10 right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
 																<div className="px-1 py-1 ">
 																	<Menu.Item>
 																		{({ active }) => (
@@ -295,8 +301,8 @@ export function TeacherGradeView({
 																			>
 																				<PencilIcon className="mr-2 h-5 w-5" aria-hidden="true" />
 																				{grade?.description === null
-																					? "Add description"
-																					: "Edit description"}
+																					? "Dodaj opis"
+																					: "Edytuj opis"}
 																			</button>
 																		)}
 																	</Menu.Item>
@@ -334,7 +340,7 @@ export function TeacherGradeView({
 																				}}
 																			>
 																				<TrashIcon className="mr-2 h-5 w-5" aria-hidden="true" />
-																				Delete
+																				Usuń
 																			</button>
 																		)}
 																	</Menu.Item>
@@ -354,7 +360,7 @@ export function TeacherGradeView({
 			</div>
 			<Transition
 				as={Fragment}
-				show={changes.length > 0 || isLoading}
+				show={changes.length > 0 || isLoading === "grades"}
 				enter="transition ease-out duration-200"
 				enterFrom="opacity-0"
 				enterTo="opacity-100"
@@ -371,7 +377,7 @@ export function TeacherGradeView({
 					</h3>
 					<div className="flex items-center justify-center gap-2">
 						<Button
-							disabled={isLoading}
+							disabled={isLoading === "grades"}
 							className="bg-white text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-200"
 							onClick={() => {
 								setChanges([]);
@@ -384,8 +390,8 @@ export function TeacherGradeView({
 							Cofnij
 						</Button>
 						<Button
-							loading={isLoading}
-							disabled={isLoading}
+							loading={isLoading === "grades"}
+							disabled={isLoading === "grades"}
 							className="rounded-lg bg-primary px-4 py-2 text-text disabled:cursor-not-allowed disabled:opacity-50"
 							onClick={saveChanges}
 						>
@@ -404,12 +410,12 @@ export function TeacherGradeView({
 				colors={{
 					button: "bg-primary hover:bg-primary/[0.8] text-text",
 				}}
-				loading={isLoading}
+				loading={isLoading === "column"}
 				icon={false}
 				titleClassName="text-2xl"
 				confirmDisabled={!modalData.name || modalData.name.length < 3 || !modalData.weight || modalData.weight < 1}
 				onConfirm={async () => {
-					setIsLoading(true);
+					setIsLoading("column");
 					const res = await fetch("/grades/api/gradeDef", {
 						method: "POST",
 						body: JSON.stringify({
@@ -419,7 +425,7 @@ export function TeacherGradeView({
 						}),
 					});
 
-					setIsLoading(false);
+					setIsLoading("");
 
 					if (!res.ok) {
 						toast("Wystąpił błąd podczas dodawania kolumny!", { type: "error" });
@@ -485,7 +491,6 @@ export function TeacherGradeView({
 						});
 						// Grade always exists, so we don't need to check for it
 						setGrades((grades) => {
-							console.log(grades[selectedLessonName]![modalData.studentId]);
 							grades[selectedLessonName]![modalData.studentId]!.find((g) => g.name === modalData.name)!.description =
 								modalData.description!;
 							return { ...grades };

@@ -21,14 +21,14 @@ export async function Sidebar() {
 	return (
 		<aside className="w-60 px-5">
 			<div className="flex flex-col gap-y-1">
-				<SidebarItem name="Home" icon={<HomeIcon className="h-5 w-5" />} link="/" />
+				<SidebarItem name="Home" icon={<HomeIcon className="h-5 w-5" />} link="/dashboard" />
 				<SidebarItem name="Oceny" icon={<AcademicCapIcon className="h-5 w-5" />} link="/grades" />
 				<SidebarItem name="Frekwencja" icon={<CheckBadgeIcon className="h-5 w-5" />} link="/presence" />
 				<SidebarItem name="Plan zajęć" icon={<TableCellsIcon className="h-5 w-5" />} link="/schedule" />
 				<SidebarItem name="Zadania" icon={<PencilSquareIcon className="h-5 w-5" />} link="/assignments" />
 			</div>
 			{isAdmin(user) && (
-				<div className="mt-2 flex flex-col gap-y-1 border-t-2 pt-2">
+				<div className="flex flex-col border-t mt-1">
 					<DisclosureButton
 						name="Użytkownicy"
 						icon={<UsersIcon className="h-5 w-5" />}
@@ -38,11 +38,11 @@ export async function Sidebar() {
 						]}
 					/>
 					<DisclosureButton
-						name="Przedmioty"
+						name="Lekcje"
 						icon={<BookOpenIcon className="h-5 w-5" />}
 						subNames={[
 							{ name: "Przedmioty", link: "/lessons" },
-							{ name: "Klasa - przedmioty", link: "/class/lessons" },
+							{ name: "Zajęcia", link: "/class/lessons" },
 						]}
 					/>
 					<SidebarItem name="Klasy" icon={<Squares2X2Icon className="h-5 w-5" />} link="/class" />

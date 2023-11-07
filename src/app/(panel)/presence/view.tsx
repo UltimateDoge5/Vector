@@ -117,7 +117,7 @@ export function PresenceView({ presence: presenceInit, weekDate }: { presence: I
 						onClick={() => excuseLessons(lessonsToExcuse)}
 						icon={<PencilSquareIcon className="h-5 w-5" />}
 					>
-						Usprawiedliw nieobecnośći
+						Usprawiedliw nieobecności
 					</Button>
 				</div>
 				<div className="flex items-center gap-2">

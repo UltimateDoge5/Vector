@@ -5,7 +5,7 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/outline";
 import { usePathname } from "next/navigation";
 import { Fragment, useEffect, useState } from "react";
 
-const urlsToRefresh = ["/grades", "/presence", "/schedule", "/assignments", "/class/lessons"];
+const urlsToRefresh = ["/grades", "/presence", "/assignments", "/class/lessons"];
 
 export default function ClassSelector({ classes, selectedClassId }: { classes: { name: string; id: number }[]; selectedClassId: number }) {
 	const [selectedClass, setSelectedClass] = useState(classes.find((c) => c.id === selectedClassId)!);
@@ -32,7 +32,7 @@ export default function ClassSelector({ classes, selectedClassId }: { classes: {
 	return (
 		<Combobox value={selectedClass} onChange={(v) => updateCookie(v.id)}>
 			<div className="relative">
-				<div className="relative w-full cursor-default overflow-hidden rounded-lg bg-white/80 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
+				<div className="relative w-full cursor-default overflow-hidden rounded-lg bg-white/80 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
 					<Combobox.Input
 						className="w-full border-none bg-accent/10 py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
 						displayValue={(classObj: typeof selectedClass) => `Klasa ${classObj.name}`}

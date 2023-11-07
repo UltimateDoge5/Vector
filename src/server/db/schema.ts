@@ -149,9 +149,18 @@ export const classRelations = relations(Class, ({ many, one }) => ({
 }));
 
 export const lessonGroupRelations = relations(LessonGroup, ({ many, one }) => ({
-	lesson: many(Lesson),
-	class: many(Class),
-	teacher: many(Teacher),
+	lesson: one(Lesson, {
+		fields: [LessonGroup.lessonId],
+		references: [Lesson.id],
+	}),
+	class: one(Class, {
+		fields: [LessonGroup.classId],
+		references: [Class.id],
+	}),
+	teacher: one(Teacher, {
+		fields: [LessonGroup.teacherId],
+		references: [Teacher.id],
+	}),
 	gradeDefinitions: many(GradeDefinition),
 }));
 
@@ -185,12 +194,9 @@ export const scheduleRelations = relations(Schedule, ({ one, many }) => ({
 	exemptions: many(Exemptions),
 }));
 
-export const lessonRelations = relations(Lesson, ({ many, one }) => ({
+export const lessonRelations = relations(Lesson, ({ many }) => ({
 	schedule: many(Schedule),
-	lessonGroup: one(LessonGroup, {
-		fields: [Lesson.id],
-		references: [LessonGroup.lessonId],
-	}),
+	lessonGroup: many(LessonGroup),
 }));
 
 export const gradeRelations = relations(Grade, ({ one }) => ({
@@ -205,10 +211,6 @@ export const gradeRelations = relations(Grade, ({ one }) => ({
 }));
 
 export const gradeDefinitionRelations = relations(GradeDefinition, ({ one, many }) => ({
-	lesson: one(Lesson, {
-		fields: [GradeDefinition.lessonGroupId],
-		references: [Lesson.id],
-	}),
 	grades: many(Grade),
 	lessonGroup: one(LessonGroup, {
 		fields: [GradeDefinition.lessonGroupId],
@@ -227,7 +229,7 @@ export const presenceRelations = relations(Presence, ({ one }) => ({
 	}),
 }));
 
-export const assignmentsRelations = relations(Assignment, ({ one,many }) => ({
+export const assignmentRelations = relations(Assignment, ({ one, many }) => ({
 	class: one(Class, {
 		fields: [Assignment.classId],
 		references: [Class.id],
@@ -236,7 +238,7 @@ export const assignmentsRelations = relations(Assignment, ({ one,many }) => ({
 		fields: [Assignment.teacherId],
 		references: [Teacher.id],
 	}),
-	sentAssignments: many(Submission)
+	sentAssignments: many(Submission),
 }));
 
 export const exemptionsRelations = relations(Exemptions, ({ one }) => ({

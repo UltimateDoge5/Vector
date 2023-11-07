@@ -12,9 +12,8 @@ import { DataTable } from "~/components/dataTable";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Input } from "~/components/ui/input";
 import { ActionModal } from "~/components/ui/modal";
-import dayjs from "dayjs";
-import { ModalAssignment } from "../teacherView";
-import { Assignment } from "~/server/db/schema";
+import { type ModalAssignment } from "../teacherView";
+import { type Assignment } from "~/server/db/schema";
 
 const columns: ColumnDef<TableItem>[] = [
 	{

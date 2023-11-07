@@ -1,9 +1,14 @@
+import { type Metadata } from "next";
 import { db } from "~/server/db";
 import { type LessonGroupDto, type ClassDto, type TeacherDto, type LessonDto } from "~/types/dtos";
 import { getSelectedClass } from "~/util/authUtil";
 import LessonGroupsView from "./view";
 
 export const runtime = "edge";
+
+export const metadata: Metadata = {
+	title: "Zajęcia | Vector",
+};
 
 export default async function Page() {
 	const selectedClassId = getSelectedClass();

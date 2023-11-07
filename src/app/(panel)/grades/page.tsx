@@ -9,11 +9,17 @@ import GradesView from "./view";
 export const runtime = "edge";
 
 export const metadata: Metadata = {
-	title: "Dziennik Vector | Oceny",
+	title: "Oceny | Vector",
 	description: "Oceny uczniów",
 };
 
-export default async function Grades({ searchParams }: { searchParams: { lesson?: string } }) {
+export default async function Grades({
+	searchParams,
+}: {
+	searchParams: {
+		lesson?: string;
+	};
+}) {
 	const user = await currentUser();
 
 	if (isTeacher(user)) {
@@ -48,16 +54,21 @@ const getDataForStudent = async (userId: string) => {
 		},
 	}))!;
 
-	const grades = (
+	return (
 		await db.query.Grade.findMany({
 			where: (g, { eq }) => eq(g.studentId, id),
 			with: {
 				gradeDefinition: {
 					with: {
-						lesson: {
-							columns: {
-								name: true,
+						lessonGroup: {
+							with: {
+								lesson: {
+									columns: {
+										name: true,
+									},
+								},
 							},
+							columns: {},
 						},
 					},
 					columns: {
@@ -79,11 +90,9 @@ const getDataForStudent = async (userId: string) => {
 		value: grade.grade,
 		description: grade.description,
 		weight: grade.gradeDefinition.weight,
-		lesson: grade.gradeDefinition.lesson.name,
+		lesson: grade.gradeDefinition!.lessonGroup!.lesson!.name,
 		timestamp: grade.timestamp,
 	}));
-
-	return grades;
 };
 
 const getDataForTeacher = async (userId: string) => {
@@ -129,7 +138,7 @@ const getDataForTeacher = async (userId: string) => {
 	return {
 		lessons: lessonGroups.map((lg) => ({
 			id: lg.id,
-			name: lg.lesson[0]!.name,
+			name: lg.lesson.name,
 			gradeDefinitions: lg.gradeDefinitions.map((gd) => ({
 				id: gd.id,
 				name: gd.name,
@@ -137,7 +146,7 @@ const getDataForTeacher = async (userId: string) => {
 				grades: gd.grades.map((g) => ({ ...g, studentId: g.studentId })),
 			})),
 		})),
-		className: lessonGroups?.[0]?.class[0]?.name ?? "Brak nazwy",
+		className: lessonGroups?.[0]?.class.name ?? "Brak nazwy",
 		students,
 	};
 };
@@ -181,7 +190,9 @@ export interface ILesson {
 		id: number;
 		name: string;
 		weight: number;
-		grades: (typeof Grade.$inferSelect & { studentId: number })[];
+		grades: (typeof Grade.$inferSelect & {
+			studentId: number;
+		})[];
 	}[];
 }
 

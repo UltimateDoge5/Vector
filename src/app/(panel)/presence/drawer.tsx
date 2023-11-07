@@ -104,7 +104,7 @@ const PresenceListbox = ({ status, onStatusChange }: { status: PresenceStatus; o
 	return (
 		<Listbox value={status} onChange={(v) => onStatusChange(v)}>
 			<div className="relative">
-				<Listbox.Button className="relative flex w-full min-w-[256px] cursor-default items-center gap-2 rounded-lg bg-white py-2 pl-3  text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary sm:text-sm">
+				<Listbox.Button className="relative flex w-full min-w-[256px] cursor-default items-center gap-2 rounded-lg bg-white py-2 pl-3 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary sm:text-sm">
 					<div className={`h-4 w-4 rounded-md ${PresenceLegend[status].color}`} />
 					<span className="block truncate">{PresenceLegend[status].text}</span>
 					<span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">

@@ -9,15 +9,15 @@ export async function POST(req: NextRequest) {
 	const schema = z.object({
 		assignmentId: z.number(),
 		studentId: z.number(),
-		content: z.string(),
+		content: z.string().nullable(),
+		attachment: z.string().nullable(),
 	});
 
 	const parsed = schema.safeParse(body);
 	if (!parsed.success) return NextResponse.json(parsed.error, { status: 400 });
 
 	const res = await db.insert(Submission).values({
-		...parsed.data,
-		attachment: null,
+		...parsed.data
 	});
 
 	return NextResponse.json({ id: res.insertId }, { status: 201 });

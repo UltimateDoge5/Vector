@@ -9,7 +9,7 @@ import { eq, sql } from "drizzle-orm";
 
 export const runtime = "edge";
 export const metadata = {
-	title: "Zadania | Dziennik Vector",
+	title: "Zadania | Vector",
 } satisfies Metadata;
 
 export default async function AssignmentsPage() {
@@ -31,7 +31,7 @@ export default async function AssignmentsPage() {
 
 		const className = await db.query.Class.findFirst({
 			where: (c, { eq }) => eq(c.id, classId),
-			columns:{
+			columns: {
 				name: true,
 			}
 		})
@@ -44,7 +44,7 @@ export default async function AssignmentsPage() {
 			.groupBy(Submission.assignmentId);
 
 		const classSize = await db
-			.select({ count: sql<number>`count(*)`})
+			.select({ count: sql<number>`count(*)` })
 			.from(Student)
 			.where(eq(Student.classId, classId));
 

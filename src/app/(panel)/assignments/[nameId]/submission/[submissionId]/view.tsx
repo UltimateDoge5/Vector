@@ -16,8 +16,8 @@ export function StudentsSubmissionView({
 	studentName: string;
 }) {
 	const [graded, setGraded] = useState(submission.graded ?? false);
-	const isAttachmentImage =
-		submission?.attachment?.endsWith(".png") || submission?.attachment?.endsWith(".jpg") || submission?.attachment?.endsWith(".jpeg");
+	const isAttachmentImage = // This variable is only used when the submission has an attachment
+		submission.attachment!.endsWith(".png") || submission.attachment!.endsWith(".jpg") || submission.attachment!.endsWith(".jpeg");
 
 	const updateGrading = async () => {
 		await fetch(`/assignments/graded`, {
@@ -114,4 +114,8 @@ export function StudentsSubmissionView({
 	);
 }
 
-const capitalizeName = (name: string) => name.split(" ").map((s) => s[0]!.toUpperCase() + s.slice(1)).join(" ");
+const capitalizeName = (name: string) =>
+	name
+		.split(" ")
+		.map((s) => s[0]!.toUpperCase() + s.slice(1))
+		.join(" ");

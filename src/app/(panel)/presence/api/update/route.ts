@@ -1,6 +1,6 @@
 import { currentUser } from "@clerk/nextjs";
-import { and, eq, or } from "drizzle-orm";
-import { NextResponse, type NextRequest } from "next/server";
+import { and, eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "~/server/db";
 import { Presence } from "~/server/db/schema";

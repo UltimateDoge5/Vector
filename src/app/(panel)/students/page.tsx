@@ -1,6 +1,12 @@
+import { type Metadata } from "next";
 import StudentsManagement from "~/components/students/studentsManagement";
 import { db } from "~/server/db";
-import { ClassDto, StudentWithClassDto } from "~/types/dtos";
+import { type ClassDto, type StudentWithClassDto } from "~/types/dtos";
+
+export const metadata: Metadata = {
+  title: 'Uczniowie | Vector',
+  description: 'Panel do zarządzania uczniami',
+}
 
 export default async function Page() {
   const students: StudentWithClassDto[] = await db.query.Student.findMany({
