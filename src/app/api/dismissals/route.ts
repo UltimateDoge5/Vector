@@ -11,8 +11,8 @@ export async function POST(req: NextRequest) {
 	const schema = z.object({
 		dismissals: z.array(
 			z.object({
-				scheduleId: z.number(),
-				exceptionId: z.number(),
+				scheduleId: z.number().nullable(),
+				exceptionId: z.number().nullable(),
 			}),
 		),
 		date: z.coerce.date(),
